@@ -1,0 +1,53 @@
+/* investr.less */
+@investr-bkgd: #006666;
+
+body {
+		background-color: white;
+}
+
+#header-container {
+	background: @investr-bkgd;
+
+	#header {
+		padding: 2em;
+		color: white;
+
+		#player-name-container {
+			float: right;
+
+			label {
+				display: inline;
+			}
+
+			#player-name {
+				color: @investr-bkgd;
+				background-color: white;
+			}
+		}
+	}
+}
+
+#site-title {
+	font-size: 200%;
+}
+
+#transaction-pane {
+	background-color: white;
+	color: @investr-bkgd;
+
+
+	table {
+		color: @investr-bkgd;
+
+		thead {
+			tr{
+				font-size: 9px;
+				font-weight: bold;
+			}
+		}
+	}
+}
+
+#securities-selector-pane {
+	background-color: pink;
+}
