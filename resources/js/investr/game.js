@@ -3,10 +3,12 @@
 function Game(game) {
 	var self = this;
 
-	var players = $.map(game.players, function(player) {
+	var otherPlayers = $.map(game.otherPlayers, function(player) {
 		return new Player(player);
 	});
-	self.players = ko.observableArray(players);
+	self.otherPlayers = ko.observableArray(otherPlayers);
+
+	self.player = ko.observable(new Player(game.player));
 
 	var securities = $.map(game.securities, function(s) {
 		return new Security(s);
