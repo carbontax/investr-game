@@ -3,6 +3,10 @@
 
 body {
 	background-color: white;
+
+	select {
+	   width: auto;
+	}
 }
 
 label { display: inline; }
@@ -39,7 +43,7 @@ label { display: inline; }
 	}
 }
 
-#transaction-pane {
+#transactions {
 	background-color: white;
 	color: @investr-bkgd;
 
@@ -56,6 +60,38 @@ label { display: inline; }
 	}
 }
 
-#securities-selector-pane {
+#orders {
+	table {
+		color: @investr-bkgd;
+
+		thead {
+			tr{
+				/*font-size: 9px;*/
+				font-weight: bold;
+			}
+		}
+	}
+
+	input.order-shares { width: 5em;}
+}
+
+
+#portfolio {
+	table {
+		color: @investr-bkgd;
+
+		thead {
+			tr{
+				/*font-size: 9px;*/
+				font-weight: bold;
+			}
+		}
+	}
+}
+
+#securities-pane {
 	background-color: pink;
+	.security-symbol {
+		font-weight: bold;
+	}
 }
