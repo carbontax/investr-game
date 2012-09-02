@@ -4,13 +4,10 @@ function Player(player, game) {
 
 	self.username = player.username;
 	
-	// self.portfolio = ko.observableArray($.map(player.portfolio, function(h) {
-	// 		return new Holding(h, self.game);
-	// }));
-
 	// Build a hash table of currently held shares
 	self.portfolioMap = {};
 	$.each(player.portfolio, function(i, holding) {
+		var dummy = 'foo';
 		self.portfolioMap[holding.symbol] = holding.shares;
 	});
 
@@ -25,40 +22,4 @@ function Player(player, game) {
 	}));
 	
 	self.balance = player.balance;
-
-	// self.addOrder = function(order) {
-	// 	var success = false;
-	// 	$.map(self.portfolio(), function(h) {
-	// 		if ( h.symbol === order.symbol ) {
-	// 			h.shares += order.shares;
-	// 			success = true;
-	// 			break;
-	// 		}
-	// 	});
-	// 	if ( ! success ) {
-	// 		self.portfolio.push(new Holding(order, self.game));
-	// 	}
-	// }
-
-/*	self.lastTxnIdx = function() {
-		return self.transactions() && self.transactions().length ? self.transactions().length - 1 : 0;
-	};
-
-	self.lastTransaction = function() {
-		return self.transactions()[self.lastTxnIdx()];
-	}
-
-	self.balance = ko.computed(function() {
-		return self.lastTransaction().balance;
-	});
-
-	self.marginTotal = ko.computed(function(){
-		return self.lastTransaction().marginTotal;
-	});
-
-	self.netWorth = ko.computed(function() {
-		// TODO
-		return 5000;
-	}); */
-
 }

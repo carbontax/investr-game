@@ -27,7 +27,7 @@ label { display: inline; }
 			font-size: 200%;
 		}
 
-		#player-name-container {
+		#top-menu-container {
 			float: right;
 
 			label {
@@ -41,6 +41,31 @@ label { display: inline; }
 			}
 		}
 	}
+}
+
+#login-container {
+	div {
+		margin: 1em 0;
+	}
+	label {
+		display: inline-block;
+		width: 10em;
+	}
+}
+
+#games-container {
+	table {
+		color: @investr-bkgd;
+
+		thead {
+			tr{
+				/*font-size: 9px;*/
+				font-weight: bold;
+			}
+		}
+	}
+
+	input.order-shares { width: 5em;}
 }
 
 #transactions {

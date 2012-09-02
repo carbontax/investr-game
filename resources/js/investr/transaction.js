@@ -5,41 +5,58 @@ function Transaction(transaction) {
 	self.index = transaction.index || 0;
 	self.year = transaction.year;
 	self.action = transaction.action;
-	self.security = transaction.security;
+	self.symbol = transaction.symbol;
 	self.numShares = transaction.numShares;
 	self.pricePerShare = transaction.pricePerShare;
 	self.amount = transaction.amount;
 	self.income = transaction.income;
 	self.marginAmount = transaction.marginAmount;
-	self.balance = transaction.balance;
+	if ( typeof transaction === "number" ) {
+		// $.map() treats an object with a single property as the value itself
+		self.balance = transaction;
+	} else {
+		self.balance = transaction.balance;
+	}
 	self.marginTotal = transaction.marginTotal;
 
 	self.securityName = ko.computed(function() {
-		return self.security ? self.security.name : "";
+		return self.symbol ? self.symbol : "";
 	});
 
 	self.pricePerShareFmt = ko.computed(function() {
-		return accounting.formatMoney(self.pricePerShare);
+		if (self.pricePerShare) {
+			return accounting.formatMoney(self.pricePerShare);
+		} else {
+			return "";
+		}
 	});
 
 	self.amountFmt = ko.computed(function() {
-		return accounting.formatMoney(self.amount);
+		if ( self.amount ) {
+			return accounting.formatMoney(self.amount);
+		}
 	});
 
 	self.incomeFmt = ko.computed(function() {
-		return accounting.formatMoney(self.income);
+		if ( self.amount ) {
+			return accounting.formatMoney(self.income);
+		}
 	});
 
 	self.marginAmountFmt = ko.computed(function() {
-		return accounting.formatMoney(self.marginAmount);
+		return self.marginAmount ? accounting.formatMoney(self.marginAmount) : "";
 	});
 
 	self.balanceFmt = ko.computed(function() {
-		return accounting.formatMoney(self.balance);
+		if ( self.balance ) {
+			return accounting.formatMoney(self.balance);
+		}
 	});
 
 	self.marginTotalFmt = ko.computed(function() {
-		return accounting.formatMoney(self.marginTotal);
+		if ( self.marginTotal ) {
+			return accounting.formatMoney(self.marginTotal);
+		}
 	});
 
 };

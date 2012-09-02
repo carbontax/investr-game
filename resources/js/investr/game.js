@@ -1,16 +1,19 @@
 
 //function Game(securities, lastYear, players, year) {
-function Game(game, url) {
+function Game(game) {
 	var self = this;
 
-	self.url = url;
-
-/*	self.adjustPrices = function(roll, market) {
-		for ( var index in self.securities() ) {
-			self.securities()[index].adjustPrice(roll, market);
-		}
+	self.id = game.id;
+	self.idFmt = function() {
+		return "Game ID: " + self.id;
 	}
-*/
+
+	self.startDate = game.startDate;
+	self.startDateFmt = ko.computed(function() {
+		// TODO 
+		return self.startDate;
+	});
+
 	self.options = game.options;
 
 	self.securities = ko.observableArray($.map(game.securities, function(s) {
@@ -22,7 +25,7 @@ function Game(game, url) {
 	self.hasNextYear = ko.computed(function() {
 		return self.year() < self.lastYear;
 	});
-	self.yearLabel = ko.computed(function() {
+	self.yearFmt = ko.computed(function() {
 		if ( self.hasNextYear() ) {
 			return "Year " + self.year();
 		} else {
@@ -37,6 +40,18 @@ function Game(game, url) {
 
 	self.player = ko.observable(new Player(game.player, self));
 
+	self.playerCount = ko.computed(function() {
+		return self.otherPlayers().length + 1;
+	});
+
+	self.turn = game.turn;
+	self.turnFmt = ko.computed(function() {
+		if (self.turn) {
+			return "Done";
+		}
+		return "Waiting";
+	});
+
 	// ORDERS 
 	self.orders = ko.observableArray([new Order(this)]);
 
@@ -46,8 +61,8 @@ function Game(game, url) {
 
 	self.sendOrders = function() {
 		var data = ko.toJSON({orders: self.orders}); 
-/*		var data = {orders: "bar"};
-*/		$.ajax(self.url + "/orders", {
+
+		$.ajax("/investr-api/games/" + self.id + "/orders", {
 			type: 'post',
 			contentType: 'application/json',
 			data: data,
@@ -59,17 +74,6 @@ function Game(game, url) {
 			}
 		}); 
 	
-/*		$.ajax(self.url + "/orders", {
-			type: 'post',
-//			contentType: 'application/json',
-			data: {"foo": "bar"},
-			success: function(responseText) {
-				$('messages').append(responseText);
-			},
-			error: function(xhr) {
-				$('#messages').append(xhr.responseText);
-			}
-		}); */
 	}
 
 	self.ordersAccountCash = ko.computed(function() {
