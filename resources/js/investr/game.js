@@ -124,52 +124,25 @@ function Game(game) {
 		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
 	});
 
+
 	self.projectedPortfolio = ko.computed(function() {
-		// This is a hack and it doesn't update anyway. Fix it.
+		var ppList = [];
 		if ( self.player() ) {
-			var p = self.player().portfolio.slice(0); // copy portfolio
-			$.each(self.orders(), function(i, order) {
-				var success = false;
-				if (order && order.security && order.security() && order.security().symbol) {
-					p = $.map(p, function(h) {
-						if ( h.symbol === order.security().symbol) {
-							h.shares += parseInt(order.shares());
-							success = true;
+			ppList = $.map(self.player().portfolio, function(h) {
+				return new Holding({symbol: h.symbol, shares: h.shares}, self);
+			});
+			ko.utils.arrayForEach(self.orders(), function(order) {
+				if (order && order.security() && order.security().symbol) {
+					ppList = $.map(ppList, function(pp) {
+						if ( pp.symbol === order.security().symbol) {
+							pp.shares += order.sharesDelta();
 						}
-						return h;
+						return pp;
 					});
-					// if ( ! success ) {
-					// 	console.log("no success");
-					// 	p.push(new Holding(order, self));
-					// }
 				}
 			});
-			return p;
 		}
-	});
-
-	self.groShares = ko.computed(function() {
-		// var portfolioShares = 0;
-		// if ( self.player() ) {
-		// 	($.map(self.player().portfolio, function(h) {
-		// 		return h.security.symbol == 'GRO';
-		// 	})).shares;
-		// }
-
-		var orderShares = 0;
-		// $.each($.map(self.orders(), function() {
-		// 	return this.security && this.security() && this.security().symbol == 'GRO';
-		// }), function() {
-		// 	orderShares += parseInt(this.shares());
-		// });
-
-		// return parseInt(portfolioShares) + orderShares;
-		ko.utils.arrayForEach(self.orders(), function(order) {
-			if ( order.security() && order.security().symbol === 'GRO' ) {
-				orderShares += Number(order.shares());
-			}
-		});
-		return orderShares;
+		return ppList;
 	});
 
 	self.isMarginEnabled = function() {

@@ -248,7 +248,6 @@
 							</div>
 							<div id="orders-portfolio-container">
 								<h3>PROJECTED PORTFOLIO</h3>
-								<div>GRO SHARES <span data-bind="text: groShares()"></span></div>
 								<table class="table">
 									<thead>
 										<tr>
@@ -258,7 +257,7 @@
 										</tr>
 									</thead>
 									<tbody data-bind="foreach: projectedPortfolio()">
-										<tr >
+										<tr data-bind="visible: shares != 0">
 											<td data-bind="text: symbol"></td>
 											<td data-bind="text: shares"></td>
 											<td data-bind="text: incomeFmt()"></td>

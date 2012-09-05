@@ -4,12 +4,12 @@ function Order() {
 	/* == ACTIONS == */
 	self.actions = ['BUY', 'SELL'];
 	self.selectedAction = ko.observable('BUY');
-	self.actionFactor = function() {
+	self.actionFactor = ko.computed(function() {
 		if ( self.selectedAction() === 'BUY' ) {
-			return -1;
+			return 1;
 		}
-		return 1;
-	};
+		return -1;
+	});
 
 	/* == SECURITY == */
 	self.security = ko.observable();
@@ -24,6 +24,9 @@ function Order() {
 
 	/* == SHARES == */
 	self.shares = ko.observable();
+	self.sharesDelta = ko.computed(function() {
+		return Number(self.shares()) * self.actionFactor();
+	});
 
 	/* == MARGIN == */
 	self.margin = ko.observable();
@@ -32,7 +35,7 @@ function Order() {
 	self.amount = ko.computed(function() {
 		// TODO allow for margin calculations
 		if ( self.security() && self.shares() ) {
-			return self.security().price() * self.shares() * self.actionFactor();
+			return self.security().price() * Number(self.shares()) * self.actionFactor() * -1;
 		}
 	});
 
