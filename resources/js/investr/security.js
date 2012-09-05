@@ -7,8 +7,6 @@ function Security(security) {
 	self.price = ko.observable(security.price);
 	self.priceHistory = ko.observableArray(security.priceHistory)
 	self.outstanding = ko.observable(security.outstanding);
-	self.bearChanges = security.bearChanges;
-	self.bullChanges = security.bullChanges;
 
 	self.priceFmt = ko.computed(function() {
 		return accounting.formatMoney(self.price());
@@ -20,7 +18,7 @@ function Security(security) {
 		}
 		return "Dividend:";
 	};
-	
+
 	self.dividendFmt = function() {
 		var d = "NO YIELD";
 		if ( self.dividend > 0 ) {

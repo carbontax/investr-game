@@ -2,8 +2,16 @@ function Player(player, game) {
 	var self = this;
 	self.game = game;
 
+	self.id = player.id;
+
 	self.username = player.username;
 	
+	self.balance = ko.observable(parseInt(player.balance));
+
+	self.balanceFmt = ko.computed(function() {
+		return accounting.formatMoney(self.balance());
+	});
+
 	// Build a hash table of currently held shares
 	self.portfolioMap = {};
 	$.each(player.portfolio, function(i, holding) {
@@ -21,5 +29,4 @@ function Player(player, game) {
 		return new Transaction(txn);
 	}));
 	
-	self.balance = player.balance;
 }
