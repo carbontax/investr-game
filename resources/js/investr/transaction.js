@@ -5,18 +5,20 @@ function Transaction(transaction) {
 	self.index = transaction.index || 0;
 	self.year = transaction.year;
 	self.action = transaction.action;
-	self.symbol = transaction.symbol;
-	self.numShares = transaction.numShares;
-	self.pricePerShare = transaction.pricePerShare;
+	self.security_id = transaction.security_id;
+	self.security_symbol = transaction.security_symbol;
+	self.shares = transaction.shares;
+	self.pricePerShare = transaction.price;
 	self.amount = transaction.amount;
+	self.balance = transaction.balance;
 	self.income = transaction.income;
-	self.marginAmount = transaction.marginAmount;
-	if ( typeof transaction === "number" ) {
+	self.margin = transaction.margin;
+/*	if ( typeof transaction === "number" ) {
 		// $.map() treats an object with a single property as the value itself
 		self.balance = transaction;
 	} else {
 		self.balance = transaction.balance;
-	}
+	}*/
 	self.marginTotal = transaction.marginTotal;
 
 	self.securityName = ko.computed(function() {
@@ -44,7 +46,7 @@ function Transaction(transaction) {
 	});
 
 	self.marginAmountFmt = ko.computed(function() {
-		return self.marginAmount ? accounting.formatMoney(self.marginAmount) : "";
+		return self.margin ? accounting.formatMoney(self.margin) : "";
 	});
 
 	self.balanceFmt = ko.computed(function() {

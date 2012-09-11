@@ -16,7 +16,7 @@ function Player(player, game) {
 	self.portfolioMap = {};
 	$.each(player.portfolio, function(i, holding) {
 		var dummy = 'foo';
-		self.portfolioMap[holding.symbol] = holding.shares;
+		self.portfolioMap[holding.security_symbol] = holding.shares;
 	});
 
 	self.portfolio = $.map(game.securities(), function(s) {
@@ -28,5 +28,27 @@ function Player(player, game) {
 	self.transactions = ko.observableArray($.map(player.transactions, function(txn) {
 		return new Transaction(txn);
 	}));
-	
+
+	self.orders = ko.observableArray();
+
+	if ( player.orders ) {
+		// other players in the game will not have visible orders
+		$.map(player.orders, function(order) {
+			log.info("order = " + order);
+			var security = ko.utils.arrayFilter(game.securities(), function(s) {
+				return s.symbol === order.security_symbol;
+			})[0];
+			order.security = security;
+
+			self.orders().push(new Order(order));
+		});
+	}
+
+	self.hasNoOrders = function() {
+		if ( self.orders() && self.orders().length > 0 ) {
+			return false;
+		}
+		return true;
+	}
+
 }

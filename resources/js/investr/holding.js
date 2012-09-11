@@ -2,9 +2,9 @@ function Holding(holding, game) {
 	var self = this;
 
 	if ( typeof(holding) === 'string' ) {
-		holding = {'symbol': holding, 'shares': 0};
+		holding = {'security_symbol': holding, 'shares': 0};
 	}
-	self.symbol = holding.symbol;
+	self.symbol = holding.security_symbol;
 	self.shares = holding.shares;
 
 	// look up the security by symbol
