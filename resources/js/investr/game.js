@@ -65,18 +65,28 @@ function Game(game) {
 
 	self.turn = game.turn;
 	self.turnFmt = ko.computed(function() {
-		if (self.turn) {
+		if ( self.turn && parseInt(self.turn) > 0 ) {
 			return "Done";
 		}
 		return "Waiting";
 	});
 
 	// ORDERS 
-	self.orders = ko.observableArray([new Order(this)]);
+	self.orders = ko.observableArray([new Order()]);
+	self.showOrderForm = ko.computed(function() {
+		if ( self.player() && self.player().hasNoOrders() ) {
+			return true;
+		}
+		return false;
+	});
 
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
 	};
+
+	self.removeOrder = function(order) {
+		self.orders.remove(order);	
+	}
 
 	self.sendOrders = function() {
 		var data = ko.toJSON({orders: self.orders}); 
@@ -85,8 +95,10 @@ function Game(game) {
 			type: 'post',
 			contentType: 'application/json',
 			data: data,
-			success: function(responseText) {
-				$('messages').append(responseText);
+			success: function(data) {
+				ko.utils.arrayForEach(data, function(order) {
+					self.player().orders().push(new Order(order));
+				});
 			},
 			error: function(xhr) {
 				$('#messages').append(xhr.responseText);
@@ -143,6 +155,14 @@ function Game(game) {
 			});
 		}
 		return ppList;
+	});
+
+	self.openButtonText = ko.computed(function() {
+		 return self.year() > 0 ? 'Open' : 'Waiting for more players';
+	});
+
+	self.openButtonEnable = ko.computed(function() {
+		 return self.year() > 0 ? true : false;
 	});
 
 	self.isMarginEnabled = function() {

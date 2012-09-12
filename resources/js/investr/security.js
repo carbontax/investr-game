@@ -7,6 +7,8 @@ function Security(security) {
 	self.price = ko.observable(security.price);
 	self.priceHistory = ko.observableArray(security.priceHistory)
 	self.outstanding = ko.observable(security.outstanding);
+	self.delta = ko.observable(security.delta);
+	self.split = ko.observable(parseInt(security.split));
 
 	self.priceFmt = ko.computed(function() {
 		return accounting.formatMoney(self.price());
@@ -41,10 +43,30 @@ function Security(security) {
 		}
 	};
 
-	self.getPriceForYear = function(year) {
+/*	self.getPriceForYear = function(year) {
 		var yearPrice = ko.utils.arrayFilter(self.priceHistory(), function(yearPrice) {
 			return yearPrice.year === year;
 		});
 		return yearPrice.price;
-	};
+	};*/
+
+	self.deltaFmt = ko.computed(function() {
+		if (self.delta()) {
+			return accounting.formatMoney(self.delta());
+		}		
+	});
+
+	self.isUp = ko.computed(function() {
+		if ( parseInt(self.delta()) >= 0 ) {
+			return true;
+		}
+		return false;
+	});
+
+	self.isDown = ko.computed(function() {
+		if ( parseInt(self.delta()) < 0 ) {
+			return true;
+		}
+		return false;
+	});
 };

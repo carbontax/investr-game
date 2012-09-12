@@ -1,7 +1,7 @@
 function InvestrViewModel() {
 	var self = this;
 
-	self.title = "Stock & Bonds";
+	self.title = "Investr";
 
 	self.user = ko.observable();
 	self.username = ko.computed(function() {
@@ -25,9 +25,7 @@ function InvestrViewModel() {
 		return self.user() ? self.user().activeGames() : [];
 	});
 
-	self.newGames = ko.computed(function() {
-		return self.user() ? self.user().newGames() : [];
-	});
+	self.newGames = ko.observableArray();
 
 	self.game = ko.observable();
 
@@ -48,17 +46,6 @@ function InvestrViewModel() {
 			}
 			$('#messages').empty().append(xhr.responseText);
 	};
-
-	$.ajax({
-		url: '/investr-api/login',
-		type: 'get',
-		dataType: 'json',
-		success: function(data) {
-			$('#messages').empty();
-			self.user(new User(data));
-		},
-		error: self.ajaxFailureCallback
-	});
 
 	self.resetLoginForm = function() {
 		$('#email', '#login-form').val('');
@@ -162,4 +149,33 @@ function InvestrViewModel() {
 			}
 		});
 	}
+
+	self.getNewGames = function() {
+		$.ajax({
+			url: '/investr-api/games/new/list',
+			type: 'get',
+			dataType: 'json',
+			success: function(data) {
+				$('#messages').empty();
+				$.each(data, function() {
+					self.newGames().push(new Game(this));
+				});
+			},
+			error: self.ajaxFailureCallback
+		});
+
+	}
+
+	$.ajax({
+		url: '/investr-api/login',
+		type: 'get',
+		dataType: 'json',
+		success: function(data) {
+			$('#messages').empty();
+			self.user(new User(data));
+			self.getNewGames();
+		},
+		error: self.ajaxFailureCallback
+	});
+
 }
