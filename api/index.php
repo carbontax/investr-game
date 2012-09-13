@@ -1,5 +1,5 @@
 <?php
-include_once 'epiphany/Epi.php';
+include_once '../epiphany/src/Epi.php';
 include_once 'lib/utils.php';
 include_once 'lib/constants.class.php';
 include_once 'models/user.class.php';
@@ -17,7 +17,8 @@ include_once 'controllers/player.class.php';
 include_once 'controllers/order.class.php';
 include_once 'controllers/game.class.php';
 Epi::setSetting('exceptions', true);
-Epi::setPath('base', 'epiphany');
+//Epi::setPath('base', '/investr-game/epiphany/src');
+Epi::setPath('base', '../epiphany/src');
 Epi::init('api', 'session', 'database', 'config');
 
 Epi::setPath('config', 'etc');

@@ -58,7 +58,7 @@ function InvestrViewModel() {
 			password: $('#password', '#login-form').val()
 		}
 		$.ajax({
-			url: '/investr-api/login',
+			url: '/investr-game/api/login',
 			data: data,
 			dataType: 'json',
 			type: 'post',
@@ -75,7 +75,7 @@ function InvestrViewModel() {
 
 	self.getNewGame = function() {
 		$.ajax({
-			url: '/investr-api/games/new',
+			url: '/investr-game/api/games/new',
 			type: 'get',
 			dataType: 'json',
 			success: function(data) {
@@ -93,7 +93,7 @@ function InvestrViewModel() {
 
 	self.saveNewGame = function() {
 		$.ajax({
-			url: '/investr-api/games',
+			url: '/investr-game/api/games',
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
@@ -110,7 +110,7 @@ function InvestrViewModel() {
 
 	self.joinGame = function(game) {
 		$.ajax({
-			url: '/investr-api/games/' + game.id + '/join',
+			url: '/investr-game/api/games/' + game.id + '/join',
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
@@ -124,7 +124,7 @@ function InvestrViewModel() {
 	self.openGame = function(game) {
 		$('#messages').empty();
 		$.ajax({
-			url: '/investr-api/games/' + game.id,
+			url: '/investr-game/api/games/' + game.id,
 			dataType: 'json',
 			type: 'get',
 			success: function(data) {
@@ -142,7 +142,7 @@ function InvestrViewModel() {
 		self.user(null);
 		self.game(null);
 		$.ajax({
-			url: '/investr-api/logout',
+			url: '/investr-game/api/logout',
 			type: 'post',
 			success: function() {
 				self.user(null);
@@ -152,7 +152,7 @@ function InvestrViewModel() {
 
 	self.getNewGames = function() {
 		$.ajax({
-			url: '/investr-api/games/new/list',
+			url: '/investr-game/api/games/new/list',
 			type: 'get',
 			dataType: 'json',
 			success: function(data) {
@@ -167,7 +167,7 @@ function InvestrViewModel() {
 	}
 
 	$.ajax({
-		url: '/investr-api/login',
+		url: '/investr-game/api/login',
 		type: 'get',
 		dataType: 'json',
 		success: function(data) {

@@ -91,7 +91,7 @@ function Game(game) {
 	self.sendOrders = function() {
 		var data = ko.toJSON({orders: self.orders}); 
 
-		$.ajax("/investr-api/games/" + self.id + "/orders", {
+		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			contentType: 'application/json',
 			data: data,
