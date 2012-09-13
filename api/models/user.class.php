@@ -1,0 +1,18 @@
+<?php
+
+class User {
+    public $id;
+    public $username;
+    public $email;
+    public $activeGames;
+
+    public function __construct($user = array()) {
+        $this->id = $user['id'];
+        $this->username = $user['username'];
+        $this->email = $user['email'];
+
+        $this->activeGames = GameController::apiActiveGames();
+    }
+
+
+}
