@@ -1,5 +1,4 @@
 
-//function Game(securities, last_year, players, year) {
 function Game(game) {
 	var self = this;
 
@@ -25,7 +24,7 @@ function Game(game) {
 		return self.start_date;
 	});
 
-	self.securities = ko.observableArray();
+	self.securities = ko.observableArray(null);
 	if ( game.securities && game.securities.length > 0 ) {
 		self.securities($.map(game.securities, function(s) {
 			return new Security(s);
@@ -45,7 +44,19 @@ function Game(game) {
 		}
 	});
 
-	self.players = game.players;
+	self.players = ko.observableArray();
+	
+	self.loadPlayers = function(players) {
+		self.players(null);
+		if ( players && typeof(players) === 'array' ) {
+			$.each(players, function() {
+				self.players.push(new Player(this));
+			});
+		}
+	}
+	
+	self.loadPlayers(game.players);
+	
 	self.playerCount = ko.computed(function() {
 		return self.players.length;
 	});
@@ -97,7 +108,7 @@ function Game(game) {
 			data: data,
 			success: function(data) {
 				ko.utils.arrayForEach(data, function(order) {
-					self.player().orders().push(new Order(order));
+					self.player().orders.push(new Order(order));
 				});
 			},
 			error: function(xhr) {

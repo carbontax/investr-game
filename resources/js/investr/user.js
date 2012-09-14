@@ -3,6 +3,7 @@
 
 		self.username = ko.observable();
 		self.logged_in = ko.observable();
+		self.newGames = ko.observableArray();
 		self.activeGames = ko.observableArray();
 		self.completedGames = ko.observableArray();
 
@@ -12,6 +13,9 @@
 			$.each(user.activeGames, function() {
 				//var activeGame = this;
 				self.activeGames.push(new Game(this));
+			});
+			$.each(user.newGames, function() {
+				self.newGames.push(new Game(this));
 			});
 			self.completedGames(user.completedGames);
 		}

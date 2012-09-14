@@ -17,7 +17,6 @@ include_once 'controllers/player.class.php';
 include_once 'controllers/order.class.php';
 include_once 'controllers/game.class.php';
 Epi::setSetting('exceptions', true);
-//Epi::setPath('base', '/investr-game/epiphany/src');
 Epi::setPath('base', '../epiphany/src');
 Epi::init('api', 'session', 'database', 'config');
 
@@ -48,6 +47,7 @@ getApi()->post('/games/(\d+)/join', array('GameController', 'apiGameJoin'), EpiA
 getApi()->post('/games/(\d+)/orders', array('OrdersController', 'apiPostOrders'), EpiApi::external);
 // devel only
 getApi()->get('/games/(\d+)/proc', array('GameController', 'apiGameProcessOrders'), EpiApi::external);
+getApi()->get('/games/(\d+)/delete', array('GameController', 'apiGameDelete'), EpiApi::external);
 
 getRoute()->run();
 

@@ -52,28 +52,38 @@ class Transaction {
             " (user_id, game_id, year, security_id, shares, " . 
             " price, income, margin, margin_charge, amount, balance, comment) " .
             " values (:user_id, :game_id, :year, :security_id, :shares, " . 
-            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment); \n ";
+            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
+        error_log("TXN INSERT: " . $query);
         getDatabase()->execute($query, $params);
 
-        if ( portfolio_id == null ) {
+        $portfolio_params = array();
+        if ( $portfolio_id == null ) {
             $query = " INSERT INTO " . Portfolio::TABLENAME . 
                 " (game_id, user_id, security_id, shares) " . 
-                " values (:game_id, :user_id, :security_id, :shares); \n";
+                " values (:game_id, :user_id, :security_id, :shares)";
+            $portfolio_params = array(
+                    game_id => $this->game_id, 
+	            	user_id => $this->user_id,
+	                security_id => $this->security_id, 
+	            	shares => $this->shares);
         } else {
-            $params['portfolio_id'] = $portfolio_id;
-            $query = " UPDATE " . Portfolio::TABLENAME . " SET shares = shares + :shares " .
-                " WHERE portfolio_id = :portfolio_id; \n ";
+        	$query = " UPDATE " . Portfolio::TABLENAME . " SET shares = shares + :shares " .
+                " WHERE id = :portfolio_id";
+            $portfolio_params = array(portfolio_id => $this->portfolio_id, shares => $this->shares);
         }
-        getDatabase()->execute($query, $params);
+        error_log("PORTF UPDATE: " . $query);
+        getDatabase()->execute($query, $portfolio_params);
 
         $query = " UPDATE " . Game::GAME_SECURITY_PRICE_TABLENAME . 
             " SET outstanding = outstanding - :shares " . 
-            " WHERE game_id = :game_id AND security_id = :security_id and year = :year; \n ";
-        $result = getDatabase()->execute($query, $params);
+            " WHERE game_id = :game_id AND security_id = :security_id and year = :year";
+        error_log("GSP UPDATE: " . $query);
+        $result = getDatabase()->execute($query, array(shares => $this->shares,
+        	game_id => $this->game_id,
+        	security_id => $this->security_id,
+        	year => $this->year));
 
         getDatabase()->execute("COMMIT");
-
-//        error_log("saveBuy query: " . $query);
 
         return $result;
     }
@@ -93,22 +103,31 @@ class Transaction {
             comment => $this->comment);
 
         getDatabase()->execute("START TRANSACTION");
-        
-        $result = getDatabase()->execute(" INSERT INTO " . self::TABLENAME . 
+
+        $query = " INSERT INTO " . self::TABLENAME . 
             " (user_id, game_id, year, security_id, shares, " . 
             " price, income, margin, margin_charge, amount, balance, comment) " .
             " values (:user_id, :game_id, :year, :security_id, :shares, " . 
-            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)", $params);
-        // END
+            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
+        error_log("SELL TXN INSERT: " . $query);
+        $result = getDatabase()->execute($query, $params);
 
         $query .= " UPDATE " . Portfolio::TABLENAME . " SET shares = shares - :shares " .
                 " WHERE game_id = :game_id AND user_id = :user_id and security_id = :security_id;";
-        $result = getDatabase()->execute($query, $params);
+        error_log("SELL PORTF UPDATE: " . $query);
+        $result = getDatabase()->execute($query, array(shares => $this->shares,
+        	game_id => $this->game_id, 
+            user_id => $this->user_id, 
+            security_id => $this->security_id));
 
         $query .= " UPDATE " . Game::GAME_SECURITY_PRICE_TABLENAME . 
             " SET outstanding = outstanding + :shares " . 
             " WHERE game_id = :game_id AND security_id = :security_id and year = :year; \n ";
-        $result = getDatabase()->execute($query, $params);
+        error_log("SELL GSP UPDATE: " . $query);
+        $result = getDatabase()->execute($query, array(shares => $this->shares, 
+	        game_id => $this->game_id, 
+        	security_id => $this->security_id, 
+            year => $this->year));
 
         getDatabase()->execute("COMMIT");
 
@@ -123,6 +142,7 @@ class Transaction {
     }
 
     public function insufficientShares($outstanding = 0) {
-        $this->comment = "Insufficient shares, " . $outstanding . " available";
+        // $this->comment = "Insufficient shares, " . $outstanding . " available";
+        // TODO 
     }
 }

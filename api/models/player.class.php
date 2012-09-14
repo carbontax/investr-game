@@ -31,31 +31,37 @@ class Player {
         }
     }
 */  
-    public function __construct($user_id, $game_id, $balance = null, $turn = 0) {
-        $this->user_id = $user_id;
-        $this->game_id = $game_id;
-        $this->balance = $balance;
+//    public function __construct(array($user_id, $game_id = null, $balance = null, $turn = 0) {
+    public function __construct($player = array()) {
+    	error_log("Create player with " . print_r($player, true));
+    	$this->user_id = $player['user_id'];
+        $this->game_id = $player['game_id'];
+	    $this->balance = $player['balance'];
     }
 
     public static function withRow($row = array()) {
+    	error_log("WITH ROW: " . print_r($row, true));
         $instance = new self($row['user_id'], $row['game_id'], $row['balance']);
         return $instance;
     }
 
     public function save() {
         $query = "INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id) values (:user_id, :game_id)";
+            " (user_id, game_id, balance) values (:user_id, :game_id, :balance)";
 
         $result = getDatabase()->execute($query, array(user_id => $this->user_id, 
-            game_id => $this->game_id));
+            game_id => $this->game_id, balance => $this->balance));
     }
 
     public function fetchTransactions() {
         $query = "SELECT t.*, s.symbol as security_symbol FROM " . Transaction::TABLENAME . " t " . 
             " JOIN " . Security::TABLENAME . " s ON t.security_id = s.id " .
             " WHERE t.user_id = :user_id and t.game_id = :game_id order by t.id";
-
-        $result = getDatabase()->all($query, array(user_id => $this->user_id, game_id => $this->game_id));
+        $params = array(user_id => $this->user_id, game_id => $this->game_id);
+		error_log("FETCH TXNS FOR PLAYER");
+		error_log($query);
+		error_log(print_r($params, true));
+		$result = getDatabase()->all($query, $params);
         foreach ($result as $key => $row) {
             array_push($this->transactions, new Transaction($row));
         }

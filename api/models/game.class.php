@@ -31,38 +31,50 @@ class Game {
         $this->fetchSettings();
         $this->fetchPlayers();
     }
-
+    
+/*    public static function createNewGame($game = array()) {
+        $id = $game['id'];
+        $start_date = $game['start_date'];
+        $initial_balance = $game['initial_balance'];
+        $number_of_players = $game['number_of_players'];
+        $last_year = $game['last_year'];
+        return new self($id, $start_date, $initial_balance, $number_of_players, $last_year);
+    } */
+    
     public function save() {
         $id = getDatabase()->execute('insert into games ' . 
-            ' (initial_balance, start_date, number_of_players, year, last_year)', 
-            array($this->initial_balance,
-                $this->start_date,
-                $this->number_of_players,
-                $this->year,
-                $this->last_year));
+            ' (initial_balance, start_date, number_of_players, year, last_year) ' .
+        	' values(:initial_balance, :start_date, :number_of_players, :year, :last_year) ', 
+            array(initial_balance => $this->initial_balance,
+                start_date => $this->start_date,
+                number_of_players => $this->number_of_players,
+                year => $this->year,
+                last_year => $this->last_year));
         if ( $id ) {
             GameController::apiGameJoin($id);
         }
     }
 
-    public function createSecurities() {
+    private function createSecurities() {
         $result = false;
         $query = 'insert into ' . self::GAME_SECURITY_PRICE_TABLENAME . 
-            ' (game_id, security_id, year, price, split) ' . 
-            ' select :game_id, s.id, 0, s.price, 0 from security s';
-        try {
+            ' (game_id, security_id, year, price, split, delta, outstanding) ' . 
+            ' select :game_id, s.id, 0, s.price, 0, 0, s.outstanding from security s';
+ //       error_log("createSecurities: " . $query);
+//        try {
             $result = getDatabase()->execute($query, array('game_id' => $this->id));
-        } catch (Exception $e) {
-            error_log($e.getMessage());
-        }
+//        } catch (Exception $e) {
+//            error_log($e);
+//        }
         return $result;
     }
 
     public function start() {
+    	$this->createSecurities();
         $this->setNewPrices();
         $this->advanceYear();
     }
-
+    
     public function advanceYear() {
         if ( $this->year < $this->last_year ) {
             $query = "UPDATE " . self::TABLENAME . " SET year = year + 1 " .
@@ -118,7 +130,7 @@ class Game {
             $query = 'SELECT * FROM ' . Player::TABLENAME . ' WHERE game_id = :game_id';
             $data = getDatabase()->all($query, array('game_id' => $this->id));
             foreach ($data as $key => $row) {
-                array_push($this->players, new Player($row['user_id'], $row['game_id'], $row['balance'])); 
+                array_push($this->players, new Player($row)); 
             }
         }        
     }
@@ -128,11 +140,12 @@ class Game {
 
         $query = "SELECT * FROM " . Player::TABLENAME .
             " WHERE user_id = :user_id and game_id = :game_id ";
-        // error_log("getPlayer - query = " . $query . " -- user_id = " . $user_id);
+        error_log("getPlayer - query = " . $query . " -- user_id = " . $user_id);
 
         $row = getDataBase()->one($query, array(user_id => $user_id, game_id => $this->id));
-//        error_log(print_r($row));
-        $this->player = Player::withRow($row);
+	    //error_log(print_r($row, true));
+//        $this->player = Player::withRow($row);
+		$this->player = new Player($row);
         $this->player->fetchTransactions();
         $this->player->fetchPortfolio();
         $this->player->fetchOrdersForYear($this->year);
@@ -149,7 +162,7 @@ class Game {
             " where gsp.game_id = :game_id and gsp.year = :year " .
             " order by gsp.id";
         
-        // error_log('getSecurities - query = ' . $query . '; game = ' . $this->id . '; year = ' . $this->year);
+        error_log('getSecurities - query = ' . $query . '; game = ' . $this->id . '; year = ' . $this->year);
 
         $result = getDataBase()->all($query, array(game_id => $this->id, year => $this->year));
 
@@ -234,16 +247,19 @@ class Game {
             " JOIN " . Security::TABLENAME . " s ON s.symbol = o.security_symbol AND gsp.security_id = s.id " . 
             " WHERE o.action = 'BUY' AND o.year = :year AND o.game_id = :game_id ";
 
+        error_log("processAllBuyOrders");
+        error_log($query);
         $result = getDatabase()->all($query, array(year => $this->year, game_id => $this->id));
 
         foreach ($result as $key => $row) {
             $txn = new Transaction($row);
             if ( $row['outstanding'] - $row['shares'] >= 0 ) {
                 $txn->comment = "Bought " . $row['shares'] . " shares of " . $row['security_symbol'];
-                $txn->save();
+                $txn->saveBuy();
             } else {
                 $txn->insufficientShares($row['outstanding']);
-                $txn->saveBuy();
+                //$txn->saveBuy();
+                error_log("INSUFFICIENT SHARES");
             }
         }
     }

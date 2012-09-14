@@ -5,6 +5,7 @@ class User {
     public $username;
     public $email;
     public $activeGames;
+    public $newGames;
 
     public function __construct($user = array()) {
         $this->id = $user['id'];
@@ -12,6 +13,7 @@ class User {
         $this->email = $user['email'];
 
         $this->activeGames = GameController::apiActiveGames();
+        $this->newGames = GameController::apiNewGames();
     }
 
 

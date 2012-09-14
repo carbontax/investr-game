@@ -1,5 +1,11 @@
 function InvestrViewModel() {
 	var self = this;
+	self.clearMessages = function() {
+		$('#messages').empty()
+		.removeClass("alert")
+		.removeClass("alert-success")
+		.removeClass("alert-error");
+	}
 
 	self.title = "Investr";
 
@@ -25,7 +31,9 @@ function InvestrViewModel() {
 		return self.user() ? self.user().activeGames() : [];
 	});
 
-	self.newGames = ko.observableArray();
+	self.newGames = ko.computed(function() {
+		return self.user() ? self.user().newGames() : [];
+	});
 
 	self.game = ko.observable();
 
@@ -41,10 +49,11 @@ function InvestrViewModel() {
 	self.allUsernames = ko.observableArray(["carbontax", "peppercorn", "nsmithlea"]);
 
 	self.ajaxFailureCallback = function(xhr) {
+			self.clearMessages();
 			if ( xhr.status === 401 ) {
 				self.user(null);
 			}
-			$('#messages').empty().append(xhr.responseText);
+			$('#messages').addClass("alert alert-error").append(xhr.responseText);
 	};
 
 	self.resetLoginForm = function() {
@@ -53,6 +62,7 @@ function InvestrViewModel() {
 	}
 
 	self.submitLoginForm = function() {
+		self.clearMessages();
 		var data = {
 			email: $('#email', '#login-form').val(),
 			password: $('#password', '#login-form').val()
@@ -63,7 +73,7 @@ function InvestrViewModel() {
 			dataType: 'json',
 			type: 'post',
 			success: function(data) {
-				$('#messages').empty();
+				self.clearMessages();
 //				self.loggedIn(true);
 				self.user(new User(data));
 			},
@@ -93,29 +103,35 @@ function InvestrViewModel() {
 
 	self.saveNewGame = function() {
 		$.ajax({
+			preventDefault: true,
 			url: '/investr-game/api/games',
 			type: 'post',
+			data: self.newGame(),
 			dataType: 'json',
 			success: function(data) {
 				self.game(new Game(data));
 				$('#new-game-form-dialog').modal('toggle');
 			},
-			error: self.ajaxFailureCallback
+			error: function(xhr) {
+				$('#new-game-form-dialog').modal('toggle');
+				self.ajaxFailureCallback(xhr);
+			}
 		});		
 	}
 
 	self.mayJoinGame = function(game) {
-		return true;
+		return game.playerCount() < game.number_of_players();
 	}
 
 	self.joinGame = function(game) {
+		self.clearMessages();
 		$.ajax({
 			url: '/investr-game/api/games/' + game.id + '/join',
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
-				game.players = data.players;
-				$('messages').empty().append("You have joined game " + game.id);
+				game.loadPlayers(data.players);
+				$('messages').addClass('alert alert-success').append("You have joined game " + game.id);
 			},
 			error: self.ajaxFailureCallback
 		});				
@@ -151,19 +167,20 @@ function InvestrViewModel() {
 	}
 
 	self.getNewGames = function() {
+		self.clearMessages();
 		$.ajax({
 			url: '/investr-game/api/games/new/list',
 			type: 'get',
 			dataType: 'json',
 			success: function(data) {
-				$('#messages').empty();
 				$.each(data, function() {
-					self.newGames().push(new Game(this));
+					var g = new Game(this);
+					self.newGames().push(g);
 				});
 			},
 			error: self.ajaxFailureCallback
 		});
-
+		log.info("Count new games: " + self.newGames().length);
 	}
 
 	$.ajax({
@@ -171,11 +188,9 @@ function InvestrViewModel() {
 		type: 'get',
 		dataType: 'json',
 		success: function(data) {
-			$('#messages').empty();
 			self.user(new User(data));
-			self.getNewGames();
+//			self.getNewGames();
 		},
 		error: self.ajaxFailureCallback
 	});
-
 }
