@@ -84,12 +84,13 @@ function InvestrViewModel() {
 	};
 
 	self.getNewGame = function() {
+		// get game defaults from server
 		$.ajax({
 			url: '/investr-game/api/games/new',
 			type: 'get',
 			dataType: 'json',
 			success: function(data) {
-				self.newGame(new Game(data));
+				self.newGame(data);
 				$('#new-game-form-dialog').modal('toggle');
 			},
 			error: self.ajaxFailureCallback
@@ -109,7 +110,7 @@ function InvestrViewModel() {
 			data: self.newGame(),
 			dataType: 'json',
 			success: function(data) {
-				self.game(new Game(data));
+				self.user().newGames.push(new Game(data));
 				$('#new-game-form-dialog').modal('toggle');
 			},
 			error: function(xhr) {

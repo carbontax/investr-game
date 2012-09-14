@@ -70,17 +70,16 @@ class GameController
 
     static public function apiPostNewGame() {
         $game_data = $_POST;
-        print_r($game_data);
-        $game = new Game($game_data);
-        $game->start_date = strftime('%Y %b %e', time());
-        
+        error_log("POST NEW GAME: " . print_r($game_data, true));
+        $game = new Game($game_data);        
 //        try {
-	        $game->save();
+	    $id = $game->save();
 //        } catch(Exception $e) {
 //        	http_response_code(500);
 //        	return "Cannot create a new game.";
 //        }
-        return $game;
+		$savedGame = self::apiGame($id);
+        return $savedGame;
     }
 
     static public function parsePostGameData() {

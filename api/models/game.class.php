@@ -42,17 +42,22 @@ class Game {
     } */
     
     public function save() {
-        $id = getDatabase()->execute('insert into games ' . 
+    	$query = 'insert into games ' . 
             ' (initial_balance, start_date, number_of_players, year, last_year) ' .
-        	' values(:initial_balance, :start_date, :number_of_players, :year, :last_year) ', 
-            array(initial_balance => $this->initial_balance,
-                start_date => $this->start_date,
+        	' values(:initial_balance, :start_date, :number_of_players, :year, :last_year) ';
+    	$params = array(initial_balance => $this->initial_balance,
+                start_date => strftime('%Y-%m-%d', time()),
                 number_of_players => $this->number_of_players,
                 year => $this->year,
-                last_year => $this->last_year));
+                last_year => $this->last_year);
+        error_log("SAVE NEW GAME");
+        error_log($query);
+        error_log(print_r($params, true));
+        $id = getDatabase()->execute($query, $params);
         if ( $id ) {
             GameController::apiGameJoin($id);
         }
+        return $id;
     }
 
     private function createSecurities() {
