@@ -2,7 +2,7 @@ function Player(player, game) {
 	var self = this;
 	self.game = game;
 
-	self.id = player.id;
+	self.user_id = player.user_id;
 
 	self.username = player.username;
 	
@@ -20,13 +20,16 @@ function Player(player, game) {
 	}); */
 
 	self.portfolio = ko.observableArray();
-	if (game.securities() && game.securities().length > 0 ) {
-		$.each(game.securities(), function(s) {
-			var h = new Holding(s.symbol, self.game);
+	$.each(player.portfolio, function() {
+		self.portfolio.push(new Holding(this, self.game));
+	});
+//	if (game && game.securities() && game.securities().length > 0 ) {
+//		$.each(game.securities(), function(s) {
+//			var h = new Holding(s.symbol, self.game);
 //			h.shares += self.portfolioMap[s.symbol] ? self.portfolioMap[s.symbol] : 0;
-			self.portfolio.push(h);
-		});
-	}
+//			self.portfolio.push(h);
+//		});
+//	}
 
 	self.transactions = ko.observableArray($.map(player.transactions, function(txn) {
 		return new Transaction(txn);

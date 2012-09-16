@@ -47,7 +47,8 @@ getApi()->post('/games/(\d+)/join', array('GameController', 'apiGameJoin'), EpiA
 getApi()->post('/games/(\d+)/orders', array('OrdersController', 'apiPostOrders'), EpiApi::external);
 // devel only
 getApi()->get('/games/(\d+)/proc', array('GameController', 'apiGameProcessOrders'), EpiApi::external);
-getApi()->get('/games/(\d+)/delete', array('GameController', 'apiGameDelete'), EpiApi::external);
+getApi()->get('/games/(\d+)/del', array('GameController', 'apiGameDelete'), EpiApi::external);
+getApi()->get('/games/(\d+)/div', array('GameController', 'apiGamePayDividends'), EpiApi::external);
 
 getRoute()->run();
 

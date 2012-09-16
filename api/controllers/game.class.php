@@ -138,8 +138,10 @@ class GameController
         error_log($query);
         $result = getDatabase()->all($query, array(user_id => LoginController::getUserId()));
         if ( $result !== false ) {
-            foreach ($result as $key => $game) {
-                array_push($newGames, new Game($game));
+            foreach ($result as $key => $row) {
+            	$newGame = new Game($row);
+            	$newGame->fetchPlayer();
+                array_push($newGames, $newGame);
             }
         }
         return $newGames;
@@ -168,6 +170,12 @@ class GameController
     	getDatabase()->execute($query, array(game_id => $game_id));
     	
     	return "Game " . $game_id . " deleted";
+    }
+    
+    static public function apiGamePayDividends($game_id) {
+    	$game = self::apiGame($game_id);
+    	$game->payDividends();
+    	return "DIVIDENDS PAID FOR YEAR " . $game->year;
     }
 
 }

@@ -1,7 +1,7 @@
 
 function Game(game) {
 	var self = this;
-
+	
 	// SETTINGS
 	self.settings = game.settings;
 
@@ -47,8 +47,8 @@ function Game(game) {
 	self.players = ko.observableArray();
 	
 	self.loadPlayers = function(players) {
-		self.players(null);
-		if ( players && typeof(players) === 'array' ) {
+		self.players([]);
+		if ( players && typeof(players) === 'object' ) {
 			$.each(players, function() {
 				self.players.push(new Player(this));
 			});
@@ -58,7 +58,7 @@ function Game(game) {
 	self.loadPlayers(game.players);
 	
 	self.playerCount = ko.computed(function() {
-		return self.players.length;
+		return self.players().length;
 	});
 
 	self.other_players = ko.observableArray();
@@ -117,6 +117,28 @@ function Game(game) {
 		}); 
 	
 	}
+	
+	self.sendNullOrder = function() {
+		log.error("game.sendNullOrder() is not implemented yet");
+/*		var data = { 
+			orders: {
+				action: 'NULL'
+			}
+		};
+		$.ajax("/investr-game/api/games" + self.id + "/orders", {
+			type: 'post',
+			contentType: 'application/json',
+			data: data,
+			success: function(data) {
+				ko.utils.arrayForEach(data, function(order) {
+					self.player().orders.push(new Order(order));
+				});
+			},
+			error: function(xhr) {
+				$('#messages').append(xhr.responseText);
+			}
+		}); */
+	}
 
 	self.ordersAccountCash = ko.computed(function() {
 		var cash = null;
@@ -168,12 +190,16 @@ function Game(game) {
 		return ppList;
 	});
 
-	self.openButtonText = ko.computed(function() {
-		 return self.year() > 0 ? 'Open' : 'Waiting for more players';
-	});
+//	self.openButtonText = ko.computed(function() {
+//		 return self.year() > 0 ? 'Open' : 'Waiting for more players';
+//	});
+	
+//	self.openButtonEnable = ko.computed(function() {
+//		 return self.year() > 0 ? true : false;
+//	});
 
-	self.openButtonEnable = ko.computed(function() {
-		 return self.year() > 0 ? true : false;
+	self.joinButtonText = ko.computed(function() {
+		return self.player() ? 'Waiting for more players' : 'Join';
 	});
 
 	self.isMarginEnabled = function() {

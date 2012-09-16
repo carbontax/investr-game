@@ -64,3 +64,9 @@
 
         }
     }
+    
+    if (!function_exists('log_params')) {
+    	function log_params($params = array(), $msg = "") {
+    		error_log($msg . ": " . print_r($params, true));
+    	}
+    }

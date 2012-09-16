@@ -139,7 +139,7 @@ function InvestrViewModel() {
 	}
 
 	self.openGame = function(game) {
-		$('#messages').empty();
+		self.clearMessages();
 		$.ajax({
 			url: '/investr-game/api/games/' + game.id,
 			dataType: 'json',

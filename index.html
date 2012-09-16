@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -56,7 +57,7 @@
 	<script type="text/template" id="order-display-row">
 		<tr>
 			<td data-bind="text: action"></td>
-			<td><span data-bind="text: security().symbol"/></td>
+			<td><span data-bind="text: security_symbol"/></td>
 			<td data-bind="text: pricePerShareFmt()"></td>
 			<td><span data-bind="text: shares"/></td>
 			<td data-bind="text: amountFmt()"></td>
@@ -71,7 +72,7 @@
 		<div id="header-container">
 			<div class="row-fluid" id="header">
 				<div class="span8">
-					<div id="logo-container">
+					<div id="logo-container" data-bind="click: window.location.reload">
 						<span id="site-logo"></span>
 						<span id="site-title" data-bind="text: title">Investr</span>
 					</div>
@@ -139,7 +140,7 @@
 							<td data-bind="text: id"></td>
 							<td data-bind="text: startDateFmt()"></td>
 							<td data-bind="text: playerCount()"></td>
-							<td><button class="btn" data-bind="click: $parent.joinGame">Join</button></td>
+							<td><button class="btn" data-bind="click: $parent.joinGame, text: joinButtonText"></button></td>
 						</tr>
 					</tbody>
 				</table>
@@ -162,18 +163,18 @@
 							<td data-bind="text: year"></td>
 							<td data-bind="text: playerCount()"></td>
 							<td data-bind="text: turnFmt()"></td>
-							<td><button  data-bind="click: $parent.openGame, enable: openButtonEnable, text: openButtonText">Open</button></td>
+							<td><button  data-bind="click: $parent.openGame">Open</button></td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
 		<div id="game-container" data-bind="with: game">
-			<!--  GAME CONTAINER -->
+			<!-- ***************************** GAME CONTAINER ***************************** -->
 			<div class="row-fluid" id="game-menu-container" >
 				<span id="game-id" data-bind="text: idFmt()"></span>
-				<span id="game-id" data-bind="text: yearFmt()"></span>
-				<button class="btn" id="game-close-button" data-bind="click: $parent.closeGame">CLOSE GAME</button>
+				<!-- <span id="game-id" data-bind="text: yearFmt()"></span> -->
+				<span><button class="btn" id="game-close-button" data-bind="click: $parent.closeGame">CLOSE GAME</button></span>
 			</div>
 			<div class="row-fluid" id="game-data-container">
 				<div class="span3" id="securities-pane">
@@ -220,18 +221,22 @@
 										<td>MARGIN CHARGES (PD.)</td>
 										<td>CASH BALANCE</td>
 										<td>MARGIN TOTAL</td>
+										<td>COMMENT</td>
 									</tr>
 								</thead>
 								<tbody data-bind="foreach: player().transactions()">
-									<td><span data-bind="text: year"></span></td>
-									<td><span data-bind="text: security_symbol"></span></td>
-									<td><span data-bind="text: shares"></span></td>
-									<td><span data-bind="text: pricePerShareFmt()"></span></td>
-									<td><span data-bind="text: amountFmt()"></span></td>
-									<td><span data-bind="text: incomeFmt()"></span></td>
-									<td><span data-bind="text: marginAmountFmt()"></span></td>
-									<td><span data-bind="text: balanceFmt()"></span></td>
-									<td><span data-bind="text: marginTotalFmt()"></span></td>
+									<tr>
+										<td><span data-bind="text: year"></span></td>
+										<td><span data-bind="text: security_symbol"></span></td>
+										<td><span data-bind="text: shares"></span></td>
+										<td><span data-bind="text: pricePerShareFmt()"></span></td>
+										<td><span data-bind="text: amountFmt()"></span></td>
+										<td><span data-bind="text: incomeFmt()"></span></td>
+										<td><span data-bind="text: marginAmountFmt()"></span></td>
+										<td><span data-bind="text: balanceFmt()"></span></td>
+										<td><span data-bind="text: marginTotalFmt()"></span></td>
+										<td><span data-bind="text: comment"></span></td>
+									</tr>
 								</tbody>
 							</table>
 						</div>
@@ -257,6 +262,7 @@
 									<div>
 										<button class="btn btn-success" data-bind="click: newOrder">ANOTHER ORDER</button>
 										<button class="btn btn-warning" data-bind="click: sendOrders">SEND ORDERS</button>
+										<button class="btn btn-warning" data-bind="click: sendNullOrder">NO ORDERS THIS YEAR</button>
 									</div>
 								</div>
 								<div class="well" id="orders-account-container">

@@ -13,6 +13,7 @@ function Transaction(transaction) {
 	self.balance = transaction.balance;
 	self.income = transaction.income;
 	self.margin = transaction.margin;
+	self.comment = transaction.comment;
 /*	if ( typeof transaction === "number" ) {
 		// $.map() treats an object with a single property as the value itself
 		self.balance = transaction;
@@ -40,7 +41,7 @@ function Transaction(transaction) {
 	});
 
 	self.incomeFmt = ko.computed(function() {
-		if ( self.amount ) {
+		if ( self.income ) {
 			return accounting.formatMoney(self.income);
 		}
 	});
