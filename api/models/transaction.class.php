@@ -71,7 +71,7 @@ class Transaction {
     }
 
     public function saveBuy() {
-    	error_log("SAVE BUY TXN");
+//    	error_log("SAVE BUY TXN");
     	
         getDatabase()->execute("START TRANSACTION");
 
@@ -95,8 +95,8 @@ class Transaction {
             balance => $this->previous_balance + $this->amount,
             comment => $this->comment);
         
-        error_log("TXN INSERT: " . $query);
-        error_log(print_r($params, true));
+//        error_log("TXN INSERT: " . $query);
+//        error_log(print_r($params, true));
         getDatabase()->execute($query, $params);
 
         $this->updatePortfolio();
@@ -105,7 +105,7 @@ class Transaction {
         $query = " UPDATE " . Game::GAME_SECURITY_PRICE_TABLENAME . 
             " SET outstanding = outstanding - :shares " . 
             " WHERE game_id = :game_id AND security_id = :security_id and year = :year";
-        error_log("GSP UPDATE: " . $query);
+//        error_log("GSP UPDATE: " . $query);
         $result = getDatabase()->execute($query, array(shares => $this->shares,
         	game_id => $this->game_id,
         	security_id => $this->security_id,
@@ -117,7 +117,7 @@ class Transaction {
     }
     
     public function saveSell() {
-    	error_log("SAVE SELL TXN");
+//    	error_log("SAVE SELL TXN");
     	
         getDatabase()->execute("START TRANSACTION");
 
@@ -141,7 +141,7 @@ class Transaction {
             balance => $this->previous_balance + $this->amount,
             comment => $this->comment);
  
-        error_log("SELL TXN INSERT: " . $query);
+//        error_log("SELL TXN INSERT: " . $query);
         log_params($params);
         
         $result = getDatabase()->execute($query, $params);
@@ -204,7 +204,29 @@ class Transaction {
     }
     
     public function saveSplit() {
-    	error_log("save Split not implemented yet");
+    	error_log(" ========== SAVE SPLIT TXN ======== ");
+    	
+        getDatabase()->execute("START TRANSACTION");
+
+        $this->fetchPreviousBalance();
+        
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(balance => $this->previous_balance));
+        
+        error_log("TXN INSERT: " . $query);
+        error_log(print_r($params, true));
+        $result = getDatabase()->execute($query, $params);
+        
+        if ( ! $result ) {
+        	error_log(" ======= INSERT SHARE SPLIT TXN FAILED ======== ");
+        	getDatabase()->execute("ROLLBACK");
+        } else {
+	        $this->updatePortfolio();
+        }
+
+        getDatabase()->execute("COMMIT");
+
+        return $result;
     }
     
     public function saveNull() {
@@ -279,5 +301,34 @@ class Transaction {
         $params = array(game_id => $this->game_id, user_id => $this->user_id);
     	$row = getDatabase()->one($query, $params);
     	$this->previous_balance = $row['balance'];
+    }
+    
+    private static function insertQuery() {
+    	return " INSERT INTO " . self::TABLENAME . 
+            " (user_id, game_id, year, security_id, shares, " . 
+            " price, income, margin, margin_charge, amount, balance, comment) " .
+            " values (:user_id, :game_id, :year, :security_id, :shares, " . 
+            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
+    }
+    
+    private function dbParams($override = array()) {
+    	$params = array(user_id => $this->user_id, 
+            game_id => $this->game_id, 
+            year => $this->year, 
+            security_id => $this->security_id, 
+            shares => $this->shares, 
+            price => $this->price, 
+            income => $this->income, 
+            margin => $this->margin, 
+            margin_charge => $this->margin_charge, 
+            amount => $this->amount,
+            balance => $this->balance,
+            comment => $this->comment);
+        foreach ($override as $key => $value) {
+        	if ( array_key_exists($key, $params) ) {
+        		$params[$key] = $value;
+        	}
+        }
+        return $params;
     }
 }

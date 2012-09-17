@@ -33,7 +33,7 @@ class Player {
 */  
 //    public function __construct(array($user_id, $game_id = null, $balance = null, $turn = 0) {
     public function __construct($player = array()) {
-    	error_log("Create player with " . print_r($player, true));
+//    	error_log("Create player with " . print_r($player, true));
     	$this->user_id = $player['user_id'];
         $this->game_id = $player['game_id'];
 	    $this->balance = $player['balance'];

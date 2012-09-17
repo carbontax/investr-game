@@ -1,6 +1,8 @@
 <?php
 
 class User {
+	const TABLENAME = "users";
+	
     public $id;
     public $username;
     public $email;
