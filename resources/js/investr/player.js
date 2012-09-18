@@ -37,17 +37,23 @@ function Player(player, game) {
 
 	self.orders = ko.observableArray();
 
-	if ( player.orders ) {
-		// other players in the game will not have visible orders
-		$.map(player.orders, function(order) {
+	self.loadOrders = function(orders) {
+		self.orders([]);
+		$.map(orders, function(order) {
 			log.info("order = " + order);
 			var security = ko.utils.arrayFilter(game.securities(), function(s) {
 				return s.symbol === order.security_symbol;
 			})[0];
 			order.security = security;
 
-			self.orders().push(new Order(order));
+			self.orders.push(new Order(order));
 		});
+		
+	}
+	
+	if ( player.orders ) {
+		// other players in the game will not have visible orders
+		self.loadOrders(player.orders);
 	}
 
 	self.hasNoOrders = function() {

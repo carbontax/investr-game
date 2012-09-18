@@ -66,14 +66,18 @@ class Order {
         $query = "SELECT p.balance, gsp.outstanding + sum(pf.shares) as available_shares, (:shares * gsp.price * -1) as amount, " . 
         	" gsp.price, s.name " .
             " FROM " . Player::TABLENAME . " p " . 
-            " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
+            " JOIN " . Game::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
             " JOIN " . Security::TABLENAME . " s ON gsp.security_id = s.id " . 
         	" JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
             " WHERE p.game_id = :game_id AND gsp.year = :year AND s.symbol = :security_symbol";
 
         error_log("verifyBuyOrder");
         error_log($query);
-        $row = getDatabase()->all($query, array(year => $this->year, game_id => $this->game_id, security_symbol => $this->security_symbol));
+        $row = getDatabase()->all($query, array(
+        	shares => $this->shares,
+        	game_id => $this->game_id, 
+        	year => $this->year,
+        	security_symbol => $this->security_symbol));
             
         if ( $row['available_shares'] < $row['shares'] ) {
           	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;

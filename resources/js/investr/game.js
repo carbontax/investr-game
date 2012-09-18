@@ -104,15 +104,16 @@ function Game(game) {
 
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
-			contentType: 'application/json',
+			dataType: 'json',
 			data: data,
 			success: function(data) {
-				ko.utils.arrayForEach(data, function(order) {
-					self.player().orders.push(new Order(order));
-				});
+//				ko.utils.arrayForEach(data, function(order) {
+//					self.player().orders.push(new Order(order));
+//				});
+				self.player().loadOrders(data);
 			},
 			error: function(xhr) {
-				$('#messages').append(xhr.responseText);
+				$('#messages').addClass("label label-error").append(xhr.responseText);
 			}
 		}); 
 	
