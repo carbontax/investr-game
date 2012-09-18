@@ -195,3 +195,5 @@ function InvestrViewModel() {
 		error: self.ajaxFailureCallback
 	});
 }
+
+$(".players-summary").popover({trigger: 'mouseover'});

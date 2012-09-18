@@ -11,32 +11,16 @@ class Player {
     public $portfolio = array();
     public $transactions = array();
     public $orders = array();
+    public $portf_worth;
     public $turn = 0;
 
-/*    public function __construct($player = array()) {
-        $this->user_id = $player['id'];
-        $this->username = $player['username'];
-        $this->balance = $player['balance'];
-        if ( array_key_exists('portfolio', $player) ) {
-            $this->portfolio = $player['portfolio'];
-        }
-        if ( array_key_exists('transactions', $player) ) {
-            $this->transactions = $player['transactions'];
-        }
-        if ( array_key_exists('orders', $player) ) {
-            $this->orders = $player['orders'];
-        }
-        if ( array_key_exists('turn', $player) ) {
-            $this->turn = $player['turn'];
-        }
-    }
-*/  
-//    public function __construct(array($user_id, $game_id = null, $balance = null, $turn = 0) {
     public function __construct($player = array()) {
 //    	error_log("Create player with " . print_r($player, true));
     	$this->user_id = $player['user_id'];
         $this->game_id = $player['game_id'];
+        $this->username = $player['username'];
 	    $this->balance = $player['balance'];
+	    $this->portf_worth = $player['portf_worth'];
     }
 
     public static function withRow($row = array()) {
@@ -110,5 +94,5 @@ class Player {
     	$result = getDatabase()->execute($query, $params);
     	return $result;
     }
-
+    
 }

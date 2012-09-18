@@ -12,28 +12,20 @@ function Player(player, game) {
 		return accounting.formatMoney(self.balance());
 	});
 
-	// Build a hash table of currently held shares
-/*	self.portfolioMap = {};
-	$.each(player.portfolio, function(i, holding) {
-		var dummy = 'foo';
-		self.portfolioMap[holding.security_symbol] = holding.shares;
-	}); */
-
 	self.portfolio = ko.observableArray();
 	$.each(player.portfolio, function() {
 		self.portfolio.push(new Holding(this, self.game));
 	});
-//	if (game && game.securities() && game.securities().length > 0 ) {
-//		$.each(game.securities(), function(s) {
-//			var h = new Holding(s.symbol, self.game);
-//			h.shares += self.portfolioMap[s.symbol] ? self.portfolioMap[s.symbol] : 0;
-//			self.portfolio.push(h);
-//		});
-//	}
 
 	self.transactions = ko.observableArray($.map(player.transactions, function(txn) {
 		return new Transaction(txn);
 	}));
+	
+	self.portf_worth = ko.observable(player.portf_worth);
+	
+	self.netWorthFmt = ko.computed(function() {
+		return accounting.formatMoney(parseInt(self.balance()) + parseInt(self.portf_worth()));
+	});
 
 	self.orders = ko.observableArray();
 

@@ -64,6 +64,13 @@
 			<td></td>
 		</tr>
 	</script>
+	<script type="text/template" id="player-summary-tmpl">
+		<div>
+			<span data-bind="text: username"></span>
+			<span class="label">NET</span>
+			<span data-bind="text: netWorthFmt()"></span>
+		</div>
+	</script>
 	<script type="text/template" id="security-item">
 	</script>
 </head>
@@ -145,28 +152,17 @@
 					</tbody>
 				</table>
 				<h3 data-bind="visible: activeGames().length > 0">Active Games</h3>
-				<table class="table table-bordered table-condensed" id="active-games-table" data-bind="visible: activeGames().length > 0">
-					<thead>
-						<tr>
-							<td>ID</td>
-							<td>Started</td>
-							<td>Year</td>
-							<td>Players</td>
-							<td>Turn</td>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody data-bind="foreach: activeGames()">
-						<tr>
-							<td data-bind="text: id"></td>
-							<td data-bind="text: startDateFmt()"></td>
-							<td data-bind="text: year"></td>
-							<td data-bind="text: playerCount()"></td>
-							<td data-bind="text: turnFmt()"></td>
-							<td><button  data-bind="click: $parent.openGame">Open</button></td>
-						</tr>
-					</tbody>
-				</table>
+					<div data-bind="foreach: activeGames()" >
+						<div>
+							<span data-bind="text: id"></span>
+							<span data-bind="text: startDateFmt()"></span>
+							<span data-bind="text: year"></span>
+							<span data-bind="text: playerCount()"></span>
+							<span data-bind="text: turnFmt()"></span>
+							<span><button  data-bind="click: $parent.openGame">Open</button></span>
+							<div data-bind="template: {name: 'player-summary-tmpl', foreach: players()}"></div>
+						</div>
+					</div>
 			</div>
 		</div>
 		<div id="game-container" data-bind="with: game">
@@ -201,13 +197,13 @@
 				<div class="span9" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
-						<li><a href="#transactions" data-toggle="tab">Transactions</a></li> 
-						<li class="active"><a href="#orders" data-toggle="tab">Orders</a></li> 
+						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
+						<li><a href="#orders" data-toggle="tab">Orders</a></li> 
 						<li><a href="#portfolio" data-toggle="tab">Portfolio</a></li> 
 					</ul>
 
 					<div class="tab-content">
-						<div class="tab-pane" id="transactions">
+						<div class="tab-pane active" id="transactions">
 							<h3>RECORD OF TRANSACTIONS</h3>
 							<table class="table table-bordered table-condensed">
 								<thead>
@@ -240,7 +236,7 @@
 								</tbody>
 							</table>
 						</div>
-						<div class="tab-pane active" id="orders">
+						<div class="tab-pane" id="orders">
 							<div id="new-orders-container" data-bind="visible: showOrderForm()">
 								<h3>New Orders</h3>
 								<div id="order-form-container">
@@ -295,7 +291,7 @@
 											</tr>
 										</thead>
 										<tbody data-bind="foreach: projectedPortfolio()">
-											<tr data-bind="visible: shares != 0">
+											<tr data-bind="visible: shares > 0">
 												<td data-bind="text: symbol"></td>
 												<td data-bind="text: shares"></td>
 												<td data-bind="text: incomeFmt()"></td>

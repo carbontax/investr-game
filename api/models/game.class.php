@@ -30,8 +30,11 @@ class Game {
         $this->year = $game['year'];
         $this->last_year = $game['last_year'];
         $this->turn = $game['turn'];
-        $this->fetchSettings();
-        $this->fetchPlayers();
+        if ( $this->id ) {
+        	error_log("ID FOUND " . $this->id);
+	        $this->fetchSettings();
+    	    $this->fetchPlayers(true);
+        }
     }
     
     public function save() {
@@ -45,13 +48,14 @@ class Game {
                 last_year => $this->last_year);
         error_log("SAVE NEW GAME");
         error_log($query);
-        error_log(print_r($params, true));
+        log_params($params);
         $id = getDatabase()->execute($query, $params);
-        if ( $id ) {
-            GameController::apiGameJoin($id);
-            $this->fetchPlayer();
-        }
-        return $id;
+        //do this in caller
+//        if ( $id ) {
+//            GameController::apiGameJoin($id);
+//            $this->fetchPlayer();
+//        }
+		return $id;
     }
 
     private function createSecurities() {
@@ -113,17 +117,33 @@ class Game {
     }
 
     /* for list functions we need minimal player information */
-    public function fetchPlayers() {
+    public function fetchPlayers($debug = false) {
+    	$debug && error_log("models.game.fetchPlayers");
         $this->players = array();
         if ( $this->id != null ) {
-            $query = 'SELECT p.*, u.username FROM ' . Player::TABLENAME . ' p ' .
-	            ' JOIN ' . User::TABLENAME . ' u ON p.user_id = u.id ' .
-    	        ' WHERE game_id = :game_id';
-            $data = getDatabase()->all($query, array('game_id' => $this->id));
-            foreach ($data as $key => $row) {
-                array_push($this->players, new Player($row)); 
+        	if ( $this->year == 0 ) {
+	            $query = 'SELECT p.*, u.username FROM ' . Player::TABLENAME . ' p ' .
+		            ' JOIN ' . User::TABLENAME . ' u ON p.user_id = u.id ' .
+	    	        ' WHERE game_id = :game_id';
+				$params = array('game_id' => $this->id);
+        	} else {
+				$query = "SELECT p.*, u.username, sum(pf.shares * gsp.price) as portf_worth " . 
+	    		" from " . Player::TABLENAME . " p " .
+				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
+	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
+	    		" join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
+	    		" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
+	    		$params = array(game_id => $this->id, year => $this->year);
+	    		$debug && log_query($query, $params, "fetchPlayers");
+        	}
+
+    		$rows = getDatabase()->all($query, $params);
+			foreach ($rows as $row) {
+            	$p = new Player($row);
+//            	$p->fetchPortfolio();
+                array_push($this->players, $p); 
             }
-        }        
+        }
     }
 
     public function fetchPlayer() {
@@ -140,9 +160,29 @@ class Game {
         $this->player->fetchTransactions();
         $this->player->fetchPortfolio();
         $this->player->fetchOrdersForYear($this->year);
+        $this->netWorth($this->player);
     }
 
     public function fetchOtherPlayers() {
+    }
+    
+    public function netWorth($player) {
+    	$query = "select p.balance + sum(pf.shares * gsp.price) as net_worth " . 
+    		" from " . Player::TABLENAME . " p " .
+    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
+    		" join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
+    		" where p.game_id = :game_id and p.user_id = :user_id and gsp.year = :year ";
+    	$params = array(
+    		game_id => $this->game_id,
+    		user_id => $player->user_id,
+    		year => $this->year	
+    	);
+    	$net_worth = 0;
+    	$row = getDatabase()->one($query, $params);
+    	if ( $row ) {
+    		$net_worth = $row['net_worth'];
+    	}
+    	$player->net_worth = $net_worth;
     }
 
     public function fetchSecurities() {

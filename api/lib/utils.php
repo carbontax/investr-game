@@ -65,8 +65,15 @@
         }
     }
     
-    if (!function_exists('log_params')) {
+   	if (!function_exists('log_params')) {
     	function log_params($params = array(), $msg = "") {
     		error_log($msg . ": " . print_r($params, true));
+    	}
+    }
+    
+    if (!function_exists('log_query')) {
+    	function log_query($query=null, $params = array(), $msg = "") {
+    		error_log($msg . ": " . $query);
+    		log_params($params, $msg);
     	}
     }

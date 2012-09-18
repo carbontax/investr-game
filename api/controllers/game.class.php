@@ -41,9 +41,11 @@ class GameController
         $query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ' .
             ' and id in ' .
             ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
-//        error_log("apiGame(): " . $query);
-//        error_log("user_id: " . $user_id . "; game_id: " . $game_id);
-        $game_data = getDataBase()->one($query, array('game_id' => $game_id, 'user_id' => $user_id));
+        $params = array(game_id => $game_id, user_id => $user_id);
+
+        error_log("apiGame(): " . $query);
+        log_params($params);
+        $game_data = getDataBase()->one($query, $params);
 //        error_log(print_r($game_data, true));
         $game = new Game($game_data);
         $game->fetchSecurities();
@@ -72,14 +74,16 @@ class GameController
         $game_data = $_POST;
         error_log("POST NEW GAME: " . print_r($game_data, true));
         $game = new Game($game_data);        
-//        try {
-	    $id = $game->save();
-//        } catch(Exception $e) {
-//        	http_response_code(500);
-//        	return "Cannot create a new game.";
-//        }
-		$savedGame = self::apiGame($id);
-        return $savedGame;
+        try {
+		    $id = $game->save();
+		    error_log("NEW GAME ID IS " . $id);
+        } catch(Exception $e) {
+        	http_response_code(500);
+        	return "Cannot create a new game.";
+        }
+//		$savedGame = self::apiGame($id);
+		$game = self::getGame($id);
+        return $game;
     }
 
     static public function parsePostGameData() {
@@ -97,8 +101,6 @@ class GameController
             return "Game is full";
         }
 
-        // $query = 'INSERT INTO player (user_id, game_id) values(:user_id, :game_id)';
-
         try {
             $player = new Player(array(
             	user_id => $user_id, 
@@ -108,6 +110,7 @@ class GameController
 
             $game = self::getGame($game_id);
             if ( $game->isFull() ) {
+            	error_log("apiGameJoin: === STARTING GAME ===");
                 $game->start();
             } 
         } catch(Exception $e) {
@@ -119,6 +122,7 @@ class GameController
         return $game;
     }
 
+    // unused
     static public function apiGameStart($game_id) {
         if ( $user_id = null ) {
             $user_id = LoginController::getUserId();
@@ -128,6 +132,7 @@ class GameController
         return $game;
     }
 
+    // disabled
     static public function apiNewGames() {
         $newGames = array();
         $query = 'SELECT * FROM ' . Game::TABLENAME . 
@@ -140,13 +145,13 @@ class GameController
         if ( $result !== false ) {
             foreach ($result as $key => $row) {
             	$newGame = new Game($row);
-            	$newGame->fetchPlayer();
+//            	$newGame->fetchPlayer();
                 array_push($newGames, $newGame);
             }
         }
         return $newGames;
     }
-
+    
     // DEVEL ONLY
     static public function apiGameProcessOrders($game_id) {
         $game = self::apiGame($game_id);
