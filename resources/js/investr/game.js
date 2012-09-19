@@ -34,7 +34,8 @@ function Game(game) {
 	self.year = ko.observable(game.year);
 	self.last_year = game.last_year;
 	self.hasNextYear = ko.computed(function() {
-		return self.year() < self.last_year;
+		var remaining = parseInt(self.last_year) - parseInt(self.year());
+		return remaining > 1;
 	});
 	self.yearFmt = ko.computed(function() {
 		if ( self.hasNextYear() ) {

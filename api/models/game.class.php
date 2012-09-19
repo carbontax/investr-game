@@ -127,11 +127,12 @@ class Game {
 	    	        ' WHERE game_id = :game_id';
 				$params = array('game_id' => $this->id);
         	} else {
-				$query = "SELECT p.*, u.username, sum(pf.shares * gsp.price) as portf_worth " . 
+				$query = "SELECT p.*, u.username, " .
+				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth " . 
 	    		" from " . Player::TABLENAME . " p " .
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
-	    		" join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
+	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
 	    		" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
 	    		$params = array(game_id => $this->id, year => $this->year);
 	    		$debug && log_query($query, $params, "fetchPlayers");
@@ -149,11 +150,21 @@ class Game {
     public function fetchPlayer() {
         $user_id = LoginController::getUserId();
 
-        $query = "SELECT * FROM " . Player::TABLENAME .
-            " WHERE user_id = :user_id and game_id = :game_id ";
+        $query = "SELECT p.*, u.username, " .
+				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth " . 
+	    		" from " . Player::TABLENAME . " p " .
+				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
+	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
+	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
+	    		" where p.game_id = :game_id and p.user_id = :user_id and gsp.year = :year ";
+        $params = array(user_id => $user_id, game_id => $this->id, year => $this->year);
+        
+        log_query($query, $params);
+//        $query = "SELECT * FROM " . Player::TABLENAME .
+//            " WHERE user_id = :user_id and game_id = :game_id ";
         // error_log("getPlayer - query = " . $query . " -- user_id = " . $user_id);
 
-        $row = getDataBase()->one($query, array(user_id => $user_id, game_id => $this->id));
+        $row = getDataBase()->one($query, $params);
 	    //error_log(print_r($row, true));
 //        $this->player = Player::withRow($row);
 		$this->player = new Player($row);

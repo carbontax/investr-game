@@ -1,11 +1,17 @@
 /* investr.less */
 @investr-bkgd: #006666;
+@navbar-bkgd: #F5F5F5;
 
 body {
 	background-color: white;
 
 	select {
 	   width: auto;
+	}
+	
+	.navbar-inner {
+		background-color: @navbar-bkgd;
+		background-image: -moz-linear-gradient(center top , @navbar-bkgd, #ffffff);
 	}
 }
 
@@ -68,55 +74,64 @@ label { display: inline; }
 	input.order-shares { width: 5em;}
 }
 
-#transactions {
-	background-color: white;
-	color: @investr-bkgd;
+#game-container {
+	#game-menu-container {
+		font-size: 1.2em;
+		margin-bottom: 0.7em;
+		
+		span { margin-right: 1em; }
+	}
 
-
-	table {
+	#transactions {
+		background-color: white;
 		color: @investr-bkgd;
-
-		thead {
-			tr{
-				font-size: 9px;
-				font-weight: bold;
+	
+	
+		table {
+			color: @investr-bkgd;
+	
+			thead {
+				tr{
+					font-size: 9px;
+					font-weight: bold;
+				}
 			}
 		}
 	}
-}
-
-#orders {
-	table {
-		color: @investr-bkgd;
-
-		thead {
-			tr{
-				/*font-size: 9px;*/
-				font-weight: bold;
+	
+	#orders {
+		table {
+			color: @investr-bkgd;
+	
+			thead {
+				tr{
+					/*font-size: 9px;*/
+					font-weight: bold;
+				}
+			}
+		}
+	
+		input.order-shares { width: 5em;}
+	}
+	
+	
+	#portfolio {
+		table {
+			color: @investr-bkgd;
+	
+			thead {
+				tr{
+					/*font-size: 9px;*/
+					font-weight: bold;
+				}
 			}
 		}
 	}
-
-	input.order-shares { width: 5em;}
-}
-
-
-#portfolio {
-	table {
-		color: @investr-bkgd;
-
-		thead {
-			tr{
-				/*font-size: 9px;*/
-				font-weight: bold;
-			}
+	
+	#securities-pane {
+		.security-symbol {
+			font-weight: bold;
 		}
 	}
-}
 
-#securities-pane {
-	/*background-color: pink;*/
-	.security-symbol {
-		font-weight: bold;
-	}
 }

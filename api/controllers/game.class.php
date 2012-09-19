@@ -13,7 +13,7 @@ class GameController
     static public function apiActiveGames() {
         $games = array();
         $user_id = LoginController::getUserId();
-        $query = 'SELECT g.id, g.start_date, g.year, g.number_of_players, count(o.id) ' .
+        $query = 'SELECT g.id, g.start_date, g.year, g.last_year, g.number_of_players, count(o.id) ' .
             ' as turn FROM ' . Game::TABLENAME . ' g ' .
             ' JOIN ' . Player::TABLENAME . ' p ' .
             ' ON g.id = p.game_id ' .
@@ -43,13 +43,13 @@ class GameController
             ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
         $params = array(game_id => $game_id, user_id => $user_id);
 
-        error_log("apiGame(): " . $query);
-        log_params($params);
+        log_query($query, $params, "apiGame");
         $game_data = getDataBase()->one($query, $params);
 //        error_log(print_r($game_data, true));
         $game = new Game($game_data);
         $game->fetchSecurities();
         $game->fetchPlayer();
+        $game->fetchPlayers();
         return $game;
     }
 
