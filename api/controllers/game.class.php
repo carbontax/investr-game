@@ -47,9 +47,10 @@ class GameController
         $game_data = getDataBase()->one($query, $params);
 //        error_log(print_r($game_data, true));
         $game = new Game($game_data);
-        $game->fetchSecurities();
-        $game->fetchPlayer();
-        $game->fetchPlayers();
+        $debug = Constants::DEBUG;
+        $game->fetchSecurities($debug);
+        $game->fetchPlayer($debug);
+        $game->fetchPlayers($debug);
         return $game;
     }
 
