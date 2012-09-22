@@ -131,8 +131,9 @@ function InvestrViewModel() {
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
-				game.loadPlayers(data.players);
-				$('messages').addClass('alert alert-success').append("You have joined game " + game.id);
+//				game.loadPlayers(data.players);
+//				$('messages').addClass('alert alert-success').append("You have joined game " + game.id);
+				window.location.reload();
 			},
 			error: self.ajaxFailureCallback
 		});				

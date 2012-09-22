@@ -65,11 +65,10 @@
 		</tr>
 	</script>
 	<script type="text/template" id="player-summary-tmpl">
-		<div>
-			<span data-bind="text: username"></span>
-			<span class="label">NET</span>
-			<span data-bind="text: netWorthFmt()"></span>
-		</div>
+		<li class="player-summary">
+			<span data-bind="text: 'Player: ' + username"></span>
+			<span data-bind="text: '(' + netWorthFmt() + ')'"></span>
+		</li>
 	</script>
 	<script type="text/template" id="security-item">
 	</script>
@@ -128,18 +127,21 @@
 						</tr>
 					</tbody>
 				</table>
-				<h3 data-bind="visible: activeGames().length > 0">Active Games</h3>
+				<div class="span3" id="active-games-container" data-bind="visible: activeGames().length > 0">
+				<h3>Active Games</h3>
 					<div data-bind="foreach: activeGames()" >
-						<div>
-							<span data-bind="text: id"></span>
-							<span data-bind="text: startDateFmt()"></span>
-							<span data-bind="text: year"></span>
+						<div class=well data-bind="click: $parent.openGame">
+							<span data-bind="text: 'Game #' + id"></span>
+						    <span>Year:</span>
+                            <span data-bind="text: year"></span>
+                            <span>Players:</span>
 							<span data-bind="text: playerCount()"></span>
 							<span data-bind="text: turnFmt()"></span>
-							<span><button  data-bind="click: $parent.openGame">Open</button></span>
-							<div data-bind="template: {name: 'player-summary-tmpl', foreach: players()}"></div>
+							<ul class="active-game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
+							</ul>
 						</div>
 					</div>
+				</div>	
 			</div>
 		</div>
 		<div id="game-container" data-bind="with: game">
