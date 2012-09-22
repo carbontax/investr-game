@@ -130,13 +130,15 @@
 				<div class="span3" id="active-games-container" data-bind="visible: activeGames().length > 0">
 				<h3>Active Games</h3>
 					<div data-bind="foreach: activeGames()" >
-						<div class=well data-bind="click: $parent.openGame">
-							<span data-bind="text: 'Game #' + id"></span>
-						    <span>Year:</span>
-                            <span data-bind="text: year"></span>
-                            <span>Players:</span>
-							<span data-bind="text: playerCount()"></span>
-							<span data-bind="text: turnFmt()"></span>
+						<div class="btn" data-bind="click: $parent.openGame">
+							  <div>
+								<span data-bind="text: 'Game #' + id"></span>
+								<span data-bind="text: turnFmt()"></span>
+							  </div>
+							  <div>
+							     <span>Year:</span>
+	                             <span data-bind="text: year"></span>
+							  </div>
 							<ul class="active-game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
 							</ul>
 						</div>
@@ -150,7 +152,7 @@
 				<div>
 					<div class="container">
 						<span id="game-status-container">
-							<span id="game-id" data-bind="text: idFmt()"></span>
+							<span id="game-id" data-bind="text: 'GAME #' + id"></span>
 							<span id="game-year" data-bind="text: yearFmt()"></span>
 							<span id="game-player-net-worth" data-bind="text: player().netWorthFmt()"></span>
 						</span>

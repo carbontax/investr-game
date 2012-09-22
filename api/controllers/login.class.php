@@ -11,10 +11,13 @@ class LoginController
 
     if ( ! array_key_exists('username', $user) ) {
       return LoginController::apiUnauthorizedStatus();
-    } else {
-      getSession()->set(Constants::USERNAME, $user['username']);
-      return UserController::getLoggedInUser();
     }
+    
+      getSession()->set(Constants::USERNAME, $user['username']);
+      $user = UserController::getLoggedInUser();
+      $user->activeGames = GameController::apiActiveGames();
+      $user->newGames = GameController::apiNewGames();
+      return $user;
   }
 
   static public function getUserId() {
