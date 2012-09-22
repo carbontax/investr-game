@@ -1,6 +1,7 @@
 /* investr.less */
 @investr-bkgd: #006666;
 @navbar-bkgd: #F5F5F5;
+@invalid: #FF6666;
 
 body {
 	background-color: white;
@@ -13,6 +14,12 @@ body {
 		background-color: @navbar-bkgd;
 		background-image: -moz-linear-gradient(center top , @navbar-bkgd, #ffffff);
 	}
+	
+    tr.invalid {
+        color: @invalid;
+        text-decoration: line-through;
+    }
+	
 }
 
 label { display: inline; }
@@ -62,13 +69,14 @@ label { display: inline; }
 #games-container {
 	table {
 		color: @investr-bkgd;
-
+        
 		thead {
 			tr{
 				/*font-size: 9px;*/
 				font-weight: bold;
 			}
 		}
+		
 	}
 
 	input.order-shares { width: 5em;}

@@ -1,12 +1,13 @@
 <?php
-class Order {
+include_once('base.class.php');
+
+class Order extends Model {
     const TABLENAME = "txn_order";
     const VALID = 0;
     const INVALID_BUY_TOO_MANY_SHARES = 1;
     const INVALID_SELL_TOO_MANY_SHARES = 2;
+    const INVALID_INSUFFICIENT_FUNDS = 4;
     
-    protected $debug;
-
     public $id;
     public $user_id;
     public $game_id;
@@ -35,7 +36,6 @@ class Order {
 	    $this->invalid = $order['invalid'];
         $this->comment = $order['comment'];
         
-        $this->debug = Constants::DEBUG;
         $this->normalize();
     }
     
@@ -44,7 +44,7 @@ class Order {
     		$this->shares *= -1;
     	}
     	if ( $this->invalid == null ) {
-    		$this->invalid = VALID;
+    		$this->invalid = self::VALID;
     	}
     }
     
@@ -66,12 +66,14 @@ class Order {
 
     public function verifyBuyOrder() {
     	$this->debug && error_log("verifyBuyOrder");
-        $query = "SELECT p.balance, gsp.outstanding + sum(pf.shares) as available_shares, (:shares * gsp.price * -1) as amount, " . 
+        $query = "SELECT p.balance, " . 
+        	" case when pf.shares is null then gsp.outstanding else gsp.outstanding + sum(pf.shares) end as available_shares, " . 
+        	" (:shares * gsp.price * -1) as amount, " . 
         	" gsp.price, s.name " .
             " FROM " . Player::TABLENAME . " p " . 
             " JOIN " . Game::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
             " JOIN " . Security::TABLENAME . " s ON gsp.security_id = s.id " . 
-        	" JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
+        	" LEFT JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
             " WHERE p.game_id = :game_id AND gsp.year = :year AND s.symbol = :security_symbol";
 		$params = array(
         	shares => $this->shares,
@@ -79,12 +81,15 @@ class Order {
         	year => $this->year,
         	security_symbol => $this->security_symbol);
         $this->debug && log_query($query,$params,"verifyBuyOrder");
-        $row = getDatabase()->all($query, $params);
-            
-        if ( $row['available_shares'] < $row['shares'] ) {
-          	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;
-        }
+        $row = getDatabase()->one($query, $params);
         
+        error_log("available_shares = " . $row['available_shares'] 
+        . " -- shares = " . $this->shares . " -- diff = " 
+        . ($row['available_shares'] - $this->shares));
+        
+        if ( $row['available_shares'] - $this->shares < 0) {
+          	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;
+        }        
     }
     
     private function verifySellOrder() {
@@ -97,9 +102,9 @@ class Order {
     	    user_id => $this->user_id, 
  	    	security_symbol => $this->security_symbol);
         $this->debug && log_query($query,$params,"verifySellOrder");
-        $row = getDatabase()->all($query, $params);
+        $row = getDatabase()->one($query, $params);
             
-        if ( $row['shares'] < $this->shares ) {
+        if ( $row['shares'] - $this->shares < 0) {
           	$this->invalid += self::INVALID_SELL_TOO_MANY_SHARES;
         }   
     }
@@ -114,8 +119,8 @@ class Order {
     	$this->verify();
     	
         $query = "INSERT INTO " . self::TABLENAME .
-            " (user_id, game_id, year, action, security_symbol, shares, margin, comment) " .
-            " values (:user_id, :game_id, :year, :action, :security_symbol, :shares, :margin, :comment)";
+            " (user_id, game_id, year, action, security_symbol, shares, margin, comment, invalid) " .
+            " values (:user_id, :game_id, :year, :action, :security_symbol, :shares, :margin, :comment, :invalid)";
         $result = getDatabase()->execute($query, array(user_id => $this->user_id,
             game_id => $this->game_id,
             year => $this->year,
@@ -123,12 +128,33 @@ class Order {
             security_symbol => $this->security_symbol,
             shares => $this->shares,
             margin => $this->margin,
-            comment => $this->comment));
+            comment => $this->comment,
+            invalid => $this->invalid));
 
         return $result;
     }
     
-	public function setDebug($debug = false) {
-		$this->debug = $debug;
-	}
+    public static function getOrderValidCode($code = 0) {
+    	$messages = array();
+	   	if ($code & self::INVALID_BUY_TOO_MANY_SHARES) {
+	    	$messages[] = "Shares not available to buy";
+	   		 error_log("order messages 1: " . print_r($messages,true));
+	   	}	    	
+
+	   	if ($code & self::INVALID_SELL_TOO_MANY_SHARES) {
+	    	$messages[] = "Not enough shares in portfolio";
+	    	error_log("order messages 2: " . print_r($messages,true));
+	   	}
+
+	   	if ($code & self::INVALID_INSUFFICIENT_FUNDS) {
+	    	$messages[] = "Insufficient funds";
+	    	error_log("order messages 4: " . print_r($messages,true));
+	    }
+
+	    error_log("order messages: " . print_r($messages,true));
+	    $msg = implode("; ",$messages);
+	    error_log("msg = " . $msg);
+    	
+    	return $msg;
+    }
 }

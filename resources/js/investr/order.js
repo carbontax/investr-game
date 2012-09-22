@@ -47,6 +47,15 @@ function Order(order) {
 	if ( order && order.margin ) {
 		self.margin(order.margin);
 	}
+	
+	/* == INVALID == */
+	self.invalid = ko.observable();
+	if (order && order.invalid) {
+		self.invalid(order.invalid);
+	}
+	self.isInvalid = ko.computed(function() {
+		return self.invalid();
+	});
 
 	/* == AMOUNT CALCULATION == */
 	self.amount = ko.computed(function() {

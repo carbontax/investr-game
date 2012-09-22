@@ -1,10 +1,12 @@
 <?php
-class Transaction {
+include_once('base.class.php');
+class Transaction extends Model{
     const TABLENAME = "txn";
     const BUY_ACTION = "BUY";
     const SELL_ACTION = "SELL";
     const DIVIDEND_ACTION = "DIV";
     const SPLIT_ACTION = "SPLIT";
+    const NULL_ACTION = "NONE";
         
     public $id;
     public $user_id;
@@ -23,6 +25,7 @@ class Transaction {
     public $previous_balance;
 
     public function __construct($txn = array()) {
+    	parent::__construct();
         $this->id = $txn['id'];
         $this->user_id = $txn['user_id'];
         $this->game_id = $txn['game_id'];
@@ -37,15 +40,26 @@ class Transaction {
         $this->amount = $txn['amount'];
         $this->balance = $txn['balance'];
         $this->action = $txn['action'];
+        $this->invalid = $txn['invalid'];
         $this->comment = $txn['comment'];
 //        $this->verify();
     }
     
     private function verify() {
-    	error_log("verify() -- not implemented yet");
+    	error_log("TXN verify(): invalid = " . $this->invalid);
+    	if ( $this->invalid != Order::VALID ) {
+    		$this->action = self::NULL_ACTION;
+    		try {
+    			$this->comment = Order::getOrderValidCode($this->invalid);
+    		} catch (Exception $e) {
+    			error_log($e->getMessage());
+    			$this->comment = "Invalid order: " . $this->invalid;
+    		}
+    	}
     }
     
     public function save() {
+    	$this->verify();
     	switch ($this->action) {
     		case self::BUY_ACTION:
     		$result = $this->saveBuy();
@@ -77,14 +91,15 @@ class Transaction {
 
         $this->fetchPreviousBalance();
         
-        $query = " INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id, year, security_id, shares, " . 
+ /*       $query = " INSERT INTO " . self::TABLENAME . 
+            " (user_id, game_id, year, action, security_id, shares, " . 
             " price, income, margin, margin_charge, amount, balance, comment) " .
-            " values (:user_id, :game_id, :year, :security_id, :shares, " . 
+            " values (:user_id, :game_id, :year, :action, :security_id, :shares, " . 
             " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
         $params = array(user_id => $this->user_id, 
             game_id => $this->game_id, 
             year => $this->year, 
+            action => $this->action,
             security_id => $this->security_id, 
             shares => $this->shares, 
             price => $this->price, 
@@ -93,11 +108,12 @@ class Transaction {
             margin_charge => $this->margin_charge, 
             amount => $this->amount,
             balance => $this->previous_balance + $this->amount,
-            comment => $this->comment);
+            comment => $this->comment); */
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(balance => $this->previous_balance + $this->amount));
         
-//        error_log("TXN INSERT: " . $query);
-//        error_log(print_r($params, true));
-        getDatabase()->execute($query, $params);
+        $this->debug && log_query($query, $params, "TXN INSERT");
+        $result = getDatabase()->execute($query, $params);
 
         $this->updatePortfolio();
         $this->updateBalance();
@@ -105,7 +121,8 @@ class Transaction {
         $query = " UPDATE " . Game::GAME_SECURITY_PRICE_TABLENAME . 
             " SET outstanding = outstanding - :shares " . 
             " WHERE game_id = :game_id AND security_id = :security_id and year = :year";
-//        error_log("GSP UPDATE: " . $query);
+
+        $this->debug && log_query($query, $params, "BUY GSP UPDATE");
         $result = getDatabase()->execute($query, array(shares => $this->shares,
         	game_id => $this->game_id,
         	security_id => $this->security_id,
@@ -123,14 +140,15 @@ class Transaction {
 
         $this->fetchPreviousBalance();
         
-        $query = " INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id, year, security_id, shares, " . 
+/*        $query = " INSERT INTO " . self::TABLENAME . 
+            " (user_id, game_id, year, action, security_id, shares, " . 
             " price, income, margin, margin_charge, amount, balance, comment) " .
             " values (:user_id, :game_id, :year, :security_id, :shares, " . 
             " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
         $params = array(user_id => $this->user_id, 
             game_id => $this->game_id, 
             year => $this->year, 
+            action => $this->action,
             security_id => $this->security_id, 
             shares => $this->shares, 
             price => $this->price, 
@@ -139,10 +157,11 @@ class Transaction {
             margin_charge => $this->margin_charge, 
             amount => $this->amount,
             balance => $this->previous_balance + $this->amount,
-            comment => $this->comment);
+            comment => $this->comment);*/
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(balance => $this->previous_balance + $this->amount));
  
-//        error_log("SELL TXN INSERT: " . $query);
-        log_params($params);
+        $this->debug && log_query($query, $params, "SELL TXN INSERT");
         
         $result = getDatabase()->execute($query, $params);
 
@@ -152,11 +171,12 @@ class Transaction {
         $query = " UPDATE " . Game::GAME_SECURITY_PRICE_TABLENAME . 
             " SET outstanding = outstanding + :shares " . 
             " WHERE game_id = :game_id AND security_id = :security_id and year = :year; \n ";
-        error_log("SELL GSP UPDATE: " . $query);
-        $result = getDatabase()->execute($query, array(shares => $this->shares, 
+        $params = array(shares => $this->shares, 
 	        game_id => $this->game_id, 
         	security_id => $this->security_id, 
-            year => $this->year));
+            year => $this->year);
+        $this->debug && log_query($query, $params, "SELL GSP UPDATE");
+        $result = getDatabase()->execute($query, $params);
 
         getDatabase()->execute("COMMIT");
 
@@ -170,7 +190,7 @@ class Transaction {
     	$this->fetchPreviousBalance();
         $balance = $this->previous_balance + $this->income;
     	        
-        $query = " INSERT INTO " . self::TABLENAME . 
+ /*       $query = " INSERT INTO " . self::TABLENAME . 
             " (user_id, game_id, year, security_id, shares, " . 
             " price, income, margin, margin_charge, amount, balance, comment) " .
             " values (:user_id, :game_id, :year, :security_id, :shares, " . 
@@ -186,8 +206,10 @@ class Transaction {
             margin_charge => $this->margin_charge, 
             amount => $this->amount,
             balance => $balance,
-            comment => $this->comment);
-        
+            comment => $this->comment); */
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(price => null, balance => $balance));
+        $this->debug && log_query($query, $params, "INSERT DIVIDEND TXN");
         $result = getDatabase()->execute($query, $params);
         
         if ( ! $result ) {
@@ -230,7 +252,24 @@ class Transaction {
     }
     
     public function saveNull() {
-    	error_log("save Null not implemented yet");
+    	error_log("SAVE_NULL: comment is " . $this->comment);
+        getDatabase()->execute("START TRANSACTION");
+
+        $this->fetchPreviousBalance();
+        
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(balance => $this->previous_balance));
+        
+        $this->debug && log_query($query, $params, "TXN INSERT");
+        $result = getDatabase()->execute($query, $params);
+        
+        if ( ! $result ) {
+        	error_log(" ======= INSERT NULL TXN FAILED ======== ");
+        	$result = getDatabase()->execute("ROLLBACK");
+    	} else {
+    		$result = getDatabase()->execute("COMMIT");
+    	}
+    	return $result;
     }
     
     private function updateBalance() {
@@ -289,11 +328,6 @@ class Transaction {
         $this->security_symbol = $result;
     }
 
-    public function insufficientShares($outstanding = 0) {
-        // $this->comment = "Insufficient shares, " . $outstanding . " available";
-        // TODO 
-    }
-    
     public function fetchPreviousBalance() {
     	error_log("fetchPreviousBalance");
     	$query = "SELECT balance FROM " . Player::TABLENAME . 
@@ -305,16 +339,17 @@ class Transaction {
     
     private static function insertQuery() {
     	return " INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id, year, security_id, shares, " . 
-            " price, income, margin, margin_charge, amount, balance, comment) " .
-            " values (:user_id, :game_id, :year, :security_id, :shares, " . 
-            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
+            " (user_id, game_id, year, action, security_id, shares, " . 
+            " price, income, margin, margin_charge, amount, balance, invalid, comment) " .
+            " values (:user_id, :game_id, :year, :action, :security_id, :shares, " . 
+            " :price, :income, :margin, :margin_charge, :amount, :balance, :invalid, :comment)";
     }
     
     private function dbParams($override = array()) {
     	$params = array(user_id => $this->user_id, 
             game_id => $this->game_id, 
             year => $this->year, 
+            action => $this->action,
             security_id => $this->security_id, 
             shares => $this->shares, 
             price => $this->price, 
@@ -323,6 +358,7 @@ class Transaction {
             margin_charge => $this->margin_charge, 
             amount => $this->amount,
             balance => $this->balance,
+            invalid => $this->invalid,
             comment => $this->comment);
         foreach ($override as $key => $value) {
         	if ( array_key_exists($key, $params) ) {

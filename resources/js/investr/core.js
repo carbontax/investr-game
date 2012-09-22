@@ -150,8 +150,13 @@ function InvestrViewModel() {
 			error: self.ajaxFailureCallback
 		});
 	}
+	
+	self.reloadGame = function() {
+		self.openGame(self.game());
+	}
 
 	self.closeGame = function() {
+		self.clearMessages();
 		self.game(null);
 	}
 

@@ -13,6 +13,7 @@ function Transaction(transaction) {
 	self.balance = transaction.balance;
 	self.income = transaction.income;
 	self.margin = transaction.margin;
+	self.invalid = transaction.invalid;
 	self.comment = transaction.comment;
 /*	if ( typeof transaction === "number" ) {
 		// $.map() treats an object with a single property as the value itself

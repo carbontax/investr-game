@@ -156,6 +156,7 @@ class GameController
     // DEVEL ONLY
     static public function apiGameProcessOrders($game_id) {
         $game = self::apiGame($game_id);
+        $game->setDebug();
         $game->processAllOrders();
     }
 
