@@ -240,6 +240,19 @@ class Game extends Model {
 		foreach ($orders['orders'] as $key => $order_data) {
 			array_push($result, $this->addOrder($order_data));
 		}
+		
+		/*
+		 * TODO move this to its own method.
+		 */
+		$allPlayersHaveOrdered = true;
+		foreach ($this->players as $player) {
+			if (! $this->player->hasOrdered($this->year) ) {
+				$allPlayersHaveOrdered = false;
+			}
+		}
+		if ($allPlayersHaveOrdered) {
+			$this->processAllOrders();
+		}
 		return $result;
 	}
 
@@ -254,6 +267,10 @@ class Game extends Model {
 		return $order;
 	}
 
+	/**
+	 * 
+	 * TODO rename this endGameYear or something.
+	 */
 	public function processAllOrders() {
 		// end of year
 		$this->processAllSellOrders();

@@ -78,9 +78,9 @@ function Game(game) {
 	self.turn = game.turn;
 	self.turnFmt = ko.computed(function() {
 		if ( self.turn && parseInt(self.turn) > 0 ) {
-			return "Done";
+			return "Waiting for other players";
 		}
-		return "Waiting";
+		return "Take your turn";
 	});
 
 	// ORDERS 

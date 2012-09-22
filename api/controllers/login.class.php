@@ -31,6 +31,9 @@ class LoginController
     if ( $user === null ) {
       return LoginController::apiUnauthorizedStatus("Please log in");
     }
+    
+    $user->activeGames = GameController::apiActiveGames();
+    $user->newGames = GameController::apiNewGames();
     return $user;
   }
 
