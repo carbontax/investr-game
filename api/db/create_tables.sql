@@ -258,3 +258,27 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `username`, `password`, `salt`, `email`) VALUES
 (1, 'carbontax', '2f11d176d8d89843dd9f6a5fbe8c2291f976a5e5', 'berkshirehathaway', 'carbontax@gmail.com'),
 (2, 'googalan', '2f11d176d8d89843dd9f6a5fbe8c2291f976a5e5', 'berkshirehathaway', 'googalan@gmail.com');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role`
+--
+
+CREATE TABLE IF NOT EXISTS `role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_role`
+--
+
+CREATE TABLE IF NOT EXISTS `user_role` (
+  `user_id` int(11) NOT NULL,
+  `role_id` int(11) NOT NULL,
+  UNIQUE KEY `user_id` (`user_id`,`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
