@@ -32,7 +32,7 @@ function Player(player, game) {
 	self.loadOrders = function(orders) {
 		self.orders([]);
 		$.map(orders, function(order) {
-			log.info("order = " + order);
+			//log.info("order = " + order);
 			var security = ko.utils.arrayFilter(game.securities(), function(s) {
 				return s.symbol === order.security_symbol;
 			})[0];

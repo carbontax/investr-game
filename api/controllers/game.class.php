@@ -1,15 +1,10 @@
 <?php
 class GameController
 {
-/*    static public function apiGames() {
-        $username = getSession()->get(Constants::USERNAME);
-        if ( ! $username ) {
-            http_response_code(401);
-            return "Please log in";
-        } else {
-            return json_encode(self::getDummyGames());
-        }
-    }*/
+	/**
+	 * @deprecated
+	 * Enter description here ...
+	 */
     static public function apiActiveGames() {
         $games = array();
         $user = UserController::getLoggedInUser();

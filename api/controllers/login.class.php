@@ -15,7 +15,7 @@ class LoginController
     
       getSession()->set(Constants::USERNAME, $user['username']);
       $user = UserController::getLoggedInUser();
-      $user->activeGames = GameController::apiActiveGames();
+      $user->fetchGames();
       $user->newGames = GameController::apiNewGames();
       return $user;
   }
@@ -35,7 +35,8 @@ class LoginController
       return LoginController::apiUnauthorizedStatus("Please log in");
     }
     
-    $user->activeGames = GameController::apiActiveGames();
+//    $user->activeGames = GameController::apiActiveGames();
+	$user->fetchGames();
     $user->newGames = GameController::apiNewGames();
     return $user;
   }

@@ -30,6 +30,10 @@ function InvestrViewModel() {
 	self.activeGames = ko.computed(function() {
 		return self.user() ? self.user().activeGames() : [];
 	});
+	
+	self.completedGames = ko.computed(function() {
+		return self.user() ? self.user().completedGames() : [];
+	});
 
 	self.newGames = ko.computed(function() {
 		return self.user() ? self.user().newGames() : [];
@@ -187,7 +191,7 @@ function InvestrViewModel() {
 			},
 			error: self.ajaxFailureCallback
 		});
-		log.info("Count new games: " + self.newGames().length);
+//		log.info("Count new games: " + self.newGames().length);
 	}
 
 	$.ajax({
