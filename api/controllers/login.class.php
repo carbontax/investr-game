@@ -4,8 +4,7 @@ class LoginController
 
   static public function apiPostLogin() {
   	error_log("enter apiPostLogin");
-  	      sleep(3);
-  	
+  	  	
     $email = $_POST['email'];
     $password = $_POST['password'];
 
