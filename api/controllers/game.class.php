@@ -24,14 +24,18 @@ class GameController
             array('user_id' => $user->id));
 
         if ( $result !== false ) {
-            foreach ($result as $key => $game) {
-                array_push($games, new Game($game));
+            foreach ($result as $game_data) {
+            	$game = new Game($game_data);
+            	// $game->setDebug();
+            	$game->fetchSettings();
+            	$game->fetchPlayers();
+                array_push($games, $game);
             }
         }
         return $games;
     }
 
-    static public function apiGame($game_id) {
+   static public function apiGame($game_id) {
         $user = UserController::getLoggedInUser();
     	$query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ' .
             ' and id in ' .
@@ -42,11 +46,23 @@ class GameController
         $game_data = getDataBase()->one($query, $params);
 //        error_log(print_r($game_data, true));
         $game = new Game($game_data);
-        $debug = Constants::DEBUG;
-        $game->fetchSecurities($debug);
-        $game->fetchPlayer($debug);
-        $game->fetchPlayers($debug);
+        $game->setDebug();
+        $game->fetchSecurities();
+        $game->fetchPlayer();
+        $game->fetchPlayers();
         return $game;
+    }
+    
+    static public function apiGameYear($game_id) {
+        $user = UserController::getLoggedInUser();
+    	$query = 'select year from ' . Game::TABLENAME . ' where id = :game_id ' .
+            ' and id in ' .
+            ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
+        $params = array(game_id => $game_id, user_id => $user->id);
+
+        log_query($query, $params, "apiGameYear");
+        $row = getDataBase()->one($query, $params);
+        return $row;
     }
 
     static private function getGame($game_id) {
@@ -55,8 +71,6 @@ class GameController
     }
 
     static public function apiGetNewGame() {    	
-//        $username = LoginController::getUsername();
-//        $player = new Player(array('username' => $username));
         $now = strftime('%Y %b %e', time());
         $game_data = array(start_date => $now,
             number_of_players => 4,
@@ -77,7 +91,6 @@ class GameController
         	http_response_code(500);
         	return "Cannot create a new game.";
         }
-//		$savedGame = self::apiGame($id);
 		$game = self::getGame($id);
         return $game;
     }
@@ -92,6 +105,7 @@ class GameController
         $user_id = LoginController::getUserId();
 
         $game = self::getGame($game_id);
+        $game->setDebug();
         if ( $game->isFull() ) {
             http_response_code(500);
             return "Game is full";
@@ -139,9 +153,10 @@ class GameController
         error_log($query);
         $result = getDatabase()->all($query, array(user_id => LoginController::getUserId()));
         if ( $result !== false ) {
-            foreach ($result as $key => $row) {
+            foreach ($result as $row) {
             	$newGame = new Game($row);
-//            	$newGame->fetchPlayer();
+            	$newGame->setDebug();
+            	$newGame->fetchPlayers();
                 array_push($newGames, $newGame);
             }
         }

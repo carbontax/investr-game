@@ -31,10 +31,10 @@ class Game extends Model {
 		$this->year = $game['year'];
 		$this->last_year = $game['last_year'];
 		$this->turn = $game['turn'];
-		if ( $this->id ) {
-			$this->fetchSettings(true);
-			$this->fetchPlayers(true);
-		}
+/*		if ( $this->id ) {
+			$this->fetchSettings();
+			$this->fetchPlayers(); 
+		} */
 	}
 
 	public function save() {
@@ -118,18 +118,21 @@ class Game extends Model {
 		$this->players = array();
 		if ( $this->id != null ) {
 			if ( $this->year == 0 ) {
-				$query = 'SELECT p.*, u.username FROM ' . Player::TABLENAME . ' p ' .
+				$query = 'SELECT p.*, u.username, false as has_ordered ' .
+					' FROM ' . Player::TABLENAME . ' p ' .
 		            ' JOIN ' . User::TABLENAME . ' u ON p.user_id = u.id ' .
 	    	        ' WHERE game_id = :game_id';
 				$params = array('game_id' => $this->id);
 			} else {
 				$query = "SELECT p.*, u.username, " .
-				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth " . 
+				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth, " . 
+				" case when count(o.id) > 0 then true else false end as has_ordered " .
 	    		" from " . Player::TABLENAME . " p " .
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
 	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-	    		" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
+				" LEFT OUTER JOIN " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.year = :year " .
+				" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
 
@@ -224,6 +227,10 @@ class Game extends Model {
 
 	public function isFull() {
 		//error_log("players: " . count($this->players) . "; number_of_players: " . $this->number_of_players);
+		if ( ! $this->players ) {
+			$this->debug && error_log("Game->isFull(): players must be fetched");
+			$this->fetchPlayers();
+		}
 		if ( count($this->players) >= $this->number_of_players ) {
 			return true;
 		} else {
@@ -253,6 +260,7 @@ class Game extends Model {
 		if ($allPlayersHaveOrdered) {
 			$this->debug && error_log("Last player has ordered. Year end triggered.");
 			$this->processAllOrders();
+			$result['new_year'] = true;
 		}
 		return $result;
 	}

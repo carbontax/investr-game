@@ -42,7 +42,6 @@ class Transaction extends Model{
         $this->action = $txn['action'];
         $this->invalid = $txn['invalid'];
         $this->comment = $txn['comment'];
-//        $this->verify();
     }
     
     private function verify() {

@@ -26,6 +26,15 @@ function Player(player, game) {
 	self.netWorthFmt = ko.computed(function() {
 		return accounting.formatMoney(parseInt(self.balance()) + parseInt(self.portf_worth()));
 	});
+	
+	self.has_ordered = ko.observable(false);
+	if ( player.has_ordered ) {
+		self.has_ordered(player.has_ordered);
+	}
+
+	self.hasNoOrders = ko.computed(function(){
+		return ! self.has_ordered();
+	});
 
 	self.orders = ko.observableArray();
 
@@ -40,19 +49,14 @@ function Player(player, game) {
 
 			self.orders.push(new Order(order));
 		});
-		
+		if ( self.orders().length > 0 ) {
+			self.has_ordered(true);
+		}
 	}
 	
 	if ( player.orders ) {
 		// other players in the game will not have visible orders
 		self.loadOrders(player.orders);
-	}
-
-	self.hasNoOrders = function() {
-		if ( self.orders() && self.orders().length > 0 ) {
-			return false;
-		}
-		return true;
 	}
 
 }

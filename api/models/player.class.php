@@ -12,7 +12,7 @@ class Player {
     public $transactions = array();
     public $orders = array();
     public $portf_worth;
-    public $turn = 0;
+    public $has_ordered = 0;
 
     public function __construct($player = array()) {
 //    	error_log("Create player with " . print_r($player, true));
@@ -21,6 +21,7 @@ class Player {
         $this->username = $player['username'];
 	    $this->balance = $player['balance'];
 	    $this->portf_worth = $player['portf_worth'];
+	    $this->has_ordered = $player['has_ordered'];
     }
 
     public static function withRow($row = array()) {

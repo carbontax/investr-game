@@ -41,6 +41,7 @@ getApi()->get('/users', array('UserController', 'apiUsers'), EpiApi::external);
 
 getApi()->get('/games', array('GameController', 'apiGames'), EpiApi::external);
 getApi()->get('/games/(\d+)', array('GameController', 'apiGame'), EpiApi::external);
+getApi()->get('/games/(\d+)/year', array('GameController', 'apiGameYear'), EpiApi::external);
 getApi()->get('/games/new', array('GameController', 'apiGetNewGame'), EpiApi::external);
 //getApi()->get('/games/new/list', array('GameController', 'apiNewGames'), EpiApi::external);
 getApi()->post('/games', array('GameController', 'apiPostNewGame'), EpiApi::external);

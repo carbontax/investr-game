@@ -3,14 +3,11 @@ function Game(game) {
 	var self = this;
 	
 	// SETTINGS
-	self.settings = game.settings;
+	self.settings;
 
-	self.initial_balance = ko.observable(game.initial_balance);
-
-	self.number_of_players = ko.observable(game.number_of_players);
-
-	// 
-	self.id = game.id ? game.id : null;
+	self.initial_balance = ko.observable();
+	self.number_of_players = ko.observable();
+	self.id = null;
 	self.idFmt = function() {
 		if ( self.id === null ) {
 			return "Unsaved Game";
@@ -18,21 +15,16 @@ function Game(game) {
 		return "Game ID: " + self.id;
 	}
 
-	self.start_date = game.start_date;
+	self.start_date;
 	self.startDateFmt = ko.computed(function() {
 		// TODO 
 		return self.start_date;
 	});
 
 	self.securities = ko.observableArray(null);
-	if ( game.securities && game.securities.length > 0 ) {
-		self.securities($.map(game.securities, function(s) {
-			return new Security(s);
-		}));
-	}
 
-	self.year = ko.observable(game.year);
-	self.last_year = game.last_year;
+	self.year = ko.observable();
+	self.last_year;
 	self.hasNextYear = ko.computed(function() {
 		var remaining = parseInt(self.last_year) - parseInt(self.year());
 		return remaining > 1;
@@ -56,35 +48,42 @@ function Game(game) {
 		}
 	}
 	
-	self.loadPlayers(game.players);
-	
 	self.playerCount = ko.computed(function() {
 		return self.players().length;
 	});
 
-	self.other_players = ko.observableArray();
-
-	if ( game.other_players && game.other_players.length > 0 ) {
-	 	self.other_players($.map(game.other_players, function(player) {
-			return new Player(player, self);
-		}));
-	}
-
 	self.player = ko.observable();
-	if ( game.player && game.player.user_id ) {
-		self.player(new Player(game.player, self));
-	}
 
-	self.turn = game.turn;
+	self.turn; // TODO use player().has_ordered
 	self.turnFmt = ko.computed(function() {
 		if ( self.turn && parseInt(self.turn) > 0 ) {
 			return "Waiting for other players";
 		}
 		return "Take your turn";
 	});
-
-	// ORDERS 
-	self.orders = ko.observableArray([new Order()]);
+	
+	self.load = function(data) {
+		self.id = data.id;
+		self.settings = data.settings;
+		self.initial_balance(data.initial_balance);
+		self.number_of_players(data.number_of_players);
+		self.start_date = data.start_date;
+		if ( data.securities && data.securities.length > 0 ) {
+			self.securities($.map(data.securities, function(s) {
+				return new Security(s);
+			}));
+		}
+		self.year(data.year);
+		self.last_year = data.last_year;
+		self.loadPlayers(data.players);
+		if ( data.player && data.player.user_id ) {
+			self.player(new Player(data.player, self));
+		}
+		// TODO use has_ordered instead
+		self.turn = data.turn;
+	}
+	self.load(game);
+	
 	self.showOrderForm = ko.computed(function() {
 		if ( self.player() && self.player().hasNoOrders() ) {
 			return true;
@@ -92,6 +91,9 @@ function Game(game) {
 		return false;
 	});
 
+	// ORDERS 
+	self.orders = ko.observableArray([new Order()]);
+	
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
 	};
@@ -101,23 +103,35 @@ function Game(game) {
 	}
 
 	self.sendOrders = function() {
+		if (! $('#order-form').valid() ) {
+			return false;
+		}
+				
+		if (! confirm('End your turn?') ) {
+			return false;
+		}
 		var data = ko.toJSON({orders: self.orders}); 
-
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			dataType: 'json',
 			data: data,
 			success: function(data) {
-				self.player().loadOrders(data);
+				if ( data['new_year'] ) {
+					self.reload();
+				} else {
+					self.player().loadOrders(data);
+				}
 			},
 			error: function(xhr) {
 				$('#messages').addClass("label label-error").append(xhr.responseText);
 			}
-		}); 
-	
+		});	
 	}
-	
+		
 	self.sendNullOrder = function() {
+		if ( !confirm("End your turn?") ) {
+			return false;
+		}
 		var data = { 
 			orders: [{action: 'NULL', security_symbol: null, shares: null}]
 		};
@@ -165,8 +179,9 @@ function Game(game) {
 	self.ordersNetFmt = ko.computed(function() {
 		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
 	});
+// END ORDERS
 
-
+	// UNUSED
 	self.projectedPortfolio = ko.computed(function() {
 		var ppList = [];
 		if ( self.player() ) {
@@ -187,14 +202,6 @@ function Game(game) {
 		return ppList;
 	});
 
-//	self.openButtonText = ko.computed(function() {
-//		 return self.year() > 0 ? 'Open' : 'Waiting for more players';
-//	});
-	
-//	self.openButtonEnable = ko.computed(function() {
-//		 return self.year() > 0 ? true : false;
-//	});
-
 	self.joinButtonText = ko.computed(function() {
 		return self.player() ? 'Waiting for more players' : 'Join';
 	});
@@ -206,5 +213,32 @@ function Game(game) {
 		}
 		return false;
 	};
-
+	
+	self.checkNewYear = function() {
+		var newYear = false;
+		$.ajax({
+			url: '/investr-game/api/games/' + self.id + '/year',
+			type: 'get',
+			dataType: 'json',
+			success: function(data) {
+				if ( parseInt(data['year']) == parseInt(self.year) ) {
+					newYear = true;
+				}
+			},
+			error: self.ajaxFailureCallback
+		});
+		return newYear;
+	};
+	
+	self.reload = function() {
+		$.ajax({
+			url: '/investr-game/api/games/' + self.id,
+			dataType: 'json',
+			type: 'get',
+			success: function(data) {
+				self.load(data);
+			},
+			error: self.ajaxFailureCallback
+		});
+	}
 };

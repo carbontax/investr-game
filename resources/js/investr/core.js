@@ -204,7 +204,8 @@ function InvestrViewModel() {
 	}
 	
 	self.showSpinner = ko.observable(false);
-
+	
+	// Runs on page load
 	$.ajax({
 		url: '/investr-game/api/login',
 		type: 'get',
@@ -217,4 +218,5 @@ function InvestrViewModel() {
 	});
 }
 
-$(".players-summary").popover({trigger: 'mouseover'});
+//$(".players-summary").popover({trigger: 'mouseover'});
+$('#order-form').validate();

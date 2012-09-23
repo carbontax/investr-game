@@ -45,8 +45,12 @@ class User extends Model {
         $result = getDatabase()->all($query,$params);
 
         if ( $result !== false ) {
-            foreach ($result as $key => $game) {
-                array_push($this->games, new Game($game));
+            foreach ($result as $game_data) {
+            	$game = new Game($game_data);
+            	$game->setDebug();
+            	$game->fetchSettings();
+            	$game->fetchPlayers();
+                array_push($this->games, $game);
             }
         }
 	}
