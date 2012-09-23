@@ -174,17 +174,21 @@
 				</div>
 			</div>
 			<div class="row-fluid" id="game-data-container">
-				<div class="span3" id="securities-pane">
+				<div class="span2" id="securities-pane">
 					<h3>Securities</h3>
 					<div data-bind="foreach: securities">
-						<div class="well">
-							<span data-bind="text: name" class="security-name"></span>
-							<span class="security-symbol" data-bind="text: symbol"></span>
-							<div><label for="security-price">Price:</label>
-								<span class="security-price" data-bind="text: priceFmt()"></span>
+						<div class="btn security-detail-btn" data-bind="click: toggleShowDetail">
+							<div>
+							     <span class="security-symbol" data-bind="text: symbol"></span>
+                                 <span class="security-price" data-bind="text: priceFmt()"></span>
+							</div>
+							<div>
 								<span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
 								<span class="label label-success" data-bind="visible: split">SPLIT</span>
 							</div>
+						</div>
+						<div class="security-detail" data-bind="visible: showDetail">
+							<span data-bind="text: name" class="security-name"></span>
 							<div><label for="security-dividend" data-bind="text: dividendLabel()"></label>
 								<span class="security-dividend" data-bind="text: dividendFmt()"></span>
 							</div>

@@ -9,6 +9,15 @@ function Security(security) {
 	self.outstanding = ko.observable(security.outstanding);
 	self.delta = ko.observable(security.delta);
 	self.split = ko.observable(parseInt(security.split));
+	
+	self.showDetail = ko.observable(false);
+	self.toggleShowDetail = function() {
+		if ( self.showDetail() ) {
+			self.showDetail(false);
+		} else {
+			self.showDetail(true);
+		}
+	};
 
 	self.priceFmt = ko.computed(function() {
 		return accounting.formatMoney(self.price());
