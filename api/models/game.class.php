@@ -246,7 +246,7 @@ class Game extends Model {
 		 */
 		$allPlayersHaveOrdered = true;
 		foreach ($this->players as $player) {
-			if (! $this->player->hasOrdered($this->year) ) {
+			if (! $player->hasOrdered($this->year) ) {
 				$allPlayersHaveOrdered = false;
 			}
 		}

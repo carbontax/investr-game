@@ -54,7 +54,7 @@ function Order(order) {
 		self.invalid(order.invalid);
 	}
 	self.isInvalid = ko.computed(function() {
-		return self.invalid();
+		return self.invalid() + 0 > 0;
 	});
 
 	/* == AMOUNT CALCULATION == */
