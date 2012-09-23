@@ -120,7 +120,7 @@
 						<tr>
 							<td data-bind="text: id"></td>
 							<td data-bind="text: startDateFmt()"></td>
-							<td data-bind="text: playerCount()"></td>
+							<td data-bind="text: playerCount() + '/' + number_of_players()"></td>
 							<td><button class="btn" data-bind="click: $parent.joinGame, text: joinButtonText"></button></td>
 						</tr>
 					</tbody>
