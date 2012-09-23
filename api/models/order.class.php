@@ -49,6 +49,7 @@ class Order extends Model {
     }
     
     private function verify() {
+    	$this->debug && error_log("Order->verify()");
     	switch ($this->action) {
     		case Transaction::BUY_ACTION:
     		$this->verifyBuyOrder();
@@ -121,7 +122,7 @@ class Order extends Model {
         $query = "INSERT INTO " . self::TABLENAME .
             " (user_id, game_id, year, action, security_symbol, shares, margin, comment, invalid) " .
             " values (:user_id, :game_id, :year, :action, :security_symbol, :shares, :margin, :comment, :invalid)";
-        $result = getDatabase()->execute($query, array(user_id => $this->user_id,
+        $params = array(user_id => $this->user_id,
             game_id => $this->game_id,
             year => $this->year,
             action => $this->action,
@@ -129,7 +130,9 @@ class Order extends Model {
             shares => $this->shares,
             margin => $this->margin,
             comment => $this->comment,
-            invalid => $this->invalid));
+            invalid => $this->invalid);
+        $this->debug && log_query($query, $params, "Order.save()");
+        $result = getDatabase()->execute($query, $params);
 
         return $result;
     }

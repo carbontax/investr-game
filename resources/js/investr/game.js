@@ -108,9 +108,6 @@ function Game(game) {
 			dataType: 'json',
 			data: data,
 			success: function(data) {
-//				ko.utils.arrayForEach(data, function(order) {
-//					self.player().orders.push(new Order(order));
-//				});
 				self.player().loadOrders(data);
 			},
 			error: function(xhr) {
@@ -121,16 +118,14 @@ function Game(game) {
 	}
 	
 	self.sendNullOrder = function() {
-		log.error("game.sendNullOrder() is not implemented yet");
-/*		var data = { 
-			orders: {
-				action: 'NULL'
-			}
+		var data = { 
+			orders: [{action: 'NULL', security_symbol: null, shares: null}]
 		};
-		$.ajax("/investr-game/api/games" + self.id + "/orders", {
+		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			contentType: 'application/json',
-			data: data,
+			dataType: 'json',
+			data: ko.toJSON(data),
 			success: function(data) {
 				ko.utils.arrayForEach(data, function(order) {
 					self.player().orders.push(new Order(order));
@@ -139,7 +134,7 @@ function Game(game) {
 			error: function(xhr) {
 				$('#messages').append(xhr.responseText);
 			}
-		}); */
+		});
 	}
 
 	self.ordersAccountCash = ko.computed(function() {

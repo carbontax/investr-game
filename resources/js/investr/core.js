@@ -26,6 +26,7 @@ function InvestrViewModel() {
 	self.notLoggedIn = ko.computed(function() {
 		return ! self.loggedIn();
 	});
+	self.enableLoginButton = ko.observable(true);
 
 	self.activeGames = ko.computed(function() {
 		return self.user() ? self.user().activeGames() : [];
@@ -67,6 +68,8 @@ function InvestrViewModel() {
 
 	self.submitLoginForm = function() {
 		self.clearMessages();
+		self.enableLoginButton(false);
+		self.showSpinner(true);
 		var data = {
 			email: $('#email', '#login-form').val(),
 			password: $('#password', '#login-form').val()
@@ -78,10 +81,16 @@ function InvestrViewModel() {
 			type: 'post',
 			success: function(data) {
 				self.clearMessages();
+				self.showSpinner(false);
+				self.enableLoginButton(true);
 //				self.loggedIn(true);
 				self.user(new User(data));
 			},
-			error: self.ajaxFailureCallback
+			error: function(xhr) {
+				self.showSpinner(false);
+				self.enableLoginButton(true);
+				self.ajaxFailureCallback(xhr);
+			}
 		});
 		self.resetLoginForm();
 		return false;
@@ -193,6 +202,8 @@ function InvestrViewModel() {
 		});
 //		log.info("Count new games: " + self.newGames().length);
 	}
+	
+	self.showSpinner = ko.observable(false);
 
 	$.ajax({
 		url: '/investr-game/api/login',

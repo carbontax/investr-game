@@ -3,13 +3,16 @@ class LoginController
 {
 
   static public function apiPostLogin() {
+  	error_log("enter apiPostLogin");
+  	      sleep(3);
+  	
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     $user = getDatabase()->one('SELECT id, username, email FROM users WHERE email=:email AND password = sha(concat(:password, salt))', 
       array('email' => $email, 'password' => $password));
 
-    if ( ! array_key_exists('username', $user) ) {
+    if ( !$user || ! array_key_exists('username', $user) ) {
       return LoginController::apiUnauthorizedStatus();
     }
     
@@ -17,6 +20,8 @@ class LoginController
       $user = UserController::getLoggedInUser();
       $user->fetchGames();
       $user->newGames = GameController::apiNewGames();
+      
+  	  error_log("exit apiPostLogin");
       return $user;
   }
 

@@ -251,12 +251,14 @@ class Game extends Model {
 			}
 		}
 		if ($allPlayersHaveOrdered) {
+			$this->debug && error_log("Last player has ordered. Year end triggered.");
 			$this->processAllOrders();
 		}
 		return $result;
 	}
 
 	public function addOrder($order_data = array()) {
+		$this->debug && error_log("Game->addOrder(): " . print_r($order_data, true));
 		$order_data['user_id'] = $this->player->user_id;
 		$order_data['game_id'] = $this->id;
 		$order_data['year'] = $this->year;
