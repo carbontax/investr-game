@@ -334,7 +334,7 @@ class Game extends Model {
 		$query = "SELECT o.user_id, o.game_id, o.year, o.action, gsp.security_id, " .
         	" (o.shares * gsp.price) as amount, " . 
         	" case when o.shares > 0 then (o.shares * -1) else o.shares end as shares, " .
-        	" gsp.price, concat('SELL ', o.shares, ' shares of ', s.name) as comment " .
+        	" gsp.price, o.invalid, concat('SELL ', o.shares, ' shares of ', s.name) as comment " .
         	" FROM " . Order::TABLENAME . " o " .
             " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON o.game_id = gsp.game_id AND o.year = gsp.year " .
             " JOIN " . Security::TABLENAME . " s ON s.symbol = o.security_symbol AND gsp.security_id = s.id " . 

@@ -46,7 +46,8 @@ class Transaction extends Model{
     }
     
     private function verify() {
-    	error_log("TXN verify(): invalid = " . $this->invalid);
+    	$this->debug && error_log("TXN verify(): invalid = " . $this->invalid);
+    	$this->debug && error_log(print_r($this, true));
     	if ( $this->invalid != Order::VALID ) {
     		$this->action = self::NULL_ACTION;
     		try {
