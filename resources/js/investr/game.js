@@ -30,11 +30,11 @@ function Game(game) {
 		return remaining > 1;
 	});
 	self.yearFmt = ko.computed(function() {
-		if ( self.hasNextYear() ) {
+/*		if ( self.hasNextYear() ) {
 			return "Year " + self.year();
 		} else {
 			return "Game Over";
-		}
+		} */
 	});
 
 	self.players = ko.observableArray();
