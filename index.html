@@ -31,6 +31,9 @@
 
 	<script type="text/javascript">
 	$(document).ready(function() {
+		$('#logo-container').click(function() {
+			window.location.href = "";
+		});
 		ko.applyBindings(new InvestrViewModel());
 	});
 	</script>
@@ -90,7 +93,7 @@
 		<div id="header-container">
 			<div class="row-fluid" id="header">
 				<div class="span8">
-					<div id="logo-container" data-bind="click: window.location.reload">
+					<div id="logo-container">
 						<span id="site-logo"></span>
 						<span id="site-title" data-bind="text: title">Investr</span>
 					</div>
@@ -176,7 +179,8 @@
 			<div class="row-fluid" id="game-data-container">
 				<div class="span2" id="securities-pane">
 					<h3>Securities</h3>
-					<div data-bind="foreach: securities">
+					<ul id="securities-list" data-bind="foreach: securities">
+					<li>
 						<div class="btn security-detail-btn" data-bind="click: toggleShowDetail">
 							<div>
 							     <span class="security-symbol" data-bind="text: symbol"></span>
@@ -187,7 +191,7 @@
 								<span class="label label-success" data-bind="visible: split">SPLIT</span>
 							</div>
 						</div>
-						<div class="security-detail" data-bind="visible: showDetail">
+						<div class="well security-detail" data-bind="visible: showDetail">
 							<span data-bind="text: name" class="security-name"></span>
 							<div><label for="security-dividend" data-bind="text: dividendLabel()"></label>
 								<span class="security-dividend" data-bind="text: dividendFmt()"></span>
@@ -198,7 +202,8 @@
 							</div>
 						</div>
 					</div>
-				</div>
+					</li>
+				</ul>
 				<div class="span9" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
@@ -261,9 +266,9 @@
 									</table>
 									</form>
 									<div id="order-button-bar" class="container">
-										<button class="btn btn-success" data-bind="click: newOrder">ANOTHER ORDER</button>
-										<button class="btn btn-warning" data-bind="click: sendOrders">SEND ORDERS</button>
-										<button class="btn btn-danger" data-bind="click: sendNullOrder">NO ORDERS THIS YEAR</button>
+										<button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons">ANOTHER ORDER</button>
+										<button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons">SEND ORDERS</button>
+										<button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons">NO ORDERS THIS YEAR</button>
 									</div>
 								</div>
 								<div class="well" id="orders-account-container">

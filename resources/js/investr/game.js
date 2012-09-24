@@ -62,7 +62,12 @@ function Game(game) {
 		return "Take your turn";
 	});
 	
-	self.load = function(data) {
+	// an array of new Orders for the current year.
+	self.orders = ko.observableArray();
+	
+	self.disableOrderButtons = ko.observable(false);
+
+	self.loadGame = function(data) {
 		self.id = data.id;
 		self.settings = data.settings;
 		self.initial_balance(data.initial_balance);
@@ -81,9 +86,13 @@ function Game(game) {
 		}
 		// TODO use has_ordered instead
 		self.turn = data.turn;
+		//reset the New Orders form.
+		self.orders([new Order()]);
+		self.disableOrderButtons(false);
 	}
-	self.load(game);
-	
+	if ( game ) {
+		self.loadGame(game);
+	}
 	self.showOrderForm = ko.computed(function() {
 		if ( self.player() && self.player().hasNoOrders() ) {
 			return true;
@@ -92,7 +101,6 @@ function Game(game) {
 	});
 
 	// ORDERS 
-	self.orders = ko.observableArray([new Order()]);
 	
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
@@ -101,25 +109,32 @@ function Game(game) {
 	self.removeOrder = function(order) {
 		self.orders.remove(order);	
 	}
-
+	
 	self.sendOrders = function() {
 		if (! $('#order-form').valid() ) {
 			return false;
 		}
-				
+		self.postJSONOrders();
+	}
+	
+	self.postJSONOrders = function() {
 		if (! confirm('End your turn?') ) {
 			return false;
 		}
+		self.disableOrderButtons(true);
+		
 		var data = ko.toJSON({orders: self.orders}); 
+//		var data = data || ko.toJSON({orders: self.orders}); 
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			dataType: 'json',
 			data: data,
-			success: function(data) {
-				if ( data['new_year'] ) {
+			success: function(responseData) {
+//				console.log('success');
+				if ( responseData['new_year'] ) {
 					self.reload();
 				} else {
-					self.player().loadOrders(data);
+					self.player().loadOrders(responseData);
 				}
 			},
 			error: function(xhr) {
@@ -129,26 +144,26 @@ function Game(game) {
 	}
 		
 	self.sendNullOrder = function() {
-		if ( !confirm("End your turn?") ) {
-			return false;
-		}
-		var data = { 
-			orders: [{action: 'NULL', security_symbol: null, shares: null}]
-		};
-		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
-			type: 'post',
-			contentType: 'application/json',
-			dataType: 'json',
-			data: ko.toJSON(data),
-			success: function(data) {
-				ko.utils.arrayForEach(data, function(order) {
-					self.player().orders.push(new Order(order));
-				});
-			},
-			error: function(xhr) {
-				$('#messages').append(xhr.responseText);
-			}
-		});
+//		if ( !confirm("End your turn?") ) {
+//			return false;
+//		}
+		var order = new Order({action: 'NULL'});
+		self.orders([order]);
+		self.postJSONOrders();
+//		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
+//			type: 'post',
+//			contentType: 'application/json',
+//			dataType: 'json',
+//			data: ko.toJSON(data),
+//			success: function(data) {
+//				ko.utils.arrayForEach(data, function(order) {
+//					self.player().orders.push(new Order(order));
+//				});
+//			},
+//			error: function(xhr) {
+//				$('#messages').append(xhr.responseText);
+//			}
+//		});
 	}
 
 	self.ordersAccountCash = ko.computed(function() {
@@ -169,6 +184,7 @@ function Game(game) {
 	});
 
 	self.ordersIncome = ko.computed(function() {
+		window.console && console.log("ordersIncome not implemented");
 		return 0;
 	});
 
@@ -221,22 +237,26 @@ function Game(game) {
 			type: 'get',
 			dataType: 'json',
 			success: function(data) {
-				if ( parseInt(data['year']) == parseInt(self.year) ) {
+				if ( parseInt(data['year']) > parseInt(self.year()) ) {
 					newYear = true;
 				}
 			},
 			error: self.ajaxFailureCallback
 		});
-		return newYear;
+		
+		if ( newYear ) {
+			self.reload();
+		}
 	};
 	
 	self.reload = function() {
+		window.console && console.log("reload called");
 		$.ajax({
 			url: '/investr-game/api/games/' + self.id,
 			dataType: 'json',
 			type: 'get',
 			success: function(data) {
-				self.load(data);
+				self.loadGame(data);
 			},
 			error: self.ajaxFailureCallback
 		});

@@ -114,11 +114,11 @@ class Game extends Model {
 
 	/* for list functions we need minimal player information */
 	public function fetchPlayers() {
-		$this->debug && error_log("models.game.fetchPlayers");
+		$this->debug && error_log("Game::fetchPlayers() enter");
 		$this->players = array();
 		if ( $this->id != null ) {
 			if ( $this->year == 0 ) {
-				$query = 'SELECT p.*, u.username, false as has_ordered ' .
+				$query = 'SELECT p.*, u.username, 0 as has_ordered ' .
 					' FROM ' . Player::TABLENAME . ' p ' .
 		            ' JOIN ' . User::TABLENAME . ' u ON p.user_id = u.id ' .
 	    	        ' WHERE game_id = :game_id';
@@ -126,12 +126,12 @@ class Game extends Model {
 			} else {
 				$query = "SELECT p.*, u.username, " .
 				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth, " . 
-				" case when count(o.id) > 0 then true else false end as has_ordered " .
+				" case when count(o.id) > 0 then 1 else 0 end as has_ordered " .
 	    		" from " . Player::TABLENAME . " p " .
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
 	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-				" LEFT OUTER JOIN " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.year = :year " .
+				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = :year " .
 				" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
@@ -144,6 +144,7 @@ class Game extends Model {
 				array_push($this->players, $p);
 			}
 		}
+		$this->debug && error_log("Game::fetchPlayers() exit");
 	}
 
 	public function fetchPlayer() {

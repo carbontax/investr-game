@@ -36,21 +36,34 @@ class GameController
     }
 
    static public function apiGame($game_id) {
+   		error_log("apiGame enter with " . $game_id);
+   		$game == null;
+   		
         $user = UserController::getLoggedInUser();
-    	$query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ' .
-            ' and id in ' .
-            ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
-        $params = array(game_id => $game_id, user_id => $user->id);
-
+        if ( $user->isAdmin() ) {
+    		$query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ';
+        	$params = array(game_id => $game_id);
+        } else {
+           	$query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ' .
+    	        ' and id in ' .
+        	    ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
+	        $params = array(game_id => $game_id, user_id => $user->id);
+        }
         log_query($query, $params, "apiGame");
+        
         $game_data = getDataBase()->one($query, $params);
-//        error_log(print_r($game_data, true));
-        $game = new Game($game_data);
-        $game->setDebug();
-        $game->fetchSecurities();
-        $game->fetchPlayer();
-        $game->fetchPlayers();
+        if ( $game_data ) {
+	        error_log("apiGame: game_data FOUND " . print_r($game_data, true));
+	        $game = new Game($game_data);
+	        $game->setDebug();
+	        $game->fetchSecurities();
+	        $game->fetchPlayer();
+	        $game->fetchPlayers();
+        } else {
+        	error_log($user->username ." HAS NO ACCESS TO GAME " . $game_id);
+        }
         return $game;
+   		error_log("apiGame exit");
     }
     
     static public function apiGameYear($game_id) {

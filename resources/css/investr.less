@@ -2,6 +2,7 @@
 @investr-bkgd: #006666;
 @navbar-bkgd: #F5F5F5;
 @invalid: #FF6666;
+@popup-bkgd: #FCF8DC;
 
 body {
 	background-color: white;
@@ -149,9 +150,22 @@ label { display: inline; }
 	}
 	
 	#securities-pane {
+	   ul#securities-list {
+	       list-style-type: none;
+	       text-align: left;
+	   }
+	   
 	   .security-detail-btn {
 	       margin-bottom: 0.4em;
 	   }
+	   
+	   .security-detail {
+	       position: absolute;
+	       width: 200px;
+	       z-index: 2000;
+	       background-color: @popup-bkgd;
+	   }
+	   
 	   .security-symbol {
 			font-weight: bold;
 		}
