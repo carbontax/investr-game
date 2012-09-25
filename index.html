@@ -133,7 +133,7 @@
 				<div class="span3" id="active-games-container" data-bind="visible: activeGames().length > 0">
 				<h3>Active Games</h3>
 					<div data-bind="foreach: activeGames()" >
-						<div class="btn open-game-btn" data-bind="click: $parent.openGame">
+						<div class="well open-game-btn" data-bind="click: $parent.openGame">
 							  <div>
 								<span data-bind="text: 'Game #' + id"></span>
 								<span data-bind="text: turnFmt()"></span>
@@ -150,7 +150,7 @@
                 <div class="span3" id="completed-games-container" data-bind="visible: completedGames().length > 0">
                 <h3>Completed Games</h3>
                     <div data-bind="foreach: completedGames()" >
-                        <div class="btn open-game-btn" data-bind="click: $parent.openGame">
+                        <div class="well open-game-btn" data-bind="click: $parent.openGame">
                               <div>
                                 <span data-bind="text: 'Game #' + id"></span>
                               </div>
@@ -172,7 +172,7 @@
 							<span id="game-player-net-worth" data-bind="text: player().netWorthFmt()"></span>
 						</span>
 						<span><button class="btn" id="game-reload-button" data-bind="click: checkNewYear">YEAR END?</button></span>
-						<span><button class="btn" id="game-close-button" data-bind="click: $parent.closeGame">VIEW ALL GAMES</button></span>
+						<span><button class="btn" id="game-close-button" data-bind="click: $parent.viewAllGames">VIEW ALL GAMES</button></span>
 					</div>
 				</div>
 			</div>
@@ -201,18 +201,78 @@
 								<span class="security-outstanding" data-bind="text: outstanding()"></span>
 							</div>
 						</div>
-					</div>
 					</li>
-				</ul>
+    				</ul>
+                </div>
 				<div class="span9" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
+                        <li><a href="#orders" data-toggle="tab">Orders</a></li> 
 						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
-						<li><a href="#orders" data-toggle="tab">Orders</a></li> 
 						<li><a href="#portfolio" data-toggle="tab">Portfolio</a></li> 
 					</ul>
-
 					<div class="tab-content">
+                        <div class="tab-pane" id="orders">
+                            <div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
+                                <div id="new-orders-header">
+                                    <span id="new-orders-title">New Orders</span> 
+                                    <span class="label" data-bind="css: { 'label-success': ordersAccountCash() >= 0, 'label-important': ordersAccountCash() < 0 }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
+                                </div>
+                                <div id="order-form-container">
+                                    <form id="order-form">
+                                    <table class="table table-bordered table-condensed">
+                                        <thead data-bind="template: 'order-table-header'"></thead>
+                                        <tbody data-bind="foreach: orders()">
+                                            <tr>
+                                                <td><select name="action" data-bind="options: actionOptions, value: action">
+                                                </select></td>
+                                                <td><select name="security" data-bind="options: $parent.securities, optionsText: function(s) { return s.symbol; }, value: security, optionsCaption: 'Choose ...'">
+                                                </select></td>
+                                                <td data-bind="text: pricePerShareFmt()"></td>
+                                                <td><input class="order-shares required" name="shares" type="number" width="5" data-bind="value: shares"/></td>
+                                                <td data-bind="text: amountFmt()"></td>
+                                                <td><button class="btn btn-danger" data-bind="click: $parent.removeOrder">X</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    </form>
+                                    <div id="order-button-bar" class="container">
+                                        <button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons">ANOTHER ORDER</button>
+                                        <button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons">SEND ORDERS</button>
+                                        <button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons">NO ORDERS THIS YEAR</button>
+                                    </div>
+                                </div>
+                                <div class="well" id="orders-portfolio-container">
+	                                <h3>Current Holdings</h3>
+	                                <table class="table">
+	                                    <thead>
+	                                        <tr>
+	                                            <td>Security</td>
+	                                            <td>Shares</td>
+	                                            <td>Income</td>
+	                                        </tr>
+	                                    </thead>
+	                                    <tbody data-bind="foreach: player().portfolio">
+	                                        <tr data-bind="visible: shares > 0">
+	                                            <td data-bind="text: symbol"></td>
+	                                            <td data-bind="text: shares"></td>
+	                                            <td data-bind="text: incomeFmt()"></td>
+	                                        </tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+                            </div>
+                            <div id="orders-display-container" data-bind="visible: ! showOrderForm()">
+                                <h2>Waiting for other players to order ...</h2>
+                                <h3>Pending orders for this turn</h3>
+                                <div id="orders-display-table-container">
+                                    <table class="table table-bordered table-condensed" >
+                                        <thead data-bind="template: 'order-table-header'"></thead>
+                                        <tbody data-bind="template: {name: 'order-display-row', foreach: player().orders()}"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 						<div class="tab-pane active" id="transactions">
 							<h3>RECORD OF TRANSACTIONS</h3>
 							<table class="table table-bordered table-condensed">
@@ -243,49 +303,6 @@
 									</tr>
 								</tbody>
 							</table>
-						</div>
-						<div class="tab-pane" id="orders">
-							<div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
-								<h3>New Orders</h3>
-								<div id="order-form-container">
-								    <form id="order-form">
-									<table class="table table-bordered table-condensed">
-										<thead data-bind="template: 'order-table-header'"></thead>
-										<tbody data-bind="foreach: orders()">
-											<tr>
-												<td><select name="action" data-bind="options: actionOptions, value: action">
-												</select></td>
-												<td><select name="security" data-bind="options: $parent.securities, optionsText: function(s) { return s.symbol; }, value: security, optionsCaption: 'Choose ...'">
-												</select></td>
-												<td data-bind="text: pricePerShareFmt()"></td>
-												<td><input class="order-shares required" name="shares" type="number" width="5" data-bind="value: shares"/></td>
-												<td data-bind="text: amountFmt()"></td>
-												<td><button class="btn btn-danger" data-bind="click: $parent.removeOrder">X</button></td>
-											</tr>
-										</tbody>
-									</table>
-									</form>
-									<div id="order-button-bar" class="container">
-										<button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons">ANOTHER ORDER</button>
-										<button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons">SEND ORDERS</button>
-										<button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons">NO ORDERS THIS YEAR</button>
-									</div>
-								</div>
-								<div class="well" id="orders-account-container">
-									<span class="label" data-bind="css: { 'label-success': ordersAccountCash() >= 0, 'label-important': ordersAccountCash() < 0 }">AVAILABLE FUNDS</span>
-									<span data-bind="text: ordersAccountCashFmt()"></span>
-								</div>
-							</div>
-							<div id="orders-display-container" data-bind="visible: ! showOrderForm()">
-							    <h2>Waiting for other players to order ...</h2>
-								<h3>Pending orders for this turn</h3>
-								<div id="orders-display-table-container">
-									<table class="table table-bordered table-condensed" >
-										<thead data-bind="template: 'order-table-header'"></thead>
-										<tbody data-bind="template: {name: 'order-display-row', foreach: player().orders()}"></tbody>
-									</table>
-								</div>
-							</div>
 						</div>
 						<div class="tab-pane" id="portfolio">
 							<div id="portfolio-container">

@@ -238,15 +238,16 @@ function Game(game) {
 			dataType: 'json',
 			success: function(data) {
 				if ( parseInt(data['year']) > parseInt(self.year()) ) {
-					newYear = true;
+					self.reload();
+					$('#game-status-container').effect('highlight', {}, 1500);
 				}
 			},
 			error: self.ajaxFailureCallback
 		});
 		
-		if ( newYear ) {
-			self.reload();
-		}
+//		if ( newYear ) {
+//			self.reload();
+//		}
 	};
 	
 	self.reload = function() {

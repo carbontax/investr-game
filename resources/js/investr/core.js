@@ -165,14 +165,23 @@ function InvestrViewModel() {
 		});
 	}
 	
-	self.reloadGame = function() {
-		self.openGame(self.game());
-	}
+//	self.reloadGame = function() {
+//		self.openGame(self.game());
+//	}
 
-	self.closeGame = function() {
+	self.viewAllGames = function() {
 		self.clearMessages();
-		self.game(null);
-	}
+		$.ajax({
+			url: '/investr-game/api/login',
+			type: 'get',
+			dataType: 'json',
+			success: function(data) {
+				self.user().loadUser(data);
+				self.game(null);
+			},
+			error: self.ajaxFailureCallback
+		});
+	};
 
 	self.logoutAction = function() {
 		self.user(null);
@@ -185,23 +194,6 @@ function InvestrViewModel() {
 			}
 		});
 	}
-
-	self.getNewGames = function() {
-		self.clearMessages();
-		$.ajax({
-			url: '/investr-game/api/games/new/list',
-			type: 'get',
-			dataType: 'json',
-			success: function(data) {
-				$.each(data, function() {
-					var g = new Game(this);
-					self.newGames().push(g);
-				});
-			},
-			error: self.ajaxFailureCallback
-		});
-//		log.info("Count new games: " + self.newGames().length);
-	}
 	
 	self.showSpinner = ko.observable(false);
 	
@@ -212,7 +204,6 @@ function InvestrViewModel() {
 		dataType: 'json',
 		success: function(data) {
 			self.user(new User(data));
-//			self.getNewGames();
 		},
 		error: self.ajaxFailureCallback
 	});

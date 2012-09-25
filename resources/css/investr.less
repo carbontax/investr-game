@@ -78,6 +78,9 @@ label { display: inline; }
 #games-container {
     .open-game-btn {
         margin-bottom: 0.4em;
+        &:hover {
+            background-color: @popup-bkgd;
+        }
     }
     
 	table {
@@ -121,6 +124,20 @@ label { display: inline; }
 	}
 	
 	#orders {
+	   #new-orders-header {
+	       margin-bottom: 0.5em;
+	       
+	       span#new-orders-title {
+	           font-size: 140%;
+	           margin-right: 1em;
+	           padding: 0 0.25em;
+	       }
+	       
+	       span.label {
+	           font-size: 125%;
+	       }
+	   }
+	
 		table {
 			color: @investr-bkgd;
 	
@@ -133,6 +150,10 @@ label { display: inline; }
 		}
 	
 		input.order-shares { width: 5em;}
+		
+		div#order-button-bar {
+		  margin-bottom: 0.5em;
+		}
 	}
 	
 	
@@ -156,6 +177,7 @@ label { display: inline; }
 	   }
 	   
 	   .security-detail-btn {
+	       width: 110px;
 	       margin-bottom: 0.4em;
 	   }
 	   
