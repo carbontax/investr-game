@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap.css"/>
 <!-- 	<link rel="stylesheet" type="text/css" href="resources/css/jquery-ui-1.8.14.custom.css"/> -->
 	<link rel="stylesheet" type="text/less" href="resources/css/investr.less"/>
@@ -73,7 +74,54 @@
 			<span data-bind="text: '(' + netWorthFmt() + ')'"></span>
 		</li>
 	</script>
-    <script type="text/template" id="security-item">
+    <script type="text/template" id="security-item-btn">
+        <li>
+            <div class="btn security-detail-btn" data-bind="click: toggleShowDetail">
+                <div>
+                     <span class="security-symbol" data-bind="text: symbol"></span>
+                     <span class="security-price" data-bind="text: priceFmt()"></span>
+                </div>
+                <div>
+                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
+                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
+                </div>
+            </div>
+            <div class="well security-detail" data-bind="visible: showDetail">
+                 <span data-bind="text: name" class="security-name"></span>
+                 <div>
+                      <label for="security-dividend" data-bind="text: dividendLabel()"></label>
+                      <span class="security-dividend" data-bind="text: dividendFmt()"></span>
+                </div>
+                <div>
+                    <label for="security-outstanding">Available:</label>
+                    <span class="security-outstanding" data-bind="text: outstanding()"></span>
+                </div>
+           </div>
+       </li>   
+    </script>
+    <script type="text/template" id="security-item-link">
+        <li>
+            <a class="security-detail-link" data-bind="click: toggleShowDetail">
+                <div>
+                    <span class="security-symbol" data-bind="text: symbol"></span>
+                    <span class="security-price" data-bind="text: priceFmt()"></span></div>
+                <div>
+                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
+                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
+                </div>
+            </a>
+            <div class="well security-detail" data-bind="visible: showDetail">
+                 <span data-bind="text: name" class="security-name"></span>
+                 <div>
+                      <label for="security-dividend" data-bind="text: dividendLabel()"></label>
+                      <span class="security-dividend" data-bind="text: dividendFmt()"></span>
+                </div>
+                <div>
+                    <label for="security-outstanding">Available:</label>
+                    <span class="security-outstanding" data-bind="text: outstanding()"></span>
+                </div>
+           </div>
+       </li>   
     </script>
     <script type="text/template" id="login-form-tmpl">
         <form id="login-form">
@@ -111,6 +159,8 @@
 		</div>
 		<div class="row-fluid">
 			<div class="span12" id="games-container" data-bind="visible: shouldDisplayGamesLists">
+            <!--  ALL GAMES CONTAINER 
+********************************************************** -->
 				<h3 data-bind="visible: newGames().length > 0">New Games</h3>
 				<table class="table table-bordered table-condensed" id="new-games-table" data-bind="visible: newGames().length > 0">
 					<thead>
@@ -162,7 +212,8 @@
             </div>
 		</div>
 		<div id="game-container" data-bind="with: game">
-			<!-- ***************************** GAME CONTAINER ***************************** -->
+			<!--  GAME CONTAINER 
+********************************************************** -->
 			<div class="row-fluid" id="game-menu-container">
 				<div>
 					<div class="container">
@@ -177,34 +228,16 @@
 				</div>
 			</div>
 			<div class="row-fluid" id="game-data-container">
+            <!-- GAME SECURITY NAV
+********************************************************** -->
 				<div class="span2" id="securities-pane">
-					<h3>Securities</h3>
-					<ul id="securities-list" data-bind="foreach: securities">
-					<li>
-						<div class="btn security-detail-btn" data-bind="click: toggleShowDetail">
-							<div>
-							     <span class="security-symbol" data-bind="text: symbol"></span>
-                                 <span class="security-price" data-bind="text: priceFmt()"></span>
-							</div>
-							<div>
-								<span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
-								<span class="label label-success" data-bind="visible: split">SPLIT</span>
-							</div>
-						</div>
-						<div class="well security-detail" data-bind="visible: showDetail">
-							<span data-bind="text: name" class="security-name"></span>
-							<div><label for="security-dividend" data-bind="text: dividendLabel()"></label>
-								<span class="security-dividend" data-bind="text: dividendFmt()"></span>
-							</div>
-							<div>
-								<label for="security-outstanding">Available:</label>
-								<span class="security-outstanding" data-bind="text: outstanding()"></span>
-							</div>
-						</div>
-					</li>
+					<h4> Securities</h4>
+					<ul class="nav nav-list affix" id="securities-list" data-bind="template: {name:'security-item-link', foreach: securities}">
     				</ul>
                 </div>
-				<div class="span9" id="tabs-pane">
+            <!-- GAME MAIN NAV
+********************************************************** -->
+				<div class="span10" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
                         <li><a href="#orders" data-toggle="tab">Orders</a></li> 
@@ -216,7 +249,7 @@
                             <div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
                                 <div id="new-orders-header">
                                     <span id="new-orders-title">New Orders</span> 
-                                    <span class="label" data-bind="css: { 'label-success': ordersAccountCash() >= 0, 'label-important': ordersAccountCash() < 0 }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
+                                    <span class="label" data-bind="css: { 'label-success': ordersCashOk, 'label-important': ordersCashBust }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
                                 </div>
                                 <div id="order-form-container">
                                     <form id="order-form">
@@ -231,15 +264,18 @@
                                                 <td data-bind="text: pricePerShareFmt()"></td>
                                                 <td><input class="order-shares required" name="shares" type="number" width="5" data-bind="value: shares"/></td>
                                                 <td data-bind="text: amountFmt()"></td>
-                                                <td><button class="btn btn-danger" data-bind="click: $parent.removeOrder">X</button></td>
+                                                <td>
+                                                    <button class="btn btn-danger" data-bind="click: $parent.removeOrder">&#10005;</button>
+                                                    <button class="btn btn-success visible-phone visible-tablet" data-bind="click: blur">&#10003;</button>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                     </form>
                                     <div id="order-button-bar" class="container">
-                                        <button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons">ANOTHER ORDER</button>
-                                        <button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons">SEND ORDERS</button>
-                                        <button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons">NO ORDERS THIS YEAR</button>
+                                        <button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons" title="Place another buy/sell order.">MORE</button>
+                                        <button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons" title="End your turn.">DONE</button>
+                                        <button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons" title="Take no action this turn.">STAND</button>
                                     </div>
                                 </div>
                                 <div class="well" id="orders-portfolio-container">

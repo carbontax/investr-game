@@ -66,6 +66,12 @@ function Game(game) {
 	self.orders = ko.observableArray();
 	
 	self.disableOrderButtons = ko.observable(false);
+	self.disableStandButton = ko.computed(function() {
+		if ( self.orders().length == 0 ) {
+			return false;
+		}
+		return true;
+	});
 
 	self.loadGame = function(data) {
 		self.id = data.id;
@@ -181,6 +187,14 @@ function Game(game) {
 
 	self.ordersAccountCashFmt = ko.computed(function() {
 		return accounting.formatMoney(self.ordersAccountCash());
+	});
+	
+	self.ordersCashOk = ko.computed(function() {
+		return self.ordersAccountCash() >= 0;
+	});
+
+	self.ordersCashBust = ko.computed(function() {
+		return ! self.ordersCashOk();
 	});
 
 	self.ordersIncome = ko.computed(function() {

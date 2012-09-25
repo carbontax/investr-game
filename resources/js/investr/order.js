@@ -68,4 +68,8 @@ function Order(order) {
 	self.amountFmt = ko.computed(function() {
 		return accounting.formatMoney(self.amount());
 	});
+	
+	self.blur = function() {
+		return false;
+	};
 };

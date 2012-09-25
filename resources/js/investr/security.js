@@ -60,9 +60,13 @@ function Security(security) {
 	};*/
 
 	self.deltaFmt = ko.computed(function() {
-		if (self.delta()) {
-			return accounting.formatMoney(self.delta());
-		}		
+		if (self.delta() ) {
+			var prefix = "";
+			if ( parseInt(self.delta()) >= 0 ) {
+				prefix = "+";
+			}
+			return prefix + self.delta();
+		}
 	});
 
 	self.isUp = ko.computed(function() {
