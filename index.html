@@ -3,7 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap-responsive.min.css"/>
 <!-- 	<link rel="stylesheet" type="text/css" href="resources/css/jquery-ui-1.8.14.custom.css"/> -->
 	<link rel="stylesheet" type="text/less" href="resources/css/investr.less"/>
 
@@ -12,7 +13,7 @@
     <script type="text/javascript" src="resources/js/jquery.1.7.2.min.js"></script>
     <script type="text/javascript" src="resources/js/jquery.validate.min.js"></script>
 <!-- 	<script type="text/javascript" src="resources/js/jquery-ui-1.8.14.custom.min.js"></script> -->
-	<script type="text/javascript" src="resources/bootstrap/js/bootstrap.js"></script>
+	<script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="resources/js/knockout-2.1.0.js"></script>
 	<script type="text/javascript" src="resources/js/log4javascript.js"></script>
 <!-- 	<script type="text/javascript" src="resources/js/moment.min.js"></script> -->
@@ -314,15 +315,15 @@
 							<table class="table table-bordered table-condensed">
 								<thead>
 									<tr>
-                                        <td>YEAR</td>
+                                        <td><span class="hidden-phone">YEAR</span><span class="hidden-desktop">YR</span></td>
                                         <td>ACTION</td>
-										<td>SYMBOL</td>
-										<td>SHARES</td>
+	                                    <td><span class="hidden-phone">SYMBOL</span><span class="hidden-desktop">SEC</span></td>
+                                        <td><span class="hidden-phone">SHARES</span><span class="hidden-desktop">#</span></td>
 										<td>PRICE</td>
 										<td>AMOUNT</td>
 										<td>DIVIDEND</td>
 										<td>CASH</td>
-										<td>COMMENT</td>
+										<td class="hidden-phone">COMMENT</td>
 									</tr>
 								</thead>
 								<tbody data-bind="foreach: player().transactions()">
@@ -335,7 +336,7 @@
 										<td><span data-bind="text: amountFmt()"></span></td>
 										<td><span data-bind="text: incomeFmt()"></span></td>
 										<td><span data-bind="text: balanceFmt()"></span></td>
-										<td><span data-bind="text: comment"></span></td>
+										<td class="hidden-phone"><span data-bind="text: comment"></span></td>
 									</tr>
 								</tbody>
 							</table>
