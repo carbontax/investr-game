@@ -130,16 +130,23 @@ function Game(game) {
 		self.disableOrderButtons(true);
 		
 		var data = ko.toJSON({orders: self.orders}); 
-//		var data = data || ko.toJSON({orders: self.orders}); 
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			dataType: 'json',
 			data: data,
 			success: function(responseData) {
-//				console.log('success');
+				var top_offset = $('#tabs-pane').position().top + 10;
+				$.bootstrapGrowl('Orders saved.', {
+					top_offset: top_offset,
+					align: 'center'
+				});
 				if ( responseData['new_year'] ) {
 					self.reload();
 				} else {
+					$.bootstrapGrowl('Waiting for other players', {
+						top_offset: top_offset,
+						align: 'center'
+					});
 					self.player().loadOrders(responseData);
 				}
 			},
@@ -150,26 +157,9 @@ function Game(game) {
 	}
 		
 	self.sendNullOrder = function() {
-//		if ( !confirm("End your turn?") ) {
-//			return false;
-//		}
 		var order = new Order({action: 'NULL'});
 		self.orders([order]);
 		self.postJSONOrders();
-//		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
-//			type: 'post',
-//			contentType: 'application/json',
-//			dataType: 'json',
-//			data: ko.toJSON(data),
-//			success: function(data) {
-//				ko.utils.arrayForEach(data, function(order) {
-//					self.player().orders.push(new Order(order));
-//				});
-//			},
-//			error: function(xhr) {
-//				$('#messages').append(xhr.responseText);
-//			}
-//		});
 	}
 
 	self.ordersAccountCash = ko.computed(function() {
@@ -237,7 +227,7 @@ function Game(game) {
 	});
 
 	self.isMarginEnabled = function() {
-		// TODO use a case insensitive
+		// TODO use a case insensitive string?
 		if ( self.settings && self.settings.margin === 'ON' ) {
 			return self.settings.margin;
 		}
@@ -252,16 +242,17 @@ function Game(game) {
 			dataType: 'json',
 			success: function(data) {
 				if ( parseInt(data['year']) > parseInt(self.year()) ) {
+					var top_offset = $('#tabs-pane').position().top + 10;
+					$.bootstrapGrowl('Beginning year ' + data['year'], {
+						top_offset: top_offset,
+						align: 'center'
+					});
 					self.reload();
-					$('#game-status-container').effect('highlight', {}, 1500);
+					$('#game-status-container');//.effect('highlight', {}, 1500);
 				}
 			},
 			error: self.ajaxFailureCallback
 		});
-		
-//		if ( newYear ) {
-//			self.reload();
-//		}
 	};
 	
 	self.reload = function() {
@@ -271,6 +262,11 @@ function Game(game) {
 			dataType: 'json',
 			type: 'get',
 			success: function(data) {
+				var top_offset = $('#tabs-pane').position().top + 10;
+				$.bootstrapGrowl('Beginning year ' + data['year'], {
+					top_offset: top_offset,
+					align: 'center'
+				});
 				self.loadGame(data);
 			},
 			error: self.ajaxFailureCallback

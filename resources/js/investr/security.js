@@ -38,27 +38,6 @@ function Security(security) {
 		return d;
 	};
 
-	self.adjustPrice = function(roll, market) {
-		try {
-			var i = parseInt(roll) - 1; // convert die roll into array index
-			var currentPrice = self.price();
-			var priceChange = self.bullChanges[1];
-			if ( market === 'bear') {
-				priceChange = self.bearChanges[i];
-			}
-			self.price(currentPrice + priceChange);
-		} catch(err) {
-			log.error("Not a valid die roll", err);
-		}
-	};
-
-/*	self.getPriceForYear = function(year) {
-		var yearPrice = ko.utils.arrayFilter(self.priceHistory(), function(yearPrice) {
-			return yearPrice.year === year;
-		});
-		return yearPrice.price;
-	};*/
-
 	self.deltaFmt = ko.computed(function() {
 		if (self.delta() ) {
 			var prefix = "";

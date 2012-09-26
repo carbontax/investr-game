@@ -1,3 +1,6 @@
 [submodule "epiphany"]
 	path = epiphany
 	url = git://github.com/jmathai/epiphany.git
+[submodule "resources/bootstrap-growl"]
+	path = resources/bootstrap-growl
+	url = git://github.com/ifightcrime/bootstrap-growl.git
