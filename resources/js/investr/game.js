@@ -187,18 +187,18 @@ function Game(game) {
 		return ! self.ordersCashOk();
 	});
 
-	self.ordersIncome = ko.computed(function() {
-		window.console && console.log("ordersIncome not implemented");
-		return 0;
-	});
+//	self.ordersIncome = ko.computed(function() {
+//		window.console && console.log("ordersIncome not implemented");
+//		return 0;
+//	});
 
 	self.ordersIncomeFmt = function() {
 		return accounting.formatMoney(self.ordersIncome());
 	};
 
-	self.ordersNetFmt = ko.computed(function() {
-		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
-	});
+//	self.ordersNetFmt = ko.computed(function() {
+//		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
+//	});
 // END ORDERS
 
 	// UNUSED
