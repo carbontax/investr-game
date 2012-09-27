@@ -18,7 +18,7 @@
     <script type="text/javascript" src="resources/js/knockout-2.1.0.js"></script>
 	<script type="text/javascript" src="resources/js/log4javascript.js"></script>
 <!-- 	<script type="text/javascript" src="resources/js/moment.min.js"></script> -->
-	<script type="text/javascript" src="resources/js/underscore-1.3.1.js"></script>
+<!-- 	<script type="text/javascript" src="resources/js/underscore-1.3.1.js"></script> -->
 	<script type="text/javascript" src="resources/js/accounting.js"></script>
 
 	<!-- INVESTR -->
@@ -31,7 +31,7 @@
 	<script type="text/javascript" src="resources/js/investr/security.js"></script>
 	<script type="text/javascript" src="resources/js/investr/game.js"></script>
 	<script type="text/javascript" src="resources/js/investr/core.js"></script>
-
+	
 	<script type="text/javascript">
 	$(document).ready(function() {
 		$('#logo-container').click(function() {
@@ -242,15 +242,14 @@
 				<div class="span10" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
-                        <li><a href="#orders" data-toggle="tab">Orders</a></li> 
+                        <li><a href="#orders" data-toggle="tab">New Orders</a></li> 
 						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
-                        <li><a href="#portfolio" data-toggle="tab">Portfolio</a></li>
+                        <li><a href="#positions" data-toggle="tab">Positions</a></li>
 					</ul>
 					<div class="tab-content">
                         <div class="tab-pane" id="orders">
                             <div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
                                 <div id="new-orders-header">
-                                    <span id="new-orders-title">New Orders</span> 
                                     <span class="label" data-bind="css: { 'label-success': ordersCashOk, 'label-important': ordersCashBust }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
                                 </div>
                                 <div id="order-form-container">
@@ -341,27 +340,44 @@
 								</tbody>
 							</table>
 						</div>
-						<div class="tab-pane" id="portfolio">
-							<div id="portfolio-container">
-								<h3>PORTFOLIO</h3>
-								<table class="table">
-									<thead>
-										<tr>
-											<td>Security</td>
-											<td>Shares</td>
-											<td>Income</td>
-										</tr>
-									</thead>
-									<tbody data-bind="foreach: player().portfolio">
-										<tr >
-											<td data-bind="text: symbol"></td>
-											<td data-bind="text: shares"></td>
-											<td data-bind="text: incomeFmt()"></td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
+                        <div class="tab-pane" id="positions">
+                            <div id="positions-container">
+                                <div id="player-position-container" data-bind="foreach: players()">
+                                    <div class="well">
+                                        <div class="player-position-header"><span class="label" data-bind="text: username"></span>
+                                        <span class="player-position-cash" data-bind="text: 'Cash: ' + balanceFmt()"></span>
+                                        <span class="player-position-networth" data-bind="text: 'Net Worth: ' + netWorthFmt()"></span>
+	                                    </div>
+	                                    <table class="table table-condensed">
+	                                    <thead>
+	                                       <tr>
+	                                           <td>SYM</td>
+	                                           <td>SHARES</td>
+	                                           <td>MARKET</td>
+	                                           <td>DIV</td>
+	                                       </tr>
+	                                    </thead>
+	                                    <tbody class="player-position-portfolio">
+	                                       <!-- ko foreach: portfolio() -->
+	                                       <tr>
+		                                        <td class="player-position-portfolio-symbol" data-bind="text: symbol"></td>
+		                                        <td class="player-position-portfolio-shares" data-bind="text: shares"></td>
+                                                <td class="player-position-portfolio-market" data-bind="text: marketValueFmt()"></td>
+                                                <td class="player-position-portfolio-income" data-bind="text: incomeFmt()"></td>
+		                                   </tr>
+		                                   <!-- /ko -->
+		                                   <tr class="player-position-portfolio-totals">
+                                                <td class="player-position-portfolio-symbol">TOTAL</td>
+                                                <td class="player-position-portfolio-shares"></td>
+                                                <td class="player-position-portfolio-market" data-bind="text: portfolioNetWorthFmt()"></td>
+                                                <td class="player-position-portfolio-income" data-bind="text: portfolioIncomeFmt()"></td>
+                                           </tr>
+	                                    </tbody>
+	                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 					</div>
 				</div>
 			</div>

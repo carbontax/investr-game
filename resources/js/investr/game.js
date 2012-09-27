@@ -43,7 +43,7 @@ function Game(game) {
 		self.players([]);
 		if ( players && typeof(players) === 'object' ) {
 			$.each(players, function() {
-				self.players.push(new Player(this));
+				self.players.push(new Player(this, self));
 			});
 		}
 	}

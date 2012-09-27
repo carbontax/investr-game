@@ -22,6 +22,22 @@ function Player(player, game) {
 	}));
 	
 	self.portf_worth = ko.observable(player.portf_worth);
+	self.portfolioNetWorthFmt = ko.computed(function() {
+		var portfNetWorth = 0;
+		$.each(self.portfolio(), function() {
+			portfNetWorth += this.marketValue();
+		});
+		return accounting.formatMoney(portfNetWorth);
+		
+	});
+	
+	self.portfolioIncomeFmt = ko.computed(function() {
+		var portfIncome = 0;
+		$.each(self.portfolio(), function() {
+			portfIncome += this.income();
+		});
+		return accounting.formatMoney(portfIncome);
+	});
 	
 	self.netWorthFmt = ko.computed(function() {
 		return accounting.formatMoney(parseInt(self.balance()) + parseInt(self.portf_worth()));

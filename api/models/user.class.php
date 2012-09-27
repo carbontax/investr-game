@@ -15,9 +15,6 @@ class User extends Model {
         $this->id = $user['id'];
         $this->username = $user['username'];
         $this->email = $user['email'];
-
-//        $this->activeGames = GameController::apiActiveGames();
-//        $this->newGames = GameController::apiNewGames();
     }
 
 	public function isAdmin() {
@@ -49,7 +46,7 @@ class User extends Model {
             	$game = new Game($game_data);
             	$game->setDebug();
             	$game->fetchSettings();
-            	$game->fetchPlayers();
+            	$game->fetchPlayerSummaries();
                 array_push($this->games, $game);
             }
         }
