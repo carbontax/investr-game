@@ -130,6 +130,11 @@ function Game(game) {
 		self.disableOrderButtons(true);
 		
 		var data = ko.toJSON({orders: self.orders}); 
+//		var data = {orders: []};
+//		$.each(self.orders(), function() {
+//			data.orders.push(this.toJSON());
+//		});
+		
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
 			dataType: 'json',

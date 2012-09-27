@@ -2,7 +2,7 @@
 class Security {
     const TABLENAME = "security";
 
-    public $id;
+    public $security_id;
     public $name;
     public $symbol;
     public $description;
@@ -14,7 +14,7 @@ class Security {
     public $delta; // latest price change
 
     public function __construct($security = array()) {
-        $this->id = $security['id'];
+        $this->security_id = $security['security_id'];
         $this->name = $security['name'];
         $this->symbol = $security['symbol'];
         $this->description = $security['description'];
@@ -24,5 +24,12 @@ class Security {
         $this->price = $security['price'];
         $this->split = $security['split'];
         $this->delta = $security['delta'];
+    }
+    
+    public static function fetchIdForSymbol($symbol) {
+    	$query = "SELECT id from " . self::TABLENAME . " where symbol = :symbol";
+    	$params = array(symbol => $symbol);
+    	$row = getDatabase()->one($query, $params);
+    	return $row['id'];
     }
 }

@@ -1,6 +1,7 @@
 function Security(security) {
 	var self = this;
 
+	self.security_id = security.security_id;
 	self.symbol = security.symbol;
 	self.name = security.name;
 	self.dividend = security.dividend;

@@ -226,11 +226,12 @@ CREATE TABLE `txn_order` (
   `game_id` int(11) NOT NULL,
   `year` int(11) NOT NULL,
   `action` varchar(255) NOT NULL,
-  `security_symbol` varchar(255) NOT NULL,
-  `shares` int(11) NOT NULL,
-  `margin` int(11) NOT NULL DEFAULT '0',
-  `comment` varchar(255) DEFAULT NULL,
-  `invalid` int(11) NOT NULL DEFAULT '0',
+  `security_id` int(11)  DEFAULT NULL,
+  `security_symbol` varchar(255)  DEFAULT NULL,
+  `shares` int(11)  DEFAULT NULL,
+  `margin` int(11)  DEFAULT NULL,
+  `comment` varchar(255)  DEFAULT NULL,
+  `invalid` int(11)  DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 

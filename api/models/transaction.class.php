@@ -91,24 +91,6 @@ class Transaction extends Model{
 
         $this->fetchPreviousBalance();
         
- /*       $query = " INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id, year, action, security_id, shares, " . 
-            " price, income, margin, margin_charge, amount, balance, comment) " .
-            " values (:user_id, :game_id, :year, :action, :security_id, :shares, " . 
-            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
-        $params = array(user_id => $this->user_id, 
-            game_id => $this->game_id, 
-            year => $this->year, 
-            action => $this->action,
-            security_id => $this->security_id, 
-            shares => $this->shares, 
-            price => $this->price, 
-            income => $this->income, 
-            margin => $this->margin, 
-            margin_charge => $this->margin_charge, 
-            amount => $this->amount,
-            balance => $this->previous_balance + $this->amount,
-            comment => $this->comment); */
         $query = self::insertQuery();
         $params = $this->dbParams(array(balance => $this->previous_balance + $this->amount));
         
@@ -139,25 +121,7 @@ class Transaction extends Model{
         getDatabase()->execute("START TRANSACTION");
 
         $this->fetchPreviousBalance();
-        
-/*        $query = " INSERT INTO " . self::TABLENAME . 
-            " (user_id, game_id, year, action, security_id, shares, " . 
-            " price, income, margin, margin_charge, amount, balance, comment) " .
-            " values (:user_id, :game_id, :year, :security_id, :shares, " . 
-            " :price, :income, :margin, :margin_charge, :amount, :balance, :comment)";
-        $params = array(user_id => $this->user_id, 
-            game_id => $this->game_id, 
-            year => $this->year, 
-            action => $this->action,
-            security_id => $this->security_id, 
-            shares => $this->shares, 
-            price => $this->price, 
-            income => $this->income, 
-            margin => $this->margin, 
-            margin_charge => $this->margin_charge, 
-            amount => $this->amount,
-            balance => $this->previous_balance + $this->amount,
-            comment => $this->comment);*/
+
         $query = self::insertQuery();
         $params = $this->dbParams(array(balance => $this->previous_balance + $this->amount));
  

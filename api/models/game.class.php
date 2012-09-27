@@ -127,7 +127,7 @@ class Game extends Model {
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
 	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = :year " .
+				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = gsp.year and o.security_id = gsp.security_id " .
 				" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
@@ -160,7 +160,7 @@ class Game extends Model {
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
 	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = :year " .
+				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = gsp.year and o.security_id = gsp.security_id" .
 				" where p.game_id = :game_id and gsp.year = :year group by p.user_id ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
@@ -225,7 +225,7 @@ class Game extends Model {
 	 } */
 
 	public function fetchSecurities() {
-		$query = "select s.symbol, s.name, s.dividend, s.dividend_label, gsp.outstanding, " .
+		$query = "select s.id as security_id, s.symbol, s.name, s.dividend, s.dividend_label, gsp.outstanding, " .
             " gsp.price, gsp.split, gsp.delta from " . Security::TABLENAME . " s " .
             " join " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp " .
             " on s.id = gsp.security_id " .
@@ -331,10 +331,9 @@ class Game extends Model {
 		$query = "SELECT o.user_id, o.game_id, o.year, o.action, gsp.security_id, " .
         	" gsp.outstanding, (o.shares * gsp.price * -1) as amount,  o.shares, " . 
         	" gsp.price, o.invalid, p.balance as current_balance, " . 
-        	" concat('BUY ', o.shares, ' shares of ', s.name) as comment " .
+        	" concat('BUY ', o.shares, ' shares') as comment " .
             " FROM " . Order::TABLENAME . " o " .
-            " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON o.game_id = gsp.game_id AND o.year = gsp.year " .
-            " JOIN " . Security::TABLENAME . " s ON s.symbol = o.security_symbol AND gsp.security_id = s.id " . 
+            " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON o.game_id = gsp.game_id AND gsp.security_id = o.security_id AND o.year = gsp.year " .
             " JOIN " . Player::TABLENAME . " p ON o.user_id = p.user_id and o.game_id = p.game_id " .
             " WHERE o.action = 'BUY' AND o.year = :year AND o.game_id = :game_id ";
 		$params = array(year => $this->year, game_id => $this->id);

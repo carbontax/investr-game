@@ -13,6 +13,7 @@ class Order extends Model {
     public $game_id;
     public $year;
     public $action;
+    public $security_id;
     public $security_symbol;
     public $shares;
     public $margin = 0;
@@ -26,6 +27,7 @@ class Order extends Model {
         $this->game_id = $order['game_id'];
         $this->year = $order['year'];
         $this->action = $order['action'];
+        $this->security_id = $order['security_id'];
         $this->security_symbol = $order['security_symbol'];
         $this->shares = $order['shares'];
         if ( $order['margin'] == null) {
@@ -45,6 +47,11 @@ class Order extends Model {
     	}
     	if ( $this->invalid == null ) {
     		$this->invalid = self::VALID;
+    	}
+    	// HACK
+    	if ( $this->security_symbol && ! $this->security_id ) {
+    		error_log("normalization: fetching security id");
+    		$this->security_id = Security::fetchIdForSymbol($this->security_symbol);
     	}
     }
     
@@ -70,17 +77,16 @@ class Order extends Model {
         $query = "SELECT p.balance, " . 
         	" case when pf.shares is null then gsp.outstanding else gsp.outstanding + sum(pf.shares) end as available_shares, " . 
         	" (:shares * gsp.price * -1) as amount, " . 
-        	" gsp.price, s.name " .
+        	" gsp.price " .
             " FROM " . Player::TABLENAME . " p " . 
             " JOIN " . Game::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
-            " JOIN " . Security::TABLENAME . " s ON gsp.security_id = s.id " . 
         	" LEFT JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
-            " WHERE p.game_id = :game_id AND gsp.year = :year AND s.symbol = :security_symbol";
+            " WHERE p.game_id = :game_id AND gsp.year = :year AND gsp.security_id = :security_id";
 		$params = array(
         	shares => $this->shares,
         	game_id => $this->game_id, 
         	year => $this->year,
-        	security_symbol => $this->security_symbol);
+        	security_id => $this->security_id);
         $this->debug && log_query($query,$params,"verifyBuyOrder");
         $row = getDatabase()->one($query, $params);
         
@@ -96,12 +102,11 @@ class Order extends Model {
     private function verifySellOrder() {
         $query = "SELECT pf.shares " . 
             " FROM " . Portfolio::TABLENAME . " pf " .
-            " JOIN " . Security::TABLENAME . " s ON pf.security_id = s.id " . 
-            " WHERE pf.game_id = :game_id AND pf.user_id = :user_id AND s.symbol = :security_symbol";
+            " WHERE pf.game_id = :game_id AND pf.user_id = :user_id AND pf.security_id = :security_id";
 		$params = array(
         	game_id => $this->game_id, 
     	    user_id => $this->user_id, 
- 	    	security_symbol => $this->security_symbol);
+ 	    	security_id => $this->security_id);
         $this->debug && log_query($query,$params,"verifySellOrder");
         $row = getDatabase()->one($query, $params);
             
@@ -120,12 +125,13 @@ class Order extends Model {
     	$this->verify();
     	
         $query = "INSERT INTO " . self::TABLENAME .
-            " (user_id, game_id, year, action, security_symbol, shares, margin, comment, invalid) " .
-            " values (:user_id, :game_id, :year, :action, :security_symbol, :shares, :margin, :comment, :invalid)";
+            " (user_id, game_id, year, action, security_id, security_symbol, shares, margin, comment, invalid) " .
+            " values (:user_id, :game_id, :year, :action, :security_id, :security_symbol, :shares, :margin, :comment, :invalid)";
         $params = array(user_id => $this->user_id,
             game_id => $this->game_id,
             year => $this->year,
             action => $this->action,
+            security_id => $this->security_id,
             security_symbol => $this->security_symbol,
             shares => $this->shares,
             margin => $this->margin,

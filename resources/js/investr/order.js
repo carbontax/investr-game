@@ -20,6 +20,10 @@ function Order(order) {
 	if ( order ) {
 		self.security(order.security);
 	}
+	
+	self.security_id = ko.computed(function() {
+		return self.security() ? self.security().security_id : null;
+	});
 
 	self.security_symbol = ko.computed(function() {
 		return self.security() ? self.security().symbol : null;
@@ -72,4 +76,13 @@ function Order(order) {
 	self.blur = function() {
 		return false;
 	};
+	
+//	self.toJSON = function() {
+//		return {
+//			action: self.action,
+//			security_id: self.security().id,
+//			shares: self.shares(),
+//			margin: self.margin(),
+//		}
+//	}
 };
