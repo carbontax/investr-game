@@ -101,7 +101,7 @@ function Game(game) {
 	}
 
 	self.getFirstPlacePlayer = function() {
-		return ko.utils.arrayFilter(self.players, function(p) {
+		return ko.utils.arrayFilter(self.players(), function(p) {
 			return p.firstPlace();
 		})[0];
 	};

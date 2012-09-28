@@ -77,6 +77,10 @@ function Player(player, game) {
 	
 	self.rank = ko.observable(parseInt(player.rank));
 	self.firstPlace = ko.computed(function() {
-		return self.rank == 1;
+		return self.rank() == 1;
 	});
+	self.notFirstPlace = ko.computed(function() {
+		return self.rank() != 1;
+	});
+	
 }

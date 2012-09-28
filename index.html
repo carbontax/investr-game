@@ -342,7 +342,7 @@
                                 <div id="player-position-container" data-bind="foreach: players()">
                                     <div class="well">
                                         <div class="player-position-header">
-                                            <span class="label" data-bind="text: rank, css: {'label-success': firstPlace, 'label-info': ! firstPlace}"></span>
+                                            <span class="badge" data-bind="text: rank, css: {'badge-success': firstPlace, 'badge-warning': notFirstPlace}"></span>
                                             <span class="label" data-bind="text: username"></span>
                                             <span class="player-position-cash" data-bind="text: 'Cash: ' + balanceFmt()"></span>
                                             <span class="player-position-networth" data-bind="text: 'Net Worth: ' + netWorthFmt()"></span>
