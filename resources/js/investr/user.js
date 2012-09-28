@@ -8,13 +8,13 @@ function User(user) {
 	
 	self.activeGames = ko.computed(function() {
 		return ko.utils.arrayFilter(self.games(), function(game) {
-			return game.last_year - game.year() > 0;
+			return game.hasNextYear();
 		});
 	});
 
 	self.completedGames = ko.computed(function() {
 		return ko.utils.arrayFilter(self.games(), function(game) {
-			return game.last_year - game.year() <= 0;
+			return ! game.hasNextYear();
 		});
 	});
 

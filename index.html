@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>INVESTR GAME</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap.min.css"/>
@@ -242,12 +243,12 @@
 				<div class="span10" id="tabs-pane">
 					<!-- TABS MENU -->
 					<ul class="nav nav-tabs" id="game-tabs">
-                        <li><a href="#orders" data-toggle="tab">New Orders</a></li> 
+                        <li><a href="#orders" data-toggle="tab" data-bind="visible: hasNextYear()">New Orders</a></li> 
 						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
                         <li><a href="#positions" data-toggle="tab">Positions</a></li>
 					</ul>
 					<div class="tab-content">
-                        <div class="tab-pane" id="orders">
+                        <div class="tab-pane" id="orders" data-bind="visible: hasNextYear()">
                             <div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
                                 <div id="new-orders-header">
                                     <span class="label" data-bind="css: { 'label-success': ordersCashOk, 'label-important': ordersCashBust }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>

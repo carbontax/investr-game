@@ -14,7 +14,6 @@ class Game extends Model {
 	public $number_of_players;
 	public $players;
 	public $player;
-	public $other_players;
 	public $securities;
 	public $year;
 	public $last_year;
@@ -24,9 +23,6 @@ class Game extends Model {
 		$this->id = $game['id'];
 		$this->start_date = $game['start_date'];
 		$this->initial_balance = $game['initial_balance'];
-		/*        $this->player = $game['player'];
-		 $this->other_players = $game['other_players'];
-		 $this->securities = $game['securities'];*/
 		$this->number_of_players = $game['number_of_players'];
 		$this->year = $game['year'];
 		$this->last_year = $game['last_year'];
@@ -66,7 +62,7 @@ class Game extends Model {
 	}
 
 	public function advanceYear() {
-		if ( $this->year < $this->last_year ) {
+		if ( $this->year <= $this->last_year ) {
 			$this->year ++;
 			$query = "UPDATE " . self::TABLENAME . " SET year = :year " .
                 " WHERE id = :game_id";
@@ -199,30 +195,7 @@ class Game extends Model {
 		$this->player->fetchTransactions();
 		$this->player->fetchPortfolio();
 		$this->player->fetchOrdersForYear($this->year);
-		//        $this->netWorth($this->player);
 	}
-
-	public function fetchOtherPlayers() {
-	}
-
-	/*    public function netWorth($player) {
-	 $query = "select p.balance + sum(pf.shares * gsp.price) as net_worth " .
-	 " from " . Player::TABLENAME . " p " .
-	 " join game_sec_price gsp on p.game_id = gsp.game_id " .
-	 " join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " .
-	 " where p.game_id = :game_id and p.user_id = :user_id and gsp.year = :year ";
-	 $params = array(
-	 game_id => $this->game_id,
-	 user_id => $player->user_id,
-	 year => $this->year
-	 );
-	 $net_worth = 0;
-	 $row = getDatabase()->one($query, $params);
-	 if ( $row ) {
-	 $net_worth = $row['net_worth'];
-	 }
-	 $player->net_worth = $net_worth;
-	 } */
 
 	public function fetchSecurities() {
 		$query = "select s.id as security_id, s.symbol, s.name, s.dividend, s.dividend_label, gsp.outstanding, " .
@@ -232,11 +205,8 @@ class Game extends Model {
             " where gsp.game_id = :game_id and gsp.year = :year " .
             " order by gsp.id";
 
-		//$this->debug && error_log('fetchSecurities - query = ' . $query . '; game = ' . $this->id . '; year = ' . $this->year);
-
 		$result = getDataBase()->all($query, array(game_id => $this->id, year => $this->year));
 
-		/*        error_log(var_dump($result));*/
 		$this->securities = array();
 		foreach ($result as $key => $row) {
 			array_push($this->securities, new Security($row));

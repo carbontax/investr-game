@@ -24,10 +24,10 @@ function Game(game) {
 	self.securities = ko.observableArray(null);
 
 	self.year = ko.observable();
-	self.last_year;
+	self.last_year = ko.observable();
 	self.hasNextYear = ko.computed(function() {
-		var remaining = parseInt(self.last_year) - parseInt(self.year());
-		return remaining > 1;
+		var remaining = parseInt(self.last_year()) - parseInt(self.year());
+		return remaining > 0;
 	});
 	self.yearFmt = ko.computed(function() {
 /*		if ( self.hasNextYear() ) {
@@ -85,20 +85,41 @@ function Game(game) {
 			}));
 		}
 		self.year(data.year);
-		self.last_year = data.last_year;
+		self.last_year(data.last_year);
 		self.loadPlayers(data.players);
 		if ( data.player && data.player.user_id ) {
 			self.player(new Player(data.player, self));
 		}
 		// TODO use has_ordered instead
 		self.turn = data.turn;
+		
+		// HACK to check if game is open
+		if ( self.player() ) {
+			self.showYearMessage();
+		}
 		//reset the New Orders form.
 		self.orders([new Order()]);
 		self.disableOrderButtons(false);
 	}
-	if ( game ) {
-		self.loadGame(game);
-	}
+
+	self.showYearMessage = function() {
+		var msg = 'Beginning year ' + self.year;
+		var type = 'info';
+		if ( ! self.hasNextYear() ) {
+			msg = "GAME OVER! " + self.getWinner() + ' has won';
+			type = 'success';
+		}
+		$.bootstrapGrowl(msg, {
+//			top_offset: $('#tabs-pane').position().top + 10,
+			align: 'center',
+			type: type
+		});
+	};
+	
+	self.getWinner = function() {
+		return "I don't know yet who";
+	};
+	
 	self.showOrderForm = ko.computed(function() {
 		if ( self.player() && self.player().hasNoOrders() ) {
 			return true;
@@ -106,8 +127,7 @@ function Game(game) {
 		return false;
 	});
 
-	// ORDERS 
-	
+	// ============= ORDERS ============= // 
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
 	};
@@ -130,10 +150,6 @@ function Game(game) {
 		self.disableOrderButtons(true);
 		
 		var data = ko.toJSON({orders: self.orders}); 
-//		var data = {orders: []};
-//		$.each(self.orders(), function() {
-//			data.orders.push(this.toJSON());
-//		});
 		
 		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
 			type: 'post',
@@ -253,7 +269,6 @@ function Game(game) {
 						align: 'center'
 					});
 					self.reload();
-					$('#game-status-container');//.effect('highlight', {}, 1500);
 				}
 			},
 			error: self.ajaxFailureCallback
@@ -268,13 +283,14 @@ function Game(game) {
 			type: 'get',
 			success: function(data) {
 				var top_offset = $('#tabs-pane').position().top + 10;
-				$.bootstrapGrowl('Beginning year ' + data['year'], {
-					top_offset: top_offset,
-					align: 'center'
-				});
 				self.loadGame(data);
 			},
 			error: self.ajaxFailureCallback
 		});
+	}
+	
+	// ============== INIT ============= //
+	if ( game ) {
+		self.loadGame(game);
 	}
 };
