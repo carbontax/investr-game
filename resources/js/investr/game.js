@@ -100,11 +100,18 @@ function Game(game) {
 		self.disableOrderButtons(false);
 	}
 
+	self.getFirstPlacePlayer = function() {
+		return ko.utils.arrayFilter(self.players, function(p) {
+			return p.firstPlace();
+		})[0];
+	};
+	
 	self.showYearMessage = function() {
 		var msg = 'Beginning year ' + self.year();
 		var type = 'info';
 		if ( ! self.hasNextYear() ) {
-			msg = "GAME OVER! " + self.getWinner() + ' has won';
+			var winner =  self.getFirstPlacePlayer();
+			msg = "GAME OVER! " + winner.username + ' has won';
 			type = 'success';
 		}
 		$.bootstrapGrowl(msg, {
@@ -112,10 +119,6 @@ function Game(game) {
 			align: 'center',
 			type: type
 		});
-	};
-	
-	self.getWinner = function() {
-		return "I don't know yet who";
 	};
 	
 	self.showOrderForm = ko.computed(function() {

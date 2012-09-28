@@ -196,8 +196,8 @@
 							     <span>Year:</span>
 	                             <span data-bind="text: year"></span>
 							  </div>
-							<ul class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
-							</ul>
+							  <ol class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
+							  </ol>
 						</div>
 					</div>
 				</div>	
@@ -205,11 +205,11 @@
                 <h3>Completed Games</h3>
                     <div data-bind="foreach: completedGames()" >
                         <div class="well open-game-btn" data-bind="click: $parent.openGame">
-                              <div>
-                                <span data-bind="text: 'Game #' + id"></span>
-                              </div>
-                            <ul class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
-                            </ul>
+                            <div>
+                               <span data-bind="text: 'Game #' + id"></span>
+                            </div>
+                            <ol class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
+                            </ol>
                         </div>
                     </div>
                 </div>			
@@ -341,9 +341,11 @@
                             <div id="positions-container">
                                 <div id="player-position-container" data-bind="foreach: players()">
                                     <div class="well">
-                                        <div class="player-position-header"><span class="label" data-bind="text: username"></span>
-                                        <span class="player-position-cash" data-bind="text: 'Cash: ' + balanceFmt()"></span>
-                                        <span class="player-position-networth" data-bind="text: 'Net Worth: ' + netWorthFmt()"></span>
+                                        <div class="player-position-header">
+                                            <span class="label" data-bind="text: rank, css: {'label-success': firstPlace, 'label-info': ! firstPlace}"></span>
+                                            <span class="label" data-bind="text: username"></span>
+                                            <span class="player-position-cash" data-bind="text: 'Cash: ' + balanceFmt()"></span>
+                                            <span class="player-position-networth" data-bind="text: 'Net Worth: ' + netWorthFmt()"></span>
 	                                    </div>
 	                                    <table class="table table-condensed">
 	                                    <thead>

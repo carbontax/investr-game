@@ -13,6 +13,7 @@ class Player {
     public $orders = array();
     public $portf_worth;
     public $has_ordered = 0;
+    public $rank;
 
     public function __construct($player = array()) {
 //    	error_log("Create player with " . print_r($player, true));
@@ -22,13 +23,14 @@ class Player {
 	    $this->balance = $player['balance'];
 	    $this->portf_worth = $player['portf_worth'];
 	    $this->has_ordered = $player['has_ordered'];
+	    $this->rank = $player['rank'];
     }
 
-    public static function withRow($row = array()) {
+ /*   public static function withRow($row = array()) {
     	error_log("WITH ROW: " . print_r($row, true));
         $instance = new self($row['user_id'], $row['game_id'], $row['balance']);
         return $instance;
-    }
+    } */
 
     public function save() {
         $query = "INSERT INTO " . self::TABLENAME . 

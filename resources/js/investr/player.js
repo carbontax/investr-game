@@ -74,5 +74,9 @@ function Player(player, game) {
 		// other players in the game will not have visible orders
 		self.loadOrders(player.orders);
 	}
-
+	
+	self.rank = ko.observable(parseInt(player.rank));
+	self.firstPlace = ko.computed(function() {
+		return self.rank == 1;
+	});
 }
