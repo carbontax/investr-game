@@ -26,6 +26,13 @@ function Transaction(transaction) {
 	self.securityName = ko.computed(function() {
 		return self.symbol ? self.symbol : "";
 	});
+	
+	self.symbolAtPrice = function() {
+		if ( self.pricePerShare ) {
+			return self.security_symbol + ' @ $' + self.pricePerShare;
+		}
+		return self.security_symbol;
+	};
 
 	self.pricePerShareFmt = ko.computed(function() {
 		if (self.pricePerShare) {

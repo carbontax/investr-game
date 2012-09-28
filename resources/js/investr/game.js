@@ -125,7 +125,7 @@ function Game(game) {
 		return false;
 	});
 
-	// ============= ORDERS ============= // 
+	// ============= NEW ORDERS ============= // 
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
 	};
@@ -135,9 +135,9 @@ function Game(game) {
 	}
 	
 	self.sendOrders = function() {
-		if (! $('#order-form').valid() ) {
-			return false;
-		}
+//		if (! $('#order-form').valid() ) {
+//			return false;
+//		}
 		self.postJSONOrders();
 	}
 	
@@ -218,28 +218,7 @@ function Game(game) {
 //	self.ordersNetFmt = ko.computed(function() {
 //		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
 //	});
-// END ORDERS
-
-	// UNUSED
-	self.projectedPortfolio = ko.computed(function() {
-		var ppList = [];
-		if ( self.player() ) {
-			ppList = $.map(self.player().portfolio, function(h) {
-				return new Holding({symbol: h.symbol, shares: h.shares}, self);
-			});
-			ko.utils.arrayForEach(self.orders(), function(order) {
-				if (order && order.security() && order.security().symbol) {
-					ppList = $.map(ppList, function(pp) {
-						if ( pp.symbol === order.security().symbol) {
-							pp.shares += order.sharesDelta();
-						}
-						return pp;
-					});
-				}
-			});
-		}
-		return ppList;
-	});
+// =============== END NEW ORDERS ============== //
 
 	self.joinButtonText = ko.computed(function() {
 		return self.player() ? 'Waiting for more players' : 'Join';

@@ -38,6 +38,11 @@
 		$('#logo-container').click(function() {
 			window.location.href = "";
 		});
+		$('.order-row').on('keypress', function(evt) {
+		    if ( evt.which == 13 ) {
+		        $('#more-button').click();
+		    }
+		});
 		ko.applyBindings(new InvestrViewModel());
 	});
 	</script>
@@ -55,7 +60,6 @@
 		<tr>
 			<td>Action</td>
 			<td>Security</td>
-			<td>Price</td>
 			<td>Shares</td>
 			<td>Amount</td>
 			<td></td>
@@ -251,16 +255,14 @@
                                     <span class="label" data-bind="css: { 'label-success': ordersCashOk, 'label-important': ordersCashBust }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
                                 </div>
                                 <div id="order-form-container">
-                                    <form id="order-form">
                                     <table class="table table-bordered table-condensed">
                                         <thead data-bind="template: 'order-table-header'"></thead>
                                         <tbody data-bind="foreach: orders()">
-                                            <tr>
+                                            <tr class="order-row">
                                                 <td><select name="action" data-bind="options: actionOptions, value: action">
                                                 </select></td>
-                                                <td><select name="security" data-bind="options: $parent.securities, optionsText: function(s) { return s.symbol; }, value: security, optionsCaption: 'Choose ...'">
+                                                <td><select name="security" data-bind="options: $parent.securities, optionsText: function(s) { return s.symbol + ' @ $' + s.price(); }, value: security, optionsCaption: 'Choose ...'">
                                                 </select></td>
-                                                <td data-bind="text: pricePerShareFmt()"></td>
                                                 <td><input class="order-shares required" name="shares" type="number" width="5" data-bind="value: shares"/></td>
                                                 <td data-bind="text: amountFmt()"></td>
                                                 <td>
@@ -270,11 +272,10 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    </form>
                                     <div id="order-button-bar" class="container">
-                                        <button class="btn btn-success" data-bind="click: newOrder, disabled: disableOrderButtons" title="Place another buy/sell order.">MORE</button>
-                                        <button class="btn btn-warning" data-bind="click: sendOrders, disabled: disableOrderButtons" title="End your turn.">DONE</button>
-                                        <button class="btn btn-danger" data-bind="click: sendNullOrder, disabled: disableOrderButtons" title="Take no action this turn.">STAND</button>
+                                        <button class="btn btn-success" id="more-button" data-bind="click: newOrder, disabled: disableOrderButtons" title="Place another buy/sell order.">MORE</button>
+                                        <button class="btn btn-warning" id="end-button" data-bind="click: sendOrders, disabled: disableOrderButtons" title="End your turn.">DONE</button>
+                                        <button class="btn btn-danger" id="stand-button" data-bind="click: sendNullOrder, disabled: disableOrderButtons" title="Take no action this turn.">STAND</button>
                                     </div>
                                 </div>
                                 <div class="well" id="orders-portfolio-container">
@@ -314,9 +315,8 @@
 									<tr>
                                         <td><span class="hidden-phone">YEAR</span><span class="hidden-desktop hidden-tablet">YR</span></td>
                                         <td><span class="hidden-phone">ACTION</span><span class="hidden-desktop hidden-tablet">ACT</span></td>
-	                                    <td><span class="hidden-phone">SYMBOL</span><span class="hidden-desktop hidden-tablet">SEC</span></td>
+	                                    <td><span class="hidden-phone">SECURITY</span><span class="hidden-desktop hidden-tablet">SEC</span></td>
                                         <td><span class="hidden-phone">SHARES</span><span class="hidden-desktop hidden-tablet">#</span></td>
-										<td>PRICE</td>
 										<td>AMOUNT</td>
 										<td>DIVIDEND</td>
 										<td>CASH</td>
@@ -327,9 +327,8 @@
 									<tr data-bind="css: {invalid: invalid > 0}">
                                         <td><span data-bind="text: year"></span></td>
                                         <td><span data-bind="text: action"></span></td>
-										<td><span data-bind="text: security_symbol"></span></td>
+										<td><span data-bind="text: symbolAtPrice()"></span></td>
 										<td><span data-bind="text: shares"></span></td>
-										<td><span data-bind="text: pricePerShareFmt()"></span></td>
 										<td><span data-bind="text: amountFmt()"></span></td>
 										<td><span data-bind="text: incomeFmt()"></span></td>
 										<td><span data-bind="text: balanceFmt()"></span></td>

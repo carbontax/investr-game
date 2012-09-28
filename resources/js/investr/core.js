@@ -210,4 +210,3 @@ function InvestrViewModel() {
 }
 
 //$(".players-summary").popover({trigger: 'mouseover'});
-$('#order-form').validate();
