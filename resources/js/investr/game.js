@@ -89,21 +89,19 @@ function Game(game) {
 		self.loadPlayers(data.players);
 		if ( data.player && data.player.user_id ) {
 			self.player(new Player(data.player, self));
-		}
-		// TODO use has_ordered instead
-		self.turn = data.turn;
-		
-		// HACK to check if game is open
-		if ( self.player() ) {
 			self.showYearMessage();
 		}
+		// TODO use has_ordered instead
+		// HACK to check if game is open
+		self.turn = data.turn;
+		
 		//reset the New Orders form.
 		self.orders([new Order()]);
 		self.disableOrderButtons(false);
 	}
 
 	self.showYearMessage = function() {
-		var msg = 'Beginning year ' + self.year;
+		var msg = 'Beginning year ' + self.year();
 		var type = 'info';
 		if ( ! self.hasNextYear() ) {
 			msg = "GAME OVER! " + self.getWinner() + ' has won';
