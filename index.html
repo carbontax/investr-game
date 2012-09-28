@@ -142,23 +142,20 @@
 <body>
 	<div class="container-fluid" id="investr-container">
 		<div id="header-container">
-			<div class="row-fluid" id="header">
+			<div class="row" id="header">
 				<div class="span8">
 					<div id="logo-container">
 						<span id="site-logo"></span>
 						<span id="site-title" data-bind="text: title">Investr</span>
 					</div>
 				</div>
-				<div id="top-menu-container" class="span4" data-bind="visible: loggedIn ">
-					<button class="btn" id="logout-button" data-bind="click: logoutAction">LOG OUT</button>
-					<label for="user-name">USER:</label>
-					<span id="user-name" data-bind="text: username()"></span>
+				<div class="span4" id="top-menu-container" data-bind="visible: loggedIn ">
+					<button class="btn" id="logout-button" data-bind="click: logoutAction, text: username()"></button>
 				</div>
 			</div>
 		</div>
-		<div class="row-fluid"><div class="span12" id="messages"></div></div>
-		<div class="row-fluid">
-			<span class="span4 well" id="login-container" data-bind="visible: notLoggedIn, template: {name: 'login-form-tmpl'}"></span>
+		<div>
+			<span class="well" id="login-container" data-bind="visible: notLoggedIn, template: {name: 'login-form-tmpl'}"></span>
 		</div>
 		<div class="row-fluid">
 			<div class="span12" id="games-container" data-bind="visible: shouldDisplayGamesLists">
@@ -217,7 +214,7 @@
 		<div id="game-container" data-bind="with: game">
 			<!--  GAME CONTAINER 
 ********************************************************** -->
-			<div class="row-fluid" id="game-menu-container">
+			<div class="row" id="game-menu-container">
 				<div>
 					<div class="container">
 						<span id="game-status-container">
@@ -230,7 +227,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row-fluid" id="game-data-container">
+			<div class="row" id="game-data-container">
             <!-- GAME SECURITY NAV
 ********************************************************** -->
 				<div class="span2" id="securities-pane">
