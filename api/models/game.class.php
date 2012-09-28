@@ -202,7 +202,7 @@ class Game extends Model {
 	}
 
 	public function fetchSecurities() {
-		$query = "select s.id as security_id, s.symbol, s.name, s.dividend, s.dividend_label, gsp.outstanding, " .
+		$query = "select s.id as security_id, s.symbol, s.name, s.dividend, s.dividend_label, s.description, gsp.outstanding, " .
             " gsp.price, gsp.split, gsp.delta from " . Security::TABLENAME . " s " .
             " join " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp " .
             " on s.id = gsp.security_id " .

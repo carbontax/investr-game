@@ -10,6 +10,7 @@ function Security(security) {
 	self.outstanding = ko.observable(security.outstanding);
 	self.delta = ko.observable(security.delta);
 	self.split = ko.observable(parseInt(security.split));
+	self.description = security.description;
 	
 	self.showDetail = ko.observable(false);
 	self.toggleShowDetail = function() {

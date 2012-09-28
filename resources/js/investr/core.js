@@ -41,6 +41,12 @@ function InvestrViewModel() {
 	});
 
 	self.game = ko.observable();
+	self.gameTitle = ko.computed(function() {
+		if ( self.game() ) {
+			return self.title + "." + self.game().id + " Year " + self.game().year();
+		}
+		return self.title;
+	});
 
 	self.newGame = ko.observable();
 

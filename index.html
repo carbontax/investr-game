@@ -127,6 +127,10 @@
                     <label for="security-outstanding">Available:</label>
                     <span class="security-outstanding" data-bind="text: outstanding()"></span>
                 </div>
+                <div>
+                    <label for="security-outstanding">Description:</label>
+                    <span class="security-outstanding" data-bind="text: description"></span>
+                </div>
            </div>
        </li>   
     </script>
@@ -150,16 +154,24 @@
 				<div class="span8">
 					<div id="logo-container">
 						<span id="site-logo"></span>
-						<span id="site-title" data-bind="text: title">Investr</span>
+						<span id="site-title" data-bind="text: gameTitle()">Investr</span>
 					</div>
 				</div>
 				<div class="span4" id="top-menu-container" data-bind="visible: loggedIn ">
-					<button class="btn" id="logout-button" data-bind="click: logoutAction, text: username()"></button>
-				</div>
-			</div>
+				    <div class="btn-group">
+						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+						   <span data-bind="text: username()"></span>
+						   <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+	    					<li><a href="#" data-bind="click: logoutAction">Logout</a></li>
+						</ul>
+				    </div>
+			    </div>
+			 </div>
 		</div>
-		<div>
-			<span class="well" id="login-container" data-bind="visible: notLoggedIn, template: {name: 'login-form-tmpl'}"></span>
+		<div class="row-fluid">
+			<span id="login-container" data-bind="visible: notLoggedIn, template: {name: 'login-form-tmpl'}"></span>
 		</div>
 		<div class="row-fluid">
 			<div class="span12" id="games-container" data-bind="visible: shouldDisplayGamesLists">
@@ -221,13 +233,7 @@
 			<div class="row" id="game-menu-container">
 				<div>
 					<div class="container">
-						<span id="game-status-container">
-							<span id="game-id" data-bind="text: 'GAME #' + id"></span>
-							<span id="game-year" data-bind="text: 'Year ' + year()"></span>
-							<span id="game-player-net-worth" data-bind="text: player().netWorthFmt()"></span>
-						</span>
 						<span><button class="btn" id="game-reload-button" data-bind="click: checkNewYear">YEAR END?</button></span>
-						<span><button class="btn" id="game-close-button" data-bind="click: $parent.viewAllGames">VIEW ALL GAMES</button></span>
 					</div>
 				</div>
 			</div>
@@ -241,6 +247,7 @@
 						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
                         <li><a href="#positions" data-toggle="tab">Positions</a></li>
                         <li><a href="#securities" data-toggle="tab">Securities</a></li>
+                        <li><a href="#rules" data-toggle="tab">Rules</a></li>
 					</ul>
 					<div class="tab-content">
                         <div class="tab-pane" id="orders" data-bind="visible: hasNextYear()">
@@ -372,9 +379,46 @@
                             </div>
                         </div>
                         <div class="tab-pane" id="securities">
-                            <h4> Securities</h4>
+                            <h4>Securities</h4>
                             <ul class="nav nav-list affix" id="securities-list" data-bind="template: {name:'security-item-link', foreach: securities}">
                             </ul>
+                        </div>
+                        <div class="tab-pane" id="rules">
+                            <h4>Rules</h4>
+                            <H5>General</H5>
+                            <ol>
+                                <li>Examine the Securities tab where the companies are described.
+                                 The current price is also listed. Some of the offered shares pay 
+                                 dividends. Some offer high risk and reward. 
+                                Others are safer. The prices will change at the end of each year.</li>
+                                <li>If a share price hits $150.00 the stock will split. 
+                                The stock price will be cut in half (rounded up) and for each share
+                                 you own you will receive another. The unsold shares will also split, doubling
+                                 the available share supply.</li>
+                                <li>If a share price is $50.00 or lower then dividends will be suspended.</li>
+                            </ol>
+                            <h5>Ordering Shares</h5>
+                            <ol>
+	                            <li>Your orders are final. You are responsible for making sure that your 
+	                            order makes sense. You cannot sell something you don't own. You cannot buy
+	                            more shares than are available. If your order is illegal it will not be accepted
+	                            but will not be processed.</li>
+	                            <li>If you want to do nothing this turn hit the "STAND" button.</li>
+	                            <li>The order in which you place your orders does not matter. All SELL orders for
+	                            all players will be processed first, and then all BUY orders.</li>
+	                            <li>If you are the last player to order the year will immediately end and you
+	                            will see the game change state. Otherwise the game will wait until all other players
+	                            have finished ordering.</li>
+                            </ol>
+                            <h5>Year End: Order of Events</h5>
+                            <ol>
+	                            <li>After all orders have been processed the game year is over. New market conditions
+	                            will be generated randomly and all companies will have their share prices calculated</li>
+	                            <li>Next, any shares that have split will be handled, with the available shares
+	                            doubling along with any shares in player portfolios.</li>
+	                            <li>Then the dividends will be paid out. Players holding a dividend paying
+	                            stock which has split will therefore receive double dividends on the year.</li>
+                            </ol>
                         </div>
 					</div>
 				</div>
