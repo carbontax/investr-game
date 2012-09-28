@@ -94,6 +94,12 @@ class GameController
     }
 
     static public function apiPostNewGame() {
+    	$user = UserController::getLoggedInUser();
+    	if ( ! $user->isAdmin() ) {
+    		http_response_code(401);
+    		return "Access Denied";
+    	} 
+    	
         $game_data = $_POST;
         error_log("POST NEW GAME: " . print_r($game_data, true));
         $game = new Game($game_data);        
