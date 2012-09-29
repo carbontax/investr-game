@@ -7,7 +7,7 @@ function Security(security) {
 	self.dividend = security.dividend;
 	self.price = ko.observable(security.price);
 	self.priceHistory = ko.observableArray(security.priceHistory)
-	self.outstanding = ko.observable(security.outstanding);
+	self.outstanding = ko.observable(parseInt(security.outstanding));
 	self.delta = ko.observable(security.delta);
 	self.split = ko.observable(parseInt(security.split));
 	self.description = security.description;

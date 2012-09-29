@@ -8,7 +8,6 @@ class User extends Model {
     public $username;
     public $email;
     public $games;
-    public $activeGames;
     public $newGames;
 
     public function __construct($user = array()) {
@@ -29,6 +28,7 @@ class User extends Model {
 	}
 	
 	public function fetchGames() {
+		$this->debug && error_log("User::fetchGames()");
 		$this->games = array();
         $query = 'SELECT g.id, g.start_date, g.year, g.last_year, g.number_of_players, count(o.id) ' .
             ' as turn FROM ' . Game::TABLENAME . ' g ' .
@@ -41,7 +41,7 @@ class User extends Model {
             ' (select game_id FROM player WHERE user_id = :user_id) ' .
             ' group by g.id, g.start_date, g.year, g.number_of_players order by g.id';
         $params = array('user_id' => $this->id);
-		$this->debug && query_log($query, $params, "User.fetchGames()");
+		$this->debug && log_query($query, $params, "User.fetchGames()");
         $result = getDatabase()->all($query,$params);
 
         if ( $result !== false ) {

@@ -7,6 +7,8 @@ class Order extends Model {
     const INVALID_BUY_TOO_MANY_SHARES = 1;
     const INVALID_SELL_TOO_MANY_SHARES = 2;
     const INVALID_INSUFFICIENT_FUNDS = 4;
+    const INVALID_BUY_TOO_FEW_SHARES = 8;
+    const INVALID_SELL_TOO_FEW_SHARES = 16;
     
     public $id;
     public $user_id;
@@ -74,45 +76,54 @@ class Order extends Model {
 
     public function verifyBuyOrder() {
     	$this->debug && error_log("verifyBuyOrder");
-        $query = "SELECT p.balance, " . 
-        	" case when pf.shares is null then gsp.outstanding else gsp.outstanding + sum(pf.shares) end as available_shares, " . 
-        	" (:shares * gsp.price * -1) as amount, " . 
-        	" gsp.price " .
-            " FROM " . Player::TABLENAME . " p " . 
-            " JOIN " . Game::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
-        	" LEFT JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
-            " WHERE p.game_id = :game_id AND gsp.year = :year AND gsp.security_id = :security_id";
-		$params = array(
-        	shares => $this->shares,
-        	game_id => $this->game_id, 
-        	year => $this->year,
-        	security_id => $this->security_id);
-        $this->debug && log_query($query,$params,"verifyBuyOrder");
-        $row = getDatabase()->one($query, $params);
-        
-        error_log("available_shares = " . $row['available_shares'] 
-        . " -- shares = " . $this->shares . " -- diff = " 
-        . ($row['available_shares'] - $this->shares));
-        
-        if ( $row['available_shares'] - $this->shares < 0) {
-          	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;
-        }        
+    	if ( $this->shares < 1 ) {
+    		$this->invalid += self::INVALID_BUY_TOO_FEW_SHARES;
+    	} else {
+    		// PROCEED WITH VALIDATION
+	        $query = "SELECT p.balance, " . 
+	        	" case when pf.shares is null then gsp.outstanding else gsp.outstanding + sum(pf.shares) end as available_shares, " . 
+	        	" (:shares * gsp.price * -1) as amount, " . 
+	        	" gsp.price " .
+	            " FROM " . Player::TABLENAME . " p " . 
+	            " JOIN " . Game::GAME_SECURITY_PRICE_TABLENAME . " gsp ON p.game_id = gsp.game_id" .
+	        	" LEFT JOIN " . Portfolio::TABLENAME . " pf ON pf.game_id = p.game_id AND pf.security_id = gsp.security_id " . 
+	            " WHERE p.game_id = :game_id AND gsp.year = :year AND gsp.security_id = :security_id";
+			$params = array(
+	        	shares => $this->shares,
+	        	game_id => $this->game_id, 
+	        	year => $this->year,
+	        	security_id => $this->security_id);
+	        $this->debug && log_query($query,$params,"verifyBuyOrder");
+	        $row = getDatabase()->one($query, $params);
+	        
+	        error_log("available_shares = " . $row['available_shares'] 
+	        . " -- shares = " . $this->shares . " -- diff = " 
+	        . ($row['available_shares'] - $this->shares));
+	        
+	        if ( $row['available_shares'] - $this->shares < 0) {
+	          	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;
+	        }
+    	} 
     }
     
     private function verifySellOrder() {
-        $query = "SELECT pf.shares " . 
-            " FROM " . Portfolio::TABLENAME . " pf " .
-            " WHERE pf.game_id = :game_id AND pf.user_id = :user_id AND pf.security_id = :security_id";
-		$params = array(
-        	game_id => $this->game_id, 
-    	    user_id => $this->user_id, 
- 	    	security_id => $this->security_id);
-        $this->debug && log_query($query,$params,"verifySellOrder");
-        $row = getDatabase()->one($query, $params);
-            
-        if ( $row['shares'] - $this->shares < 0) {
-          	$this->invalid += self::INVALID_SELL_TOO_MANY_SHARES;
-        }   
+    	if ( $this->shares < 1 ) {
+    		$this->invalid += self::INVALID_SELL_TOO_FEW_SHARES;
+    	} else {
+	        $query = "SELECT pf.shares " . 
+	            " FROM " . Portfolio::TABLENAME . " pf " .
+	            " WHERE pf.game_id = :game_id AND pf.user_id = :user_id AND pf.security_id = :security_id";
+			$params = array(
+	        	game_id => $this->game_id, 
+	    	    user_id => $this->user_id, 
+	 	    	security_id => $this->security_id);
+	        $this->debug && log_query($query,$params,"verifySellOrder");
+	        $row = getDatabase()->one($query, $params);
+	            
+	        if ( $row['shares'] - $this->shares < 0) {
+	          	$this->invalid += self::INVALID_SELL_TOO_MANY_SHARES;
+	        }
+    	}
     }
 
     private function verifyNullOrder() {
@@ -160,7 +171,18 @@ class Order extends Model {
 	    	error_log("order messages 4: " . print_r($messages,true));
 	    }
 
-	    error_log("order messages: " . print_r($messages,true));
+	    if ($code & self::INVALID_BUY_TOO_FEW_SHARES) {
+	    	$messages[] = "Buy order must be for at least 1 share";
+	   		 error_log("order messages 1: " . print_r($messages,true));
+	   	}	    	
+
+	   	if ($code & self::INVALID_SELL_TOO_FEW_SHARES) {
+	    	$messages[] = "Sell order must be for at least 1 share";
+	    	error_log("order messages 2: " . print_r($messages,true));
+	   	}
+
+	    
+	   	error_log("order messages: " . print_r($messages,true));
 	    $msg = implode("; ",$messages);
 	    error_log("msg = " . $msg);
     	

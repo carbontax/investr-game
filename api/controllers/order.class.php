@@ -15,4 +15,16 @@ class OrdersController
 
         return $results;
     }
+
+    static public function apiPostNoOrders($game_id) {
+        $game = GameController::apiGame($game_id);
+
+        /* 
+         * if these orders are for the last player the game 
+         * year will be ended and all orders processed.
+         */
+        $results = $game->addNullOrder($order);
+
+        return $results;
+    }
 }

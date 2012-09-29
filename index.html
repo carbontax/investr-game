@@ -68,10 +68,9 @@
 	<script type="text/template" id="order-display-row">
 		<tr data-bind="css: {invalid: isInvalid()}">
 			<td data-bind="text: action"></td>
-			<td><span data-bind="text: security_symbol"/></td>
-			<td data-bind="text: pricePerShareFmt()"></td>
+			<td><span data-bind="text: securityAtPrice"/></td>
 			<td><span data-bind="text: shares"/></td>
-			<td data-bind="text: amountFmt()"></td>
+			<td data-bind="text: amountFmt"></td>
 			<td></td>
 		</tr>
 	</script>

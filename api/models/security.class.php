@@ -12,6 +12,7 @@ class Security {
     public $split;
     public $price;
     public $delta; // latest price change
+    public $bust;
 
     public function __construct($security = array()) {
         $this->security_id = $security['security_id'];
@@ -24,6 +25,7 @@ class Security {
         $this->price = $security['price'];
         $this->split = $security['split'];
         $this->delta = $security['delta'];
+        $this->bust = $security['bust'];
     }
     
     public static function fetchIdForSymbol($symbol) {

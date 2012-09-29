@@ -81,16 +81,20 @@ class Game extends Model {
 
 		// Security Delta query gets new values based on chance event.
 		$sd_query = 'select :game_id, ly.security_id, :next_year, sd.delta, ' .
-            ' case when (price + sd.delta) > :split_limit then ceiling((price + sd.delta) / 2) else (price + sd.delta) end as price, ' .
+            ' case ' . 
+			' when (price + sd.delta) > :split_limit then ceiling((price + sd.delta) / 2) ' .
+			' when (price + sd.delta) < 1 then 0 ' .
+			' else (price + sd.delta) end as price, ' .
             ' case when (price + sd.delta) > :split_limit then 1 else 0 end as split, ' . 
-        	' ly.outstanding ' .
+            ' case when (price + sd.delta) < 1 then 1 else 0 end as bust, ' . 
+			' ly.outstanding ' .
             ' from ' . self::GAME_SECURITY_PRICE_TABLENAME . ' ly ' .
             ' join security_delta sd on ly.security_id = sd.security_id ' . 
             ' where ly.year = :previous_year and sd.roll = :roll and sd.market = :market and ly.game_id = :game_id ';
 
 		// Insert query creates new rows in game security history table
 		$iq = 'insert into ' . self::GAME_SECURITY_PRICE_TABLENAME .
-            ' (game_id, security_id, year, delta, price, split, outstanding) ' .
+            ' (game_id, security_id, year, delta, price, split, bust, outstanding) ' .
 		$sd_query;
 		$params = array('game_id' => $this->id,
             'next_year' => $this->year + 1,
@@ -124,7 +128,7 @@ class Game extends Model {
 				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
 	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
 	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = gsp.year and o.security_id = gsp.security_id " .
+				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = gsp.year " .
 				" where p.game_id = :game_id and gsp.year = :year group by p.user_id order by net_worth desc ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
@@ -244,13 +248,13 @@ class Game extends Model {
 		}
 	}
 
-	public function addOrders($orders = array()) {
+	public function addOrders($data = array()) {
 		if ( $this->player->hasOrdered($this->year) ) {
 			http_response_code(500);
 			return "You have already ordered this turn";
 		}
 		$result = array();
-		foreach ($orders['orders'] as $key => $order_data) {
+		foreach ($data['orders'] as $order_data) {
 			array_push($result, $this->addOrder($order_data));
 		}
 		
@@ -281,6 +285,16 @@ class Game extends Model {
 		$order->setDebug();
 		$order->save();
 		return $order;
+	}
+	
+	public function addNullOrder() {
+		$this->debug && error_log("Game->addNullOrder() ");
+		$data = array(orders => array());		
+		$order_data = array(
+			action => 'NONE',
+			comment => 'No action this year');
+		array_push($data['orders'], $order_data);
+		return $this->addOrders($data);
 	}
 
 	/**
@@ -414,6 +428,36 @@ class Game extends Model {
 		 
 		$query = "update " . self::GAME_SECURITY_PRICE_TABLENAME . " set outstanding = outstanding * 2, split = 2 " .
         	" where split = 1 and game_id=:game_id and year = :year ";
+		$params = array(game_id => $this->id, year => $this->year);
+		$debug && error_log($query);
+		$debug && log_params($params);
+		$result = getDatabase()->execute($query, $params);
+	}
+
+	public function processBusts() {
+		$this->debug && error_log("processBusts");
+		 
+		$query = "select pf.user_id, pf.game_id, gsp.year, pf.security_id, " .
+	    	" pf.shares, 'BUST' as action, " .
+	    	" concat(s.name, ' has gone bust') as comment " . 
+	      	" from portfolio pf " .
+	    	" join security s on pf.security_id = s.id " .
+	    	" join game_sec_price gsp on pf.security_id = gsp.security_id and gsp.game_id = pf.game_id and gsp.year = :year " . 
+	    	" where gsp.split = 1 and pf.game_id = :game_id and pf.shares > 0";
+		$params = array(
+			year => $this->year,
+			game_id => $this->id
+		);
+		$debug && error_log($query);
+		$debug && log_params($params);
+		$rows = getDatabase()->all($query, $params);
+		foreach ($rows as $row) {
+			$txn = new Transaction($row);
+			$txn->save();
+		}
+		 
+		$query = "update " . self::GAME_SECURITY_PRICE_TABLENAME . " set outstanding = 0, bust = 2 " .
+        	" where bust = 1 and game_id=:game_id and year = :year ";
 		$params = array(game_id => $this->id, year => $this->year);
 		$debug && error_log($query);
 		$debug && log_params($params);

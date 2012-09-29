@@ -189,7 +189,7 @@ class Transaction extends Model{
         getDatabase()->execute("COMMIT");
     }
     
-    public function saveSplit() {
+   public function saveSplit() {
     	error_log(" ========== SAVE SPLIT TXN ======== ");
     	
         getDatabase()->execute("START TRANSACTION");
@@ -215,6 +215,34 @@ class Transaction extends Model{
         return $result;
     }
     
+    public function saveBust() {
+    	error_log(" ========== SAVE BUST TXN ======== ");
+    	
+        getDatabase()->execute("START TRANSACTION");
+
+        $this->fetchPreviousBalance();
+        
+        $query = self::insertQuery();
+        $params = $this->dbParams(array(
+        	balance => $this->previous_balance,
+        	shares => 0));
+        
+        error_log("TXN INSERT: " . $query);
+        error_log(print_r($params, true));
+        $result = getDatabase()->execute($query, $params);
+        
+        if ( ! $result ) {
+        	error_log(" ======= INSERT SHARE BUST TXN FAILED ======== ");
+        	getDatabase()->execute("ROLLBACK");
+        } else {
+	        $this->updatePortfolio();
+        }
+
+        getDatabase()->execute("COMMIT");
+
+        return $result;
+    }
+ 
     public function saveNull() {
     	error_log("SAVE_NULL: comment is " . $this->comment);
         getDatabase()->execute("START TRANSACTION");

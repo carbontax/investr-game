@@ -4,22 +4,17 @@ function Order(order) {
 	/* == ACTIONS == */
 	self.actionOptions = ['BUY', 'SELL'];
 	self.action = ko.observable('BUY');
-	if (order) {
-		self.action(order.action);
-	}
+	
 	self.actionFactor = ko.computed(function() {
 		if ( self.action() === 'BUY' ) {
 			return 1;
 		}
 		return -1;
 	});
+	self.comment = ko.observable();
 
 	/* == SECURITY == */
 	self.security = ko.observable();
-	// for saved orders only
-	if ( order ) {
-		self.security(order.security);
-	}
 	
 	self.security_id = ko.computed(function() {
 		return self.security() ? self.security().security_id : null;
@@ -36,27 +31,25 @@ function Order(order) {
 		}
 		return price;
 	});
+	
+	self.securityAtPrice = ko.computed(function() {
+		if ( self.security() ) {
+			return self.security_symbol() + " @ " + self.pricePerShareFmt();
+		}
+		return "";
+	});
 
 	/* == SHARES == */
 	self.shares = ko.observable();
-	if ( order ) {
-		self.shares(order.shares);
-	}
 	self.sharesDelta = ko.computed(function() {
 		return Number(self.shares()) * self.actionFactor();
 	});
 
 	/* == MARGIN == */
 	self.margin = ko.observable();
-	if ( order && order.margin ) {
-		self.margin(order.margin);
-	}
 	
 	/* == INVALID == */
 	self.invalid = ko.observable();
-	if (order && order.invalid) {
-		self.invalid(order.invalid);
-	}
 	self.isInvalid = ko.computed(function() {
 		return self.invalid() + 0 > 0;
 	});
@@ -77,12 +70,17 @@ function Order(order) {
 		return false;
 	};
 	
-//	self.toJSON = function() {
-//		return {
-//			action: self.action,
-//			security_id: self.security().id,
-//			shares: self.shares(),
-//			margin: self.margin(),
-//		}
-//	}
+	self.loadOrder = function(order) {
+		self.action(order.action);
+		self.comment(order.comment);
+		self.security(order.security);
+		self.shares(order.shares);
+		self.margin(order.margin);
+		self.invalid(order.invalid);
+	}
+
+	if (order) {
+		self.loadOrder(order);
+	}
+	
 };
