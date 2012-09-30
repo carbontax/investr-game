@@ -66,7 +66,8 @@ CREATE TABLE `game_sec_price` (
   `security_id` int(11) NOT NULL,
   `year` int(11) NOT NULL,
   `price` int(11) NOT NULL,
-  `split` tinyint(4) NOT NULL,
+  `split` tinyint(4) NULL,
+  `bust` tinyint(4)  NULL,
   `outstanding` int(11) DEFAULT NULL,
   `delta` int(11) NOT NULL,
   PRIMARY KEY (`id`)

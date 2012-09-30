@@ -33,6 +33,10 @@ class Game extends Model {
 		$query = 'insert into games ' .
             ' (initial_balance, start_date, number_of_players, year, last_year) ' .
         	' values(:initial_balance, :start_date, :number_of_players, :year, :last_year) ';
+
+		if ( $this->year == null ) {
+			$this->year = 0;
+		}
 		$params = array(initial_balance => $this->initial_balance,
 		start_date => strftime('%Y-%m-%d', time()),
 		number_of_players => $this->number_of_players,

@@ -12,7 +12,7 @@ class LoginController
       array('email' => $email, 'password' => $password));
 
     if ( !$user || ! array_key_exists('username', $user) ) {
-      return LoginController::apiUnauthorizedStatus();
+      return LoginController::apiUnauthenticatedStatus();
     }
     
       getSession()->set(Constants::USERNAME, $user['username']);
@@ -36,7 +36,7 @@ class LoginController
   static public function apiGetLogin() {
     $user = UserController::getLoggedInUser();
     if ( $user === null ) {
-      return LoginController::apiUnauthorizedStatus("Please log in");
+      return self::apiUnauthenticatedStatus("Please log in");
     }
 
     $user->setDebug();
@@ -48,7 +48,7 @@ class LoginController
   static public function getUsername() {
     $username = getSession()->get(Constants::USERNAME);
     if ( $username === null ) {
-      return LoginController::apiUnauthorizedStatus("Please log in");
+      return self::apiUnauthenticatedStatus("Please log in");
     }
     return $username;
   }
@@ -58,9 +58,15 @@ class LoginController
     return "You have been logged out";
   }
 
-  static public function apiUnauthorizedStatus($message = "Login failed") {
+  static public function apiUnauthenticatedStatus($message = "Login failed") {
     http_response_code(Constants::HTTP_STATUS_UNAUTHORIZED);
     return $message;
   } 
+
+  static public function apiNotAuthorizedStatus($message = "You do have permission to view that resource") {
+    http_response_code(Constants::HTTP_STATUS_UNAUTHORIZED);
+    return $message;
+  } 
+  
 
 }

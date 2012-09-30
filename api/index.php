@@ -12,7 +12,6 @@ include_once 'models/chance_event.class.php';
 include_once 'models/game.class.php';
 
 include_once 'controllers/user.class.php';
-include_once 'controllers/admin.class.php';
 include_once 'controllers/login.class.php';
 include_once 'controllers/player.class.php';
 include_once 'controllers/order.class.php';
@@ -52,8 +51,6 @@ getApi()->post('/games/(\d+)/no_orders', array('OrdersController', 'apiPostNoOrd
 getApi()->get('/games/(\d+)/proc', array('GameController', 'apiGameProcessOrders'), EpiApi::external);
 getApi()->get('/games/(\d+)/del', array('GameController', 'apiGameDelete'), EpiApi::external);
 getApi()->get('/games/(\d+)/div', array('GameController', 'apiGamePayDividends'), EpiApi::external);
-
-getRoute()->get('/admin', array('AdminController', 'index'));
 
 getRoute()->run();
 

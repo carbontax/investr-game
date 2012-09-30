@@ -93,27 +93,6 @@ class GameController
         return new Game($game_data);
     }
 
-    static public function apiPostNewGame() {
-    	$user = UserController::getLoggedInUser();
-    	if ( ! $user || ! $user->isAdmin() ) {
-    		http_response_code(401);
-    		return "Access Denied";
-    	} 
-    	
-        $game_data = $_POST;
-        error_log("POST NEW GAME: " . print_r($game_data, true));
-        $game = new Game($game_data);        
-        try {
-		    $id = $game->save();
-		    error_log("NEW GAME ID IS " . $id);
-        } catch(Exception $e) {
-        	http_response_code(500);
-        	return "Cannot create a new game.";
-        }
-		$game = self::getGame($id);
-        return $game;
-    }
-
     static public function parsePostGameData() {
     	$stream = file_get_contents('php://input');
         $game_data = json_decode($stream, true);
@@ -182,43 +161,4 @@ class GameController
         return $newGames;
     }
     
-    // DEVEL ONLY
-    static public function apiGameProcessOrders($game_id) {
-    	$user = UserController::getLoggedInUser();
-    	if ( $user->isAdmin() ) {
-	        $game = self::apiGame($game_id);
-   	    	$game->setDebug();
-    	    $game->processAllOrders();
-    	    echo "Year " . $game->year . " processed for game #" . $game->id; 
-    	} else {
-    		http_response_code(401);
-    		return;
-    	}
-    }
-
-    static public function apiGameDelete($game_id) {
-    	$user = UserController::getLoggedInUser();
-    	if ( $user->isAdmin() ) {
-    		$query = "delete from " . Player::TABLENAME . " where game_id=:game_id";
-    		getDatabase()->execute($query, array(game_id => $game_id));
-
-	    	$query = "delete from " . Transaction::TABLENAME . " where game_id=:game_id";
-    		getDatabase()->execute($query, array(game_id => $game_id));
-    	
-   		 	$query = "delete from " . Game::GAME_SECURITY_PRICE_TABLENAME . " where game_id=:game_id";
-    		getDatabase()->execute($query, array(game_id => $game_id));
-    	
-	    	$query = "delete from " . Portfolio::TABLENAME . " where game_id=:game_id";
-	    	getDatabase()->execute($query, array(game_id => $game_id));
-	    	
-	    	$query = "delete from " . Game::TABLENAME . " where id=:game_id";
-	    	getDatabase()->execute($query, array(game_id => $game_id));
-	    	
-	    	return "Game " . $game_id . " deleted";
-    	} else {
-    		http_response_code(401);
-    		return;
-    	}
-    }
-
 }
