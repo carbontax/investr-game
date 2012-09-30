@@ -80,59 +80,6 @@
 			<span data-bind="text: '(' + netWorthFmt() + ')'"></span>
 		</li>
 	</script>
-    <script type="text/template" id="security-item-btn">
-        <li>
-            <div class="btn security-detail-btn" data-bind="click: toggleShowDetail">
-                <div>
-                     <span class="security-symbol" data-bind="text: symbol"></span>
-                     <span class="security-price" data-bind="text: priceFmt()"></span>
-                </div>
-                <div>
-                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
-                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
-                </div>
-            </div>
-            <div class="well security-detail" data-bind="visible: showDetail">
-                 <span data-bind="text: name" class="security-name"></span>
-                 <div>
-                      <label for="security-dividend" data-bind="text: dividendLabel()"></label>
-                      <span class="security-dividend" data-bind="text: dividendFmt()"></span>
-                </div>
-                <div>
-                    <label for="security-outstanding">Available:</label>
-                    <span class="security-outstanding" data-bind="text: outstanding()"></span>
-                </div>
-           </div>
-       </li>   
-    </script>
-    <script type="text/template" id="security-item-link">
-        <li>
-            <a class="security-detail-link" data-bind="click: toggleShowDetail">
-                <div>
-                    <span class="security-symbol" data-bind="text: symbol"></span>
-                    <span class="security-price" data-bind="text: priceFmt()"></span></div>
-                <div>
-                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
-                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
-                </div>
-            </a>
-            <div class="well security-detail" data-bind="visible: showDetail">
-                 <span data-bind="text: name" class="security-name"></span>
-                 <div>
-                      <label for="security-dividend" data-bind="text: dividendLabel()"></label>
-                      <span class="security-dividend" data-bind="text: dividendFmt()"></span>
-                </div>
-                <div>
-                    <label for="security-outstanding">Available:</label>
-                    <span class="security-outstanding" data-bind="text: outstanding()"></span>
-                </div>
-                <div>
-                    <label for="security-outstanding">Description:</label>
-                    <span class="security-outstanding" data-bind="text: description"></span>
-                </div>
-           </div>
-       </li>   
-    </script>
     <script type="text/template" id="login-form-tmpl">
         <form id="login-form">
             <div>
@@ -378,9 +325,38 @@
                             </div>
                         </div>
                         <div class="tab-pane" id="securities">
-                            <h4>Securities</h4>
-                            <ul class="nav nav-list affix" id="securities-list" data-bind="template: {name:'security-item-link', foreach: securities}">
-                            </ul>
+                            <div class="tabbable tabs-left">
+	                            <ul class="nav nav-tabs" id="securities-list" data-bind="foreach: securities">
+							        <li>
+							            <a data-toggle="tab" data-bind="attr: {href: '#' + symbol + '-tab'}">
+							                <div>
+							                    <span class="security-symbol" data-bind="text: symbol"></span>
+							                    <span class="security-price" data-bind="text: priceFmt()"></span></div>
+							                <div>
+							                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
+							                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
+							                </div>
+							            </a>
+							       </li>   
+	                            </ul>
+	                            <div class="tab-content" data-bind="foreach: securities">
+							        <div class="tab-pane" data-bind="attr: {id: symbol + '-tab'}">
+								         <span data-bind="text: name" class="security-name"></span>
+								         <div>
+								             <label for="security-dividend" data-bind="text: dividendLabel()"></label>
+								             <span class="security-dividend" data-bind="text: dividendFmt()"></span>
+								         </div>
+								         <div>
+								             <label for="security-outstanding">Available:</label>
+								             <span class="security-outstanding" data-bind="text: outstanding()"></span>
+								         </div>
+								         <div>
+								             <label for="security-outstanding">Description:</label>
+								             <span class="security-outstanding" data-bind="text: description"></span>
+								         </div>
+							        </div>
+	                            </div>
+                            </div>
                         </div>
                         <div class="tab-pane" id="rules">
                             <h4>Rules</h4>
