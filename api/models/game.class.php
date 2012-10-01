@@ -90,13 +90,13 @@ class Game extends Model {
 		$chance_event->save();
 
 		// Security Delta query gets new values based on chance event.
-		$sd_query = 'select :game_id, ly.security_id, ly.bust, :next_year, sd.delta, ' .
+		$sd_query = 'select :game_id, ly.security_id, :next_year, sd.delta, ' .
             ' case ' . 
 			' when (price + sd.delta) > :split_limit then ceiling((price + sd.delta) / 2) ' .
 			' when (price + sd.delta) < 1 then 0 ' .
 			' else (price + sd.delta) end as price, ' .
             ' case when (price + sd.delta) > :split_limit then 1 else 0 end as split, ' . 
-            ' case when (price + sd.delta) < 1 then 1 else 0 end as bust, ' . 
+            ' case when ly.bust > 0 then ly.bust when (price + sd.delta) < 1 then 1 else 0 end as bust, ' . 
 			' ly.outstanding ' .
             ' from ' . self::GAME_SECURITY_PRICE_TABLENAME . ' ly ' .
             ' join security_delta sd on ly.security_id = sd.security_id ' . 
@@ -128,8 +128,8 @@ class Game extends Model {
 		$query = "UPDATE " . self::GAME_SECURITY_PRICE_TABLENAME . 
 			" SET outstanding = 0, price = 0, delta = 0 " . 
 			" where game_id = :game_id and year = :year and bust > 0";
-		$params = array(game_id => $this->game_id, year => $this->year);
-		getDatabase()->execute($query, $param);
+		$params = array(game_id => $this->id, year => $this->year);
+		getDatabase()->execute($query, $params);
 	}
 
 	/* for list functions we need minimal player information */

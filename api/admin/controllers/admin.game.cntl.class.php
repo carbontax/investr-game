@@ -117,7 +117,7 @@ class AdminGameController {
     }
 
     static public function processOrders($game_id) {
-   		$game = getGame($game_id);
+   		$game = self::fetchGame($game_id);
     	$game->setDebug();
    	    $game->processAllOrders();
    	    header("Location: " . AdminController::getAdminDir() . "/games/" . $game->id);
