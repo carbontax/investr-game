@@ -125,7 +125,7 @@ class Game extends Model {
 	 * Make sure that busted stocks stay busted.
 	 */
 	private function persistBusts() {
-		$query = "UPDATE . " self::GAME_SECURITY_PRICE_TABLENAME . 
+		$query = "UPDATE " . self::GAME_SECURITY_PRICE_TABLENAME . 
 			" SET outstanding = 0, price = 0, delta = 0 " . 
 			" where game_id = :game_id and year = :year and bust > 0";
 		$params = array(game_id => $this->game_id, year => $this->year);
