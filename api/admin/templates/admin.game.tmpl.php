@@ -2,7 +2,7 @@
 
 <div>
 	<span><form action="<?php echo $game->id; ?>/proc" method="POST"><input type="submit" value="Process Orders" /></form></span>
-	<span><form action='" . $game_id . "/del' method='POST'><input type='submit' value='Delete Game' /></form></span>
+	<span><form action="<?php echo $game->id; ?>/del" method="POST"><input type='submit' value='Delete Game' /></form></span>
 </div>
 <H5>Players</H5>
 	<ul><?php foreach ($game->players as $player) { ?>

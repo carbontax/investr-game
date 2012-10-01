@@ -346,21 +346,17 @@ class Game extends Model {
 			if ( $txn_data['invalid'] == null ) {
 				$txn_data['invalid'] = 0;
 			}
-			error_log("GAME BUY VALIDATION");
-			error_log("too many shares? " . ($txn_data['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES));
-			if ( $txn_data['outstanding'] - $txn_data['shares'] < 0 
-				&& ($txn_data['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES !== Order::INVALID_BUY_TOO_MANY_SHARES)) {
-				$txn_data['invalid'] += Order::INVALID_BUY_TOO_MANY_SHARES;
+//			error_log("GAME BUY VALIDATION");
+//			error_log("too many shares? " . ($txn_data['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES));
+//			error_log("OUTSTANDING: " . $txn_data['outstanding'] . "; SHARES: " .  $txn_data['shares']);
+			if ( $txn_data['outstanding'] - $txn_data['shares'] < 0 ) {
+				$txn_data['invalid'] |= Order::INVALID_BUY_TOO_MANY_SHARES;
 			}
 			
 			error_log("not enough cash? " . ($txn_data['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS));
 			if ( $txn_data['current_balance'] + $txn_data['amount'] < 0 ) {
 				error_log("setting not enough cash bit");
-				if (($txn_data['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS) == Order::INVALID_INSUFFICIENT_FUNDS) {
-					error_log("NSF flag is already set");
-				} else {
-					$txn_data['invalid'] += Order::INVALID_INSUFFICIENT_FUNDS;
-				}
+				$txn_data['invalid'] |= Order::INVALID_INSUFFICIENT_FUNDS;
 			}
 			$txn = new Transaction($txn_data);
 			$txn->setDebug();
