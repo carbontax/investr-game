@@ -312,7 +312,8 @@ class Game extends Model {
 		$this->setNewPrices();
 		$this->advanceYear();
 		// start of next year
-		$this->processSplits(true);
+		$this->processSplits();
+		$this->processBusts();
 		$this->payDividends();
 	}
 
@@ -320,13 +321,8 @@ class Game extends Model {
 		// TODO get the BUY orders in the correct sequence, meaning
 		// get the first order for each player in turn, then the
 		// second order, and so on.
-		$query = "SELECT o.user_id, o.game_id, o.year, o.action, gsp.security_id, " .
-        	" gsp.outstanding, (o.shares * gsp.price * -1) as amount,  o.shares, " . 
-        	" gsp.price, o.invalid, p.balance as current_balance, " . 
-        	" concat('BUY ', o.shares, ' shares') as comment " .
+		$query = "SELECT o.id as order_id "  . 
             " FROM " . Order::TABLENAME . " o " .
-            " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON o.game_id = gsp.game_id AND gsp.security_id = o.security_id AND o.year = gsp.year " .
-            " JOIN " . Player::TABLENAME . " p ON o.user_id = p.user_id and o.game_id = p.game_id " .
             " WHERE o.action = 'BUY' AND o.year = :year AND o.game_id = :game_id ";
 		$params = array(year => $this->year, game_id => $this->id);
         $this->debug && log_query($query, $params, "processAllBuyOrders");
@@ -336,26 +332,37 @@ class Game extends Model {
 			/* Some validation can only be done in game context, 
 			 * after sell orders have been processed. 
 			 */
-			if ( $row['invalid'] == null ) {
-				$row['invalid'] = 0;
+			$query = "SELECT o.user_id, o.game_id, o.year, o.action, gsp.security_id, " .
+        	" gsp.outstanding, (o.shares * gsp.price * -1) as amount,  o.shares, " . 
+        	" gsp.price, o.invalid, p.balance as current_balance, " . 
+        	" concat('BUY ', o.shares, ' shares') as comment " .
+            " FROM " . Order::TABLENAME . " o " .
+            " JOIN " . self::GAME_SECURITY_PRICE_TABLENAME . " gsp ON o.game_id = gsp.game_id AND gsp.security_id = o.security_id AND o.year = gsp.year " .
+            " JOIN " . Player::TABLENAME . " p ON o.user_id = p.user_id and o.game_id = p.game_id " .
+            " WHERE o.id = :order_id ";
+			$params = array(order_id => $row['order_id']);
+			$txn_data = getDatabase()->one($query, $params);
+			
+			if ( $txn_data['invalid'] == null ) {
+				$txn_data['invalid'] = 0;
 			}
 			error_log("GAME BUY VALIDATION");
-			error_log("too many shares? " . ($row['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES));
-			if ( $row['outstanding'] - $row['shares'] < 0 
-				&& ($row['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES !== Order::INVALID_BUY_TOO_MANY_SHARES)) {
-				$row['invalid'] += Order::INVALID_BUY_TOO_MANY_SHARES;
+			error_log("too many shares? " . ($txn_data['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES));
+			if ( $txn_data['outstanding'] - $txn_data['shares'] < 0 
+				&& ($txn_data['invalid'] & Order::INVALID_BUY_TOO_MANY_SHARES !== Order::INVALID_BUY_TOO_MANY_SHARES)) {
+				$txn_data['invalid'] += Order::INVALID_BUY_TOO_MANY_SHARES;
 			}
 			
-			error_log("not enough cash? " . ($row['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS));
-			if ( $row['current_balance'] + $row['amount'] < 0 ) {
+			error_log("not enough cash? " . ($txn_data['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS));
+			if ( $txn_data['current_balance'] + $txn_data['amount'] < 0 ) {
 				error_log("setting not enough cash bit");
-				if (($row['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS) == Order::INVALID_INSUFFICIENT_FUNDS) {
+				if (($txn_data['invalid'] & Order::INVALID_INSUFFICIENT_FUNDS) == Order::INVALID_INSUFFICIENT_FUNDS) {
 					error_log("NSF flag is already set");
 				} else {
-					$row['invalid'] += Order::INVALID_INSUFFICIENT_FUNDS;
+					$txn_data['invalid'] += Order::INVALID_INSUFFICIENT_FUNDS;
 				}
 			}
-			$txn = new Transaction($row);
+			$txn = new Transaction($txn_data);
 			$txn->setDebug();
 			$txn->save();
 		}
@@ -408,9 +415,9 @@ class Game extends Model {
 		}
 	}
 
-	public function processSplits($debug = false) {
-		$debug && error_log("processSplits");
-		 
+	public function processSplits() {
+		$this->debug && error_log("processSplits");
+		
 		$query = "select pf.user_id, pf.game_id, gsp.year, pf.security_id, " .
     	" pf.shares, 'SPLIT' as action, " .
     	" concat(s.name, ' share split 2 for 1') as comment " . 
@@ -419,11 +426,10 @@ class Game extends Model {
     	" join game_sec_price gsp on pf.security_id = gsp.security_id and gsp.game_id = pf.game_id and gsp.year = :year " . 
     	" where gsp.split = 1 and pf.game_id = :game_id and pf.shares > 0";
 		$params = array(
-		year => $this->year,
-		game_id => $this->id
+			year => $this->year,
+			game_id => $this->id
 		);
-		$debug && error_log($query);
-		$debug && log_params($params);
+		$this->debug && log_query($query, $params);
 		$rows = getDatabase()->all($query, $params);
 		foreach ($rows as $row) {
 			$txn = new Transaction($row);
@@ -433,14 +439,13 @@ class Game extends Model {
 		$query = "update " . self::GAME_SECURITY_PRICE_TABLENAME . " set outstanding = outstanding * 2, split = 2 " .
         	" where split = 1 and game_id=:game_id and year = :year ";
 		$params = array(game_id => $this->id, year => $this->year);
-		$debug && error_log($query);
-		$debug && log_params($params);
+		$this->debug && log_query($query, $params);
 		$result = getDatabase()->execute($query, $params);
 	}
 
 	public function processBusts() {
 		$this->debug && error_log("processBusts");
-		 
+		
 		$query = "select pf.user_id, pf.game_id, gsp.year, pf.security_id, " .
 	    	" pf.shares, 'BUST' as action, " .
 	    	" concat(s.name, ' has gone bust') as comment " . 
@@ -452,8 +457,7 @@ class Game extends Model {
 			year => $this->year,
 			game_id => $this->id
 		);
-		$debug && error_log($query);
-		$debug && log_params($params);
+		$this->debug && log_query($query, $params);
 		$rows = getDatabase()->all($query, $params);
 		foreach ($rows as $row) {
 			$txn = new Transaction($row);
@@ -463,8 +467,7 @@ class Game extends Model {
 		$query = "update " . self::GAME_SECURITY_PRICE_TABLENAME . " set outstanding = 0, bust = 2 " .
         	" where bust = 1 and game_id=:game_id and year = :year ";
 		$params = array(game_id => $this->id, year => $this->year);
-		$debug && error_log($query);
-		$debug && log_params($params);
+		$this->debug && log_query($query, $params);
 		$result = getDatabase()->execute($query, $params);
 	}
 
