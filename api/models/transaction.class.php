@@ -6,6 +6,7 @@ class Transaction extends Model{
     const SELL_ACTION = "SELL";
     const DIVIDEND_ACTION = "DIV";
     const SPLIT_ACTION = "SPLIT";
+    const BUST_ACTION = "BUST";
     const NULL_ACTION = "NONE";
         
     public $id;
@@ -75,6 +76,10 @@ class Transaction extends Model{
     		
     		case self::SPLIT_ACTION:
     		$result = $this->saveSplit();
+    		break;
+    		
+    		case self::BUST_ACTION:
+    		$result = $this->saveBust();
     		break;
     		
     		default:
@@ -227,15 +232,19 @@ class Transaction extends Model{
         	balance => $this->previous_balance,
         	shares => 0));
         
-        error_log("TXN INSERT: " . $query);
-        error_log(print_r($params, true));
+        log_query($query, $params, "TXN INSERT");
         $result = getDatabase()->execute($query, $params);
         
         if ( ! $result ) {
         	error_log(" ======= INSERT SHARE BUST TXN FAILED ======== ");
         	getDatabase()->execute("ROLLBACK");
         } else {
-	        $this->updatePortfolio();
+        	error_log("Wiping shares from portfolios");
+        	$pf_query = "UPDATE " . Portfolio::TABLENAME . " set shares = 0 " . 
+        		" WHERE game_id = :game_id AND security_id = :security_id ";
+        	$params = array(game_id => $this->game_id, security_id => $this->security_id);
+        	log_query($pf_query,$params, "BUST - adjust portfolios");
+        	$result = getDatabase()->execute($pf_query, $params);
         }
 
         getDatabase()->execute("COMMIT");

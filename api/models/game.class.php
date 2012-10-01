@@ -81,10 +81,16 @@ class Game extends Model {
 
 		$chance_event = new ChanceEvent(array(game_id => $this->id, year => $this->year));
 		$chance_event->createValues();
+
+		// BEAR 5 - bust test
+/*		$chance_event->die_one = 1;
+		$chance_event->die_two = 4;
+		$chance_event->market = 0; */
+
 		$chance_event->save();
 
 		// Security Delta query gets new values based on chance event.
-		$sd_query = 'select :game_id, ly.security_id, :next_year, sd.delta, ' .
+		$sd_query = 'select :game_id, ly.security_id, ly.bust, :next_year, sd.delta, ' .
             ' case ' . 
 			' when (price + sd.delta) > :split_limit then ceiling((price + sd.delta) / 2) ' .
 			' when (price + sd.delta) < 1 then 0 ' .
@@ -110,6 +116,20 @@ class Game extends Model {
 		//        error_log("INSERT QUERY: " . $iq);
 		//        log_params($params);
 		$result = getDataBase()->execute($iq, $params);
+		
+		$this->persistBusts();
+	}
+	
+	/**
+	 * 
+	 * Make sure that busted stocks stay busted.
+	 */
+	private function persistBusts() {
+		$query = "UPDATE . " self::GAME_SECURITY_PRICE_TABLENAME . 
+			" SET outstanding = 0, price = 0, delta = 0 " . 
+			" where game_id = :game_id and year = :year and bust > 0";
+		$params = array(game_id => $this->game_id, year => $this->year);
+		getDatabase()->execute($query, $param);
 	}
 
 	/* for list functions we need minimal player information */
@@ -443,12 +463,12 @@ class Game extends Model {
 		$this->debug && error_log("processBusts");
 		
 		$query = "select pf.user_id, pf.game_id, gsp.year, pf.security_id, " .
-	    	" pf.shares, 'BUST' as action, " .
+	    	" pf.shares, '" . Transaction::BUST_ACTION . "' as action, " .
 	    	" concat(s.name, ' has gone bust') as comment " . 
 	      	" from portfolio pf " .
 	    	" join security s on pf.security_id = s.id " .
 	    	" join game_sec_price gsp on pf.security_id = gsp.security_id and gsp.game_id = pf.game_id and gsp.year = :year " . 
-	    	" where gsp.split = 1 and pf.game_id = :game_id and pf.shares > 0";
+	    	" where gsp.bust = 1 and pf.game_id = :game_id and pf.shares > 0";
 		$params = array(
 			year => $this->year,
 			game_id => $this->id
