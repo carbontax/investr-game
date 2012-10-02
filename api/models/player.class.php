@@ -91,6 +91,10 @@ class Player {
         return false;
     }
     
+    public function fetchHasOrdered($year) {
+    	$this->has_ordered = $this->hasOrdered($year);
+    }
+    
     public function update() {
     	$query = "update " . self::TABLENAME . " set balance = :balance where user_id = :user_id and game_id = :game_id ";
     	$params = array(balance => $this->balance, user_id => $user_id, game_id => $game_id);

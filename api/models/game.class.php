@@ -145,15 +145,13 @@ class Game extends Model {
 				$params = array('game_id' => $this->id);
 			} else {
 				$query = "SELECT p.*, u.username, " .
-				" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth, " . 
-				" p.balance + (sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end)) as net_worth, " .
-				" case when count(o.id) > 0 then 1 else 0 end as has_ordered " .
-	    		" from " . Player::TABLENAME . " p " .
-				" join " . User::TABLENAME . " u ON p.user_id = u.id " .
-	    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
-	    		" left outer join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
-				" left outer join " . Order::TABLENAME . " o ON o.user_id = p.user_id and o.game_id = p.game_id and o.year = gsp.year " .
-				" where p.game_id = :game_id and gsp.year = :year group by p.user_id order by net_worth desc ";
+					" sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end) as portf_worth, " . 
+					" p.balance + (sum(case when pf.shares is null then 0 else (pf.shares * gsp.price) end)) as net_worth " .
+		    		" from " . Player::TABLENAME . " p " .
+					" join " . User::TABLENAME . " u ON p.user_id = u.id " .
+		    		" join game_sec_price gsp on p.game_id = gsp.game_id " . 
+		    		" left join portfolio pf on p.user_id = pf.user_id and p.game_id = pf.game_id and pf.security_id = gsp.security_id " . 
+					" where p.game_id = :game_id and gsp.year = :year group by p.user_id order by net_worth desc ";
 				$params = array(game_id => $this->id, year => $this->year);
 			}
 
@@ -162,6 +160,7 @@ class Game extends Model {
 			foreach ($rows as $i => $row) {
 				$p = new Player($row);
 				$p->rank = $i + 1;
+				$p->fetchHasOrdered($this->year);
 				array_push($this->players, $p);
 			}
 		}
