@@ -57,8 +57,6 @@ function InvestrViewModel() {
 		return true;
 	});
 
-	self.allUsernames = ko.observableArray(["carbontax", "peppercorn", "nsmithlea"]);
-
 	self.ajaxFailureCallback = function(xhr) {
 			self.clearMessages();
 			if ( xhr.status === 401 ) {
@@ -89,7 +87,6 @@ function InvestrViewModel() {
 				self.clearMessages();
 				self.showSpinner(false);
 				self.enableLoginButton(true);
-//				self.loggedIn(true);
 				self.user(new User(data));
 			},
 			error: function(xhr) {
@@ -150,8 +147,7 @@ function InvestrViewModel() {
 			type: 'post',
 			dataType: 'json',
 			success: function(data) {
-//				game.loadPlayers(data.players);
-//				$('messages').addClass('alert alert-success').append("You have joined game " + game.id);
+				// TODO use ko.observableArray()
 				window.location.reload();
 			},
 			error: self.ajaxFailureCallback
@@ -171,10 +167,6 @@ function InvestrViewModel() {
 		});
 	}
 	
-//	self.reloadGame = function() {
-//		self.openGame(self.game());
-//	}
-
 	self.viewAllGames = function() {
 		self.clearMessages();
 		$.ajax({
