@@ -16,7 +16,9 @@ function InvestrViewModel() {
 		}
 		return "";
 	});
-
+	
+	self.showLoginForm = ko.observable(false);
+	
 	self.loggedIn = ko.computed(function() {
 		if ( self.username() === "" ) {
 			return false;
@@ -84,7 +86,8 @@ function InvestrViewModel() {
 			dataType: 'json',
 			type: 'post',
 			success: function(data) {
-				self.clearMessages();
+				self.showLoginForm(false);
+				self.resetLoginForm();
 				self.showSpinner(false);
 				self.enableLoginButton(true);
 				self.user(new User(data));
@@ -92,10 +95,13 @@ function InvestrViewModel() {
 			error: function(xhr) {
 				self.showSpinner(false);
 				self.enableLoginButton(true);
-				self.ajaxFailureCallback(xhr);
+//				self.ajaxFailureCallback(xhr);
+				$.bootstrapGrowl(xhr.responseText, {
+					type: 'error',
+					align: 'center'
+				});
 			}
 		});
-		self.resetLoginForm();
 		return false;
 	};
 
@@ -189,22 +195,30 @@ function InvestrViewModel() {
 			type: 'post',
 			success: function() {
 				self.user(null);
+				self.showLoginForm(true);
 			}
 		});
 	}
 	
 	self.showSpinner = ko.observable(false);
+
+	self.init = function() {
+		// Runs on page load
+		$.ajax({
+			url: '/investr-game/api/login',
+			type: 'get',
+			dataType: 'json',
+			success: function(data) {
+				self.user(new User(data));
+			},
+			error: function(xhr) {
+				self.showLoginForm(true);
+				self.ajaxFailureCallback(xhr);
+			}
+		});
+	};
 	
-	// Runs on page load
-	$.ajax({
-		url: '/investr-game/api/login',
-		type: 'get',
-		dataType: 'json',
-		success: function(data) {
-			self.user(new User(data));
-		},
-		error: self.ajaxFailureCallback
-	});
+	self.init();
 }
 
 //$(".players-summary").popover({trigger: 'mouseover'});
