@@ -281,7 +281,7 @@ class Game extends Model {
 			array_push($result, $this->addOrder($order_data));
 		}
 
-		if ($this->allPlayersHaveOrdered) {
+		if ( $this->allPlayersHaveOrdered() ) {
 			$this->debug && error_log("Last player has ordered. Year end triggered.");
 			$this->processAllOrders();
 			$result['new_year'] = true;
@@ -312,14 +312,6 @@ class Game extends Model {
 	}
 	
 	public function allPlayersHaveOrdered() {
-/*		$allPlayersHaveOrdered = true;
-		foreach ($this->players as $player) {
-			if (! $player->hasOrdered($this->year) ) {
-				$allPlayersHaveOrdered = false;
-			}
-		}
-		return $allPlayersHaveOrdered; */
-		
 		$allPlayersHaveOrdered = false;
 		try {
 			$query = "SELECT user_id from " . Player::TABLENAME . 
@@ -340,10 +332,6 @@ class Game extends Model {
 		return $allPlayersHaveOrdered;
 	}
 
-	/**
-	 * 
-	 * TODO rename this endGameYear or something.
-	 */
 	public function processAllOrders() {
 		// end of year
 		$this->processAllSellOrders();
