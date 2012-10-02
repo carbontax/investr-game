@@ -72,12 +72,15 @@ class Order extends Model {
     		$this->verifyNullOrder();
     		break;
     	}
+    	if ( $this->invalid != self::VALID ) {
+    		$this->action = Transaction::NULL_ACTION;
+    	}
     }
 
     public function verifyBuyOrder() {
     	$this->debug && error_log("verifyBuyOrder");
     	if ( $this->shares < 1 ) {
-    		$this->invalid += self::INVALID_BUY_TOO_FEW_SHARES;
+    		$this->invalid |= self::INVALID_BUY_TOO_FEW_SHARES;
     	} else {
     		// PROCEED WITH VALIDATION
 	        $query = "SELECT p.balance, " . 
@@ -101,14 +104,14 @@ class Order extends Model {
 	        . ($row['available_shares'] - $this->shares));
 	        
 	        if ( $row['available_shares'] - $this->shares < 0) {
-	          	$this->invalid += self::INVALID_BUY_TOO_MANY_SHARES;
+	          	$this->invalid |= self::INVALID_BUY_TOO_MANY_SHARES;
 	        }
     	} 
     }
     
     private function verifySellOrder() {
     	if ( $this->shares < 1 ) {
-    		$this->invalid += self::INVALID_SELL_TOO_FEW_SHARES;
+    		$this->invalid |= self::INVALID_SELL_TOO_FEW_SHARES;
     	} else {
 	        $query = "SELECT pf.shares " . 
 	            " FROM " . Portfolio::TABLENAME . " pf " .

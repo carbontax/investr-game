@@ -178,21 +178,14 @@ function Game(game) {
 	}
 		
 	self.sendNullOrder = function() {
-//		var order = new Order();
-//		order.action('NULL');
-//		self.orders([order]);
-//		self.postJSONOrders();
 		if (! confirm('End your turn without placing orders?') ) {
 			return false;
 		}
 		self.disableOrderButtons(true);
 		
-//		var data = ko.toJSON({orders: self.orders}); 
-		
 		$.ajax("/investr-game/api/games/" + self.id + "/no_orders", {
 			type: 'post',
 			dataType: 'json',
-//			data: data,
 			success: function(responseData) {
 				var top_offset = $('#tabs-pane').position().top + 10;
 				$.bootstrapGrowl('Your turn is over.', {

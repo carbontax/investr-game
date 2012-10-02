@@ -380,6 +380,7 @@ class Game extends Model {
             " JOIN " . Player::TABLENAME . " p ON o.user_id = p.user_id and o.game_id = p.game_id " .
             " WHERE o.id = :order_id ";
 			$params = array(order_id => $row['order_id']);
+			$this->debug && log_query($query, $params, "Game::processAllBuyOrders() create transaction");
 			$txn_data = getDatabase()->one($query, $params);
 			
 			if ( $txn_data['invalid'] == null ) {
