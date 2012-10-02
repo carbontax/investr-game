@@ -280,17 +280,8 @@ class Game extends Model {
 		foreach ($data['orders'] as $order_data) {
 			array_push($result, $this->addOrder($order_data));
 		}
-		
-		/*
-		 * TODO move this to its own method.
-		 */
-		$allPlayersHaveOrdered = true;
-		foreach ($this->players as $player) {
-			if (! $player->hasOrdered($this->year) ) {
-				$allPlayersHaveOrdered = false;
-			}
-		}
-		if ($allPlayersHaveOrdered) {
+
+		if ($this->allPlayersHaveOrdered) {
 			$this->debug && error_log("Last player has ordered. Year end triggered.");
 			$this->processAllOrders();
 			$result['new_year'] = true;
@@ -318,6 +309,35 @@ class Game extends Model {
 			comment => 'No action this year');
 		array_push($data['orders'], $order_data);
 		return $this->addOrders($data);
+	}
+	
+	public function allPlayersHaveOrdered() {
+/*		$allPlayersHaveOrdered = true;
+		foreach ($this->players as $player) {
+			if (! $player->hasOrdered($this->year) ) {
+				$allPlayersHaveOrdered = false;
+			}
+		}
+		return $allPlayersHaveOrdered; */
+		
+		$allPlayersHaveOrdered = false;
+		try {
+			$query = "SELECT user_id from " . Player::TABLENAME . 
+				" WHERE game_id = :game_id and user_id not in " .
+				" (SELECT user_id FROM " . Order::TABLENAME . 
+				" WHERE game_id = :game_id AND year = :year)";
+			$params = array(game_id => $this->id, year => $this->year);
+			$this->debug && log_query($query,$params, "allPlayersHaveOrdered");
+			
+			$rows = getDatabase()->all($query,$params);
+			if ( ! $rows || count($rows) == 0 ) {
+				$allPlayersHaveOrdered = true;
+			}
+		} catch (Exception $e) {
+			error_log($e->getMessage);
+		}
+		error_log("Game::allPlayersHaveOrdered() exit with " . $allPlayersHaveOrdered);
+		return $allPlayersHaveOrdered;
 	}
 
 	/**

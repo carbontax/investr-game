@@ -56,7 +56,10 @@ class GameController
 	        error_log("apiGame: game_data FOUND " . print_r($game_data, true));
 	        $game = new Game($game_data);
 	        $game->setDebug();
-	        $game->fetchSecurities();
+	        if ( $game->allPlayersHaveOrdered() ) {
+	        	$game->processAllOrders();
+	        }
+ 	        $game->fetchSecurities();
 	        $game->fetchPlayer();
 	        $game->fetchPlayers();
         } else {
