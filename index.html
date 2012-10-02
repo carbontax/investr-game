@@ -77,7 +77,8 @@
 	<script type="text/template" id="player-summary-tmpl">
 		<li class="player-summary">
 			<span data-bind="text: username"></span>
-			<span data-bind="text: '(' + netWorthFmt() + ')'"></span>
+            <span data-bind="text: '(' + netWorthFmt() + ')'"></span>
+            <span><i data-bind="css: {'icon-ok': has_ordered}" title="Player has ordered"></i></span>
 		</li>
 	</script>
     <script type="text/template" id="login-form-tmpl">
@@ -154,8 +155,8 @@
 							     <span>Year:</span>
 	                             <span data-bind="text: year"></span>
 							  </div>
-							  <ol class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
-							  </ol>
+							  <ul class="game-player-summary-list" title="Players ranked by net worth" data-bind="template: {name: 'player-summary-tmpl', foreach: players()}">
+							  </ul>
 						</div>
 					</div>
 				</div>	
