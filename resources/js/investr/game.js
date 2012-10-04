@@ -294,6 +294,14 @@ function Game(game) {
 		});
 	}
 	
+	self.getPollString = function() {
+		var awaitingPlayers = ko.utils.arrayFilter(self.players(), function(player) {
+			return player.has_ordered();
+		});
+		var pollString = self.id + "." + self.year() + "." + awaitingPlayers.length;
+		return pollString;
+	};
+	
 	// ============== INIT ============= //
 	if ( game ) {
 		self.loadGame(game);

@@ -37,6 +37,7 @@ getApi()->post('/login', array('LoginController', 'apiPostLogin'), EpiApi::exter
 getApi()->post('/logout', array('LoginController', 'processLogout'), EpiApi::external);
 
 getApi()->get('/users', array('UserController', 'apiUsers'), EpiApi::external);
+getApi()->post('/users/poll', array('UserController', 'apiPollUser'), EpiApi::external);
 
 getApi()->get('/games', array('GameController', 'apiGames'), EpiApi::external);
 getApi()->get('/games/(\d+)', array('GameController', 'apiGame'), EpiApi::external);
@@ -47,10 +48,6 @@ getApi()->post('/games', array('GameController', 'apiPostNewGame'), EpiApi::exte
 getApi()->post('/games/(\d+)/join', array('GameController', 'apiGameJoin'), EpiApi::external);
 getApi()->post('/games/(\d+)/orders', array('OrdersController', 'apiPostOrders'), EpiApi::external);
 getApi()->post('/games/(\d+)/no_orders', array('OrdersController', 'apiPostNoOrders'), EpiApi::external);
-// devel only
-getApi()->get('/games/(\d+)/proc', array('GameController', 'apiGameProcessOrders'), EpiApi::external);
-getApi()->get('/games/(\d+)/del', array('GameController', 'apiGameDelete'), EpiApi::external);
-getApi()->get('/games/(\d+)/div', array('GameController', 'apiGamePayDividends'), EpiApi::external);
 
 getRoute()->run();
 

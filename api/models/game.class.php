@@ -494,5 +494,9 @@ class Game extends Model {
 		$this->debug && log_query($query, $params);
 		$result = getDatabase()->execute($query, $params);
 	}
+	
+	public function isActive() {
+		return $this->year < $this->last_year;
+	}
 
 }

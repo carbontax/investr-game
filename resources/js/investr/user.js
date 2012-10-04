@@ -18,7 +18,7 @@ function User(user) {
 		});
 	});
 
-	self.loadUser = function(user) {
+	self.loadData = function(user) {
 		if ( user ) {
 			self.id = user.id;
 			self.username(user.username);
@@ -41,6 +41,17 @@ function User(user) {
 		});
 	}
 	
+	self.getGamesPollString = function() {
+		var pollString = "";
+		$.each(self.activeGames(), function() {
+			if ( pollString.length > 0 ) {
+				pollString += "-";
+			}
+			pollString += this.getPollString();
+		});
+		return pollString;
+	}
+	
 	// runs on create
-	self.loadUser(user);
+	self.loadData(user);
 }

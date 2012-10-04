@@ -20,4 +20,15 @@ class UserController {
         $rows = getDatabase()->all($query, array('user_id' => $user_id));
         return $rows;
     }
+    
+    public static function apiPollUser() {
+    	$user = self::getLoggedInUser();
+    	$user->setDebug();
+    	$gamestate = $_POST['gs'];
+    	error_log("apiPollUser: GAMESTATE=" . $gamestate);
+    	$match = $user->matchGameState($gamestate);
+    	if ( ! $match ) {
+    		return $user;
+    	}
+    }
 }

@@ -54,4 +54,29 @@ class User extends Model {
             }
         }
 	}
+	
+	public function matchGameState($gamestate = "") {
+		$this->debug && error_log("User::matchGameState() enter with " . $gamestate);
+
+		$this->fetchGames();
+		$gs = "";
+		foreach ($this->games as $game) {
+			if ( $game->isActive() ) {
+				$count = 0;
+				foreach( $game->players as $player ) {
+					if ( $player->has_ordered ) {
+						$count++;
+					}
+				}
+				if ( $gs != "" ) {
+					$gs .= "-"; 
+				}
+				$gs .= $game->id . "." . $game->year . "." . $count;
+			}
+		}
+//		error_log(">>>>>>>>>>>>>>>>>>>>>>>>> " . $gs);
+		$match = ($gamestate === $gs);
+		$this->debug && error_log("User::matchGameState() exit with " . $match);
+		return $match;
+	}
 }

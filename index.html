@@ -31,9 +31,9 @@
 	
 	<script type="text/javascript">
 	$(document).ready(function() {
-		$('#logo-container').click(function() {
+/* 		$('#logo-container').click(function() {
 			window.location.href = "";
-		});
+		}); */
 		$('.order-row').on('keypress', function(evt) {
 		    if ( evt.which == 13 ) {
 		        $('#more-button').click();
@@ -95,7 +95,7 @@
 		<div id="header-container">
 			<div class="row" id="header">
 				<div class="span8">
-					<div id="logo-container">
+					<div id="logo-container" data-bind="click: viewAllGames">
 						<span id="site-logo"></span>
 						<span id="site-title" data-bind="text: gameTitle()">Investr</span>
 					</div>
@@ -120,8 +120,8 @@
 			<div class="span12" id="games-container" data-bind="visible: shouldDisplayGamesLists">
             <!--  ALL GAMES CONTAINER 
 ********************************************************** -->
-				<h3 data-bind="visible: newGames().length > 0">New Games</h3>
-				<table class="table table-bordered table-condensed" id="new-games-table" data-bind="visible: newGames().length > 0">
+				<h3 data-bind="visible: user().newGames().length > 0">New Games</h3>
+				<table class="table table-bordered table-condensed" id="new-games-table" data-bind="visible: user().newGames().length > 0">
 					<thead>
 						<tr>
 							<td>ID</td>
@@ -130,7 +130,7 @@
 							<td></td>
 						</tr>
 					</thead>
-					<tbody data-bind="foreach: newGames()">
+					<tbody data-bind="foreach: user().newGames()">
 						<tr>
 							<td data-bind="text: id"></td>
 							<td data-bind="text: startDateFmt()"></td>
@@ -139,9 +139,9 @@
 						</tr>
 					</tbody>
 				</table>
-				<div class="span3" id="active-games-container" data-bind="visible: activeGames().length > 0">
+				<div class="span3" id="active-games-container" data-bind="visible: user().activeGames().length > 0">
 				<h3>Active Games</h3>
-					<div data-bind="foreach: activeGames()" >
+					<div data-bind="foreach: user().activeGames()" >
 						<div class="well open-game-btn" data-bind="click: $parent.openGame">
 							  <div>
 								<span data-bind="text: 'Game #' + id"></span>
@@ -156,9 +156,9 @@
 						</div>
 					</div>
 				</div>	
-                <div class="span3" id="completed-games-container" data-bind="visible: completedGames().length > 0">
+                <div class="span3" id="completed-games-container" data-bind="visible: user().completedGames().length > 0">
                 <h3>Completed Games</h3>
-                    <div data-bind="foreach: completedGames()" >
+                    <div data-bind="foreach: user().completedGames()" >
                         <div class="well open-game-btn" data-bind="click: $parent.openGame">
                             <div>
                                <span data-bind="text: 'Game #' + id"></span>
