@@ -23,7 +23,7 @@ class UserController {
     
     public static function apiPollUser() {
     	$user = self::getLoggedInUser();
-    	$user->setDebug();
+    	$user && $user->setDebug();
     	$gamestate = $_POST['gs'];
     	error_log("apiPollUser: GAMESTATE=" . $gamestate);
     	$match = $user->matchGameState($gamestate);

@@ -307,37 +307,6 @@ function Game(game) {
 	if ( game ) {
 		self.loadGame(game);
 	}
-
-	self.stopPollingGame = false;
-	self.pollDelay = ko.observable(30000);
-	self.pollGame = function() {
-		if ( self.stopPollingGame ) {
-			return false;
-		}
-		var pollString = self.getPollString();
-		console.log("pollGame: " + pollString);
-		$.ajax({
-			url: '/investr-game/api/games/' + self.id + '/poll',
-			type: 'post',
-			data: {'gs': pollString},
-			dataType: 'json',
-			success: function(data) {
-				if ( data ) {
-					self.loadGame(data);
-				}
-			},
-			error: function(xhr) {
-				window.console && console.log("ERROR POLLING GAME");
-			},
-			complete: function() {
-				setTimeout(
-					self.pollGame,
-					self.pollDelay()
-				);
-			},
-			timeout: 30000
-		});
-	};
 	
 //	self.pollGame();
 

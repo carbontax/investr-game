@@ -45,9 +45,7 @@ function Player(player, game) {
 	
 	self.has_ordered = ko.observable(false);
 	if ( player.has_ordered ) {
-		if ( parseInt(player.has_ordered) > 0) {
-			self.has_ordered(true);
-		}
+		self.has_ordered(true);
 	}
 
 	self.hasNoOrders = ko.computed(function(){

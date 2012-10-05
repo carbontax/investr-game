@@ -161,7 +161,8 @@ function InvestrViewModel() {
 			success: function(data) {
 				self.stopPollingUser = true;
 				self.game(new Game(data));
-				self.game().pollGame();
+				self.stopPollingGame = false;
+				self.pollGame();
 			},
 			error: self.ajaxFailureCallback
 		});
@@ -181,6 +182,7 @@ function InvestrViewModel() {
 //		});
 //	};
 	self.viewAllGames = function() {
+		self.stopPollingGame = true;
 		self.game(null);
 		self.stopPollingUser = false;
 		self.pollUser();
@@ -201,6 +203,39 @@ function InvestrViewModel() {
 	
 	self.showSpinner = ko.observable(false);
 	
+	// GAME POLLING
+	self.stopPollingGame = false;
+	self.pollGameDelay = ko.observable(30000);
+	self.pollGame = function() {
+		if ( self.stopPollingGame ) {
+			return false;
+		}
+		var pollString = self.game().getPollString();
+		console.log("pollGame: " + pollString);
+		$.ajax({
+			url: '/investr-game/api/games/' + self.game().id + '/poll',
+			type: 'post',
+			data: {'gs': pollString},
+			dataType: 'json',
+			success: function(data) {
+				if ( data ) {
+					self.game().loadGame(data);
+				}
+			},
+			error: function(xhr) {
+				window.console && console.log("ERROR POLLING GAME");
+			},
+			complete: function() {
+				setTimeout(
+					self.pollGame,
+					self.pollGameDelay()
+				);
+			},
+			timeout: 30000
+		});
+	};
+
+	// USER POLLING
 	self.stopPollingUser = false;
 	self.pollUserDelay = ko.observable(30000);
 	self.pollUser = function() {
