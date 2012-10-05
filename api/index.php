@@ -46,6 +46,7 @@ getApi()->get('/games/new', array('GameController', 'apiGetNewGame'), EpiApi::ex
 //getApi()->get('/games/new/list', array('GameController', 'apiNewGames'), EpiApi::external);
 getApi()->post('/games', array('GameController', 'apiPostNewGame'), EpiApi::external);
 getApi()->post('/games/(\d+)/join', array('GameController', 'apiGameJoin'), EpiApi::external);
+getApi()->post('/games/(\d+)/poll', array('GameController', 'apiPollGame'), EpiApi::external);
 getApi()->post('/games/(\d+)/orders', array('OrdersController', 'apiPostOrders'), EpiApi::external);
 getApi()->post('/games/(\d+)/no_orders', array('OrdersController', 'apiPostNoOrders'), EpiApi::external);
 

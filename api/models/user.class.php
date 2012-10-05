@@ -62,16 +62,8 @@ class User extends Model {
 		$gs = "";
 		foreach ($this->games as $game) {
 			if ( $game->isActive() ) {
-				$count = 0;
-				foreach( $game->players as $player ) {
-					if ( $player->has_ordered ) {
-						$count++;
-					}
-				}
-				if ( $gs != "" ) {
-					$gs .= "-"; 
-				}
-				$gs .= $game->id . "." . $game->year . "." . $count;
+				if ( $gs != "" ) { $gs .= "-"; }
+				$gs .= $game->getGameState();
 			}
 		}
 //		error_log(">>>>>>>>>>>>>>>>>>>>>>>>> " . $gs);

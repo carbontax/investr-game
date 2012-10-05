@@ -65,8 +65,8 @@ class GameController
         } else {
         	error_log($user->username ." HAS NO ACCESS TO GAME " . $game_id);
         }
-        return $game;
    		error_log("apiGame exit");
+        return $game;
     }
     
     static public function apiGameYear($game_id) {
@@ -163,5 +163,48 @@ class GameController
         }
         return $newGames;
     }
+    
+    public static function apiPollGame($game_id) {
+    	error_log("apiPollGame enter with " . $game_id);
+		
+       	$gs = $_POST['gs'];
+       	error_log("apiPollGame: GAMESTATE=" . $gs);
+       	   		
+        $user = UserController::getLoggedInUser();
+        $query = 'select * from ' . Game::TABLENAME . ' where id = :game_id ' .
+    	        ' and id in ' .
+        	    ' (select game_id from ' . Player::TABLENAME . ' where user_id = :user_id) ';
+	    $params = array(game_id => $game_id, user_id => $user->id);
+        log_query($query, $params, "apiPollGame");
+        
+        $game == null;
+        $game_data = getDataBase()->one($query, $params);
+        if ( $game_data ) {
+	        error_log("apiGame: game_data FOUND " . print_r($game_data, true));
+	        $game = new Game($game_data);
+	        $game->setDebug();
+//	        if ( $game->allPlayersHaveOrdered() ) {
+//	        	$game->processAllOrders();
+//	        }
+// 	        $game->fetchSecurities();
+//	        $game->fetchPlayer();
+	        $game->fetchPlayerSummaries();
+        } else {
+        	error_log($user->username ." HAS NO ACCESS TO GAME " . $game_id);
+        }
+
+        $gamestate = $game->getGameState();
+    	$match = ($gs === $gamestate);
+        error_log("apiPollGame exit. GS: " . $gs . "; getGameState = " . $gamestate . "; match = " . $match);
+    	if ( ! $match ) {
+        	error_log("apiPollGame <<<<<<<<<<<<<<<<<<<<<< RELOAD");
+    		$game->fetchSecurities();
+    		$game->fetchPlayer();
+    		$game->fetchPlayers();
+    		return $game;
+    	}
+   		
+    }
+    
     
 }

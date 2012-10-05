@@ -498,5 +498,13 @@ class Game extends Model {
 	public function isActive() {
 		return $this->year < $this->last_year;
 	}
+	
+	public function getGameState() {
+		$count = 0;
+		foreach( $this->players as $player ) {
+			if ( $player->has_ordered ) { $count++; }
+		}
+	    return $this->id . "." . $this->year . "." . $count;
+	}
 
 }

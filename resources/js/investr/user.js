@@ -35,6 +35,7 @@ function User(user) {
 	}
 	
 	self.loadNewGames = function(newGames) {
+		var newGames = newGames || [];
 		self.newGames([]);
 		$.each(newGames, function() {
 			self.newGames.push(new Game(this));

@@ -159,7 +159,9 @@ function InvestrViewModel() {
 			dataType: 'json',
 			type: 'get',
 			success: function(data) {
+				self.stopPollingUser = true;
 				self.game(new Game(data));
+				self.game().pollGame();
 			},
 			error: self.ajaxFailureCallback
 		});
@@ -180,6 +182,7 @@ function InvestrViewModel() {
 //	};
 	self.viewAllGames = function() {
 		self.game(null);
+		self.stopPollingUser = false;
 		self.pollUser();
 	}
 
@@ -198,7 +201,12 @@ function InvestrViewModel() {
 	
 	self.showSpinner = ko.observable(false);
 	
+	self.stopPollingUser = false;
+	self.pollUserDelay = ko.observable(30000);
 	self.pollUser = function() {
+		if ( self.stopPollingUser ) {
+			return false;
+		}
 		var pollString = self.user().getGamesPollString();
 		console.log("pollUser: " + pollString);
 		$.ajax({
@@ -210,9 +218,22 @@ function InvestrViewModel() {
 				if ( data ) {
 					self.user().loadData(data);
 				}
-			}
+			},
+			error: function(xhr) {
+				self.showLoginForm(true);
+				self.ajaxFailureCallback(xhr);
+			},
+			complete: function() {
+				setTimeout(
+					self.pollUser,
+					self.pollUserDelay()
+				);
+			},
+			timeout: 30000
 		});
-	}
+	};
+	
+	self.pollUser();
 
 /*	(function poll(){
 	    $.ajax({ url: "server", success: function(data){
@@ -222,7 +243,7 @@ function InvestrViewModel() {
 	    }, dataType: "json", complete: poll, timeout: 30000 });
 	})(); */
 	
-	self.init = function() {
+/*	self.init = function() {
 		// Runs on page load
 		$.ajax({
 			url: '/investr-game/api/login',
@@ -236,9 +257,9 @@ function InvestrViewModel() {
 				self.ajaxFailureCallback(xhr);
 			}
 		});
-	};
+	}; */
 	
-	self.init();
+//	self.init();
 }
 
 //$(".players-summary").popover({trigger: 'mouseover'});

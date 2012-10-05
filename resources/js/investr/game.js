@@ -89,7 +89,7 @@ function Game(game) {
 		self.loadPlayers(data.players);
 		if ( data.player && data.player.user_id ) {
 			self.player(new Player(data.player, self));
-			self.showYearMessage();
+//			self.showYearMessage();
 		}
 		// TODO use has_ordered instead
 		self.turn(data.turn);
@@ -261,23 +261,24 @@ function Game(game) {
 	};
 	
 	self.checkNewYear = function() {
-		var newYear = false;
-		$.ajax({
-			url: '/investr-game/api/games/' + self.id + '/year',
-			type: 'get',
-			dataType: 'json',
-			success: function(data) {
-				if ( parseInt(data['year']) > parseInt(self.year()) ) {
-					var top_offset = $('#tabs-pane').position().top + 10;
-					$.bootstrapGrowl('Beginning year ' + data['year'], {
-						top_offset: top_offset,
-						align: 'center'
-					});
-					self.reload();
-				}
-			},
-			error: self.ajaxFailureCallback
-		});
+//		var newYear = false;
+//		$.ajax({
+//			url: '/investr-game/api/games/' + self.id + '/year',
+//			type: 'get',
+//			dataType: 'json',
+//			success: function(data) {
+//				if ( parseInt(data['year']) > parseInt(self.year()) ) {
+//					var top_offset = $('#tabs-pane').position().top + 10;
+//					$.bootstrapGrowl('Beginning year ' + data['year'], {
+//						top_offset: top_offset,
+//						align: 'center'
+//					});
+//					self.reload();
+//				}
+//			},
+//			error: self.ajaxFailureCallback
+//		});
+		self.stopPollingGame = true;
 	};
 	
 	self.reload = function() {
@@ -306,4 +307,38 @@ function Game(game) {
 	if ( game ) {
 		self.loadGame(game);
 	}
+
+	self.stopPollingGame = false;
+	self.pollDelay = ko.observable(30000);
+	self.pollGame = function() {
+		if ( self.stopPollingGame ) {
+			return false;
+		}
+		var pollString = self.getPollString();
+		console.log("pollGame: " + pollString);
+		$.ajax({
+			url: '/investr-game/api/games/' + self.id + '/poll',
+			type: 'post',
+			data: {'gs': pollString},
+			dataType: 'json',
+			success: function(data) {
+				if ( data ) {
+					self.loadGame(data);
+				}
+			},
+			error: function(xhr) {
+				window.console && console.log("ERROR POLLING GAME");
+			},
+			complete: function() {
+				setTimeout(
+					self.pollGame,
+					self.pollDelay()
+				);
+			},
+			timeout: 30000
+		});
+	};
+	
+//	self.pollGame();
+
 };
