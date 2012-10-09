@@ -12,7 +12,7 @@ function InvestrViewModel() {
 
 	self.user = ko.observable(new User());
 	self.username = ko.computed(function() {
-		if ( self.user().username ) {
+		if ( self.user() && self.user().username ) {
 			return self.user().username;
 		}
 		return "";
@@ -51,14 +51,16 @@ function InvestrViewModel() {
 	self.ajaxFailureCallback = function(xhr) {
 			self.clearMessages();
 			if ( xhr.status === 401 ) {
-				self.user(null);
+				self.user(new User());
 			}
 			$('#messages').addClass("alert alert-error").append(xhr.responseText);
 	};
 
-	self.resetLoginForm = function() {
+	function resetLoginForm() {
 		$('#email', '#login-form').val('');
 		$('#password', '#login-form').val('');
+		self.showSpinner(false);
+		self.enableLoginButton(true);
 	}
 
 	self.submitLoginForm = function() {
@@ -76,10 +78,9 @@ function InvestrViewModel() {
 			type: 'post',
 			success: function(data) {
 				self.showLoginForm(false);
-				self.resetLoginForm();
-				self.showSpinner(false);
-				self.enableLoginButton(true);
+				resetLoginForm();
 				self.user().loadData(data);
+				startPollingUser();
 			},
 			error: function(xhr) {
 				self.showSpinner(false);
@@ -159,7 +160,7 @@ function InvestrViewModel() {
 			dataType: 'json',
 			type: 'get',
 			success: function(data) {
-				self.stopPollingUser = true;
+				stopPollingUserFlag = true;
 				self.game(new Game(data));
 				self.stopPollingGame = false;
 				self.pollGame();
@@ -168,34 +169,22 @@ function InvestrViewModel() {
 		});
 	}
 	
-//	self.reloadUser = function() {
-//		self.clearMessages();
-//		$.ajax({
-//			url: '/investr-game/api/login',
-//			type: 'get',
-//			dataType: 'json',
-//			success: function(data) {
-//				self.user().loadData(data);
-//				self.game(null);
-//			},
-//			error: self.ajaxFailureCallback
-//		});
-//	};
 	self.viewAllGames = function() {
 		self.stopPollingGame = true;
 		self.game(null);
-		self.stopPollingUser = false;
-		self.pollUser();
+		startPollingUser();
 	}
 
 	self.logoutAction = function() {
-		self.user(null);
+		self.stopPollingGame = true;
+		stopPollingUserFlag = true;
+		self.user(new User());
 		self.game(null);
 		$.ajax({
 			url: '/investr-game/api/logout',
 			type: 'post',
 			success: function() {
-				self.user(new User());
+				resetLoginForm();
 				self.showLoginForm(true);
 			}
 		});
@@ -236,10 +225,15 @@ function InvestrViewModel() {
 	};
 
 	// USER POLLING
-	self.stopPollingUser = false;
+	startPollingUser = function() {
+		stopPollingUserFlag = false;
+		pollUser();
+	};
+	
+	var stopPollingUserFlag = false;
 	self.pollUserDelay = ko.observable(30000);
-	self.pollUser = function() {
-		if ( self.stopPollingUser ) {
+	pollUser = function() {
+		if ( stopPollingUserFlag ) {
 			return false;
 		}
 		var pollString = self.user().getGamesPollString();
@@ -255,12 +249,13 @@ function InvestrViewModel() {
 				}
 			},
 			error: function(xhr) {
+				stopPollingUserFlag = true;
 				self.showLoginForm(true);
 				self.ajaxFailureCallback(xhr);
 			},
 			complete: function() {
 				setTimeout(
-					self.pollUser,
+					pollUser,
 					self.pollUserDelay()
 				);
 			},
@@ -268,33 +263,6 @@ function InvestrViewModel() {
 		});
 	};
 	
-	self.pollUser();
-
-/*	(function poll(){
-	    $.ajax({ url: "server", success: function(data){
-	        //Update your dashboard gauge
-	        salesGauge.setValue(data.value);
-
-	    }, dataType: "json", complete: poll, timeout: 30000 });
-	})(); */
-	
-/*	self.init = function() {
-		// Runs on page load
-		$.ajax({
-			url: '/investr-game/api/login',
-			type: 'get',
-			dataType: 'json',
-			success: function(data) {
-				self.user().loadData(data);
-			},
-			error: function(xhr) {
-				self.showLoginForm(true);
-				self.ajaxFailureCallback(xhr);
-			}
-		});
-	}; */
-	
-//	self.init();
+	// START POLLING ON PAGE LOAD
+	pollUser();
 }
-
-//$(".players-summary").popover({trigger: 'mouseover'});
