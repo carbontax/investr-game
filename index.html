@@ -14,12 +14,15 @@
     <script type="text/javascript" src="resources/js/jquery.validate.min.js"></script>
     <script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="resources/bootstrap-growl/jquery.bootstrap-growl.min.js"></script>
+    <script type="text/javascript" src="resources/js/bootbox.min.js"></script>
     <script type="text/javascript" src="resources/js/knockout-2.1.0.js"></script>
 	<script type="text/javascript" src="resources/js/log4javascript.js"></script>
 	<script type="text/javascript" src="resources/js/accounting.js"></script>
 
 	<!-- INVESTR -->
 	<script type="text/javascript" src="resources/js/mylogger.js"></script>
+	<!-- script type="text/javascript" src="dist/investr-game.min.js"></script> -->
+	
 	<script type="text/javascript" src="resources/js/investr/user.js"></script>	
 	<script type="text/javascript" src="resources/js/investr/transaction.js"></script>
 	<script type="text/javascript" src="resources/js/investr/holding.js"></script>
@@ -117,6 +120,7 @@
             <!--  ALL GAMES CONTAINER 
 ********************************************************** -->
 				<h3 data-bind="visible: user().newGames().length > 0">New Games</h3>
+				<div class="well">
 				<table class="table table-bordered table-condensed" id="new-games-table" data-bind="visible: user().newGames().length > 0">
 					<thead>
 						<tr>
@@ -135,6 +139,7 @@
 						</tr>
 					</tbody>
 				</table>
+				</div>
 				<div class="span3" id="active-games-container" data-bind="visible: user().activeGames().length > 0">
 				<h3>Active Games</h3>
 					<div data-bind="foreach: user().activeGames()" >
@@ -167,6 +172,8 @@
             </div>
 		</div>
 		<div id="game-container" data-bind="with: game">
+            <!-- ACTIVE GAME
+********************************************************** -->
 			<div class="row" id="game-data-container">
 				<div class="span12" id="tabs-pane">
 					<!-- TABS MENU -->
@@ -202,9 +209,9 @@
                                         </tbody>
                                     </table>
                                     <div id="order-button-bar" class="container">
-                                        <button class="btn btn-success" id="more-button" data-bind="click: newOrder, disabled: disableOrderButtons" title="Place another buy/sell order.">MORE</button>
-                                        <button class="btn btn-warning" id="end-button" data-bind="click: sendOrders, disabled: disableOrderButtons" title="End your turn.">DONE</button>
-                                        <button class="btn btn-danger" id="stand-button" data-bind="click: sendNullOrder, disabled: disableOrderButtons" title="Take no action this turn.">STAND</button>
+                                        <button class="btn btn-success" id="more-button" data-bind="click: newOrder, disable: disableMoreOrdersButton" title="Place another buy/sell order.">MORE</button>
+                                        <button class="btn btn-warning" id="end-button" data-bind="click: sendOrders, disable: disableSendOrdersButton" title="End your turn.">DONE</button>
+                                        <button class="btn btn-danger" id="stand-button" data-bind="click: sendNullOrder, disable: disableStandButton, attr: {title: standButtonTitleText}" >STAND</button>
                                     </div>
                                 </div>
                                 <div class="well" id="orders-portfolio-container">
