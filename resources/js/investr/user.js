@@ -4,7 +4,6 @@ function User(user) {
 	var self = this;
 	self.id = null;
 	self.username = ko.observable();
-//	self.logged_in = ko.observable();
 	self.newGames = ko.observableArray();
 	self.games = ko.observableArray();
 	

@@ -19,10 +19,10 @@ function InvestrViewModel() {
 	self.showLoginForm = ko.observable(false);
 	
 	self.loggedIn = ko.computed(function () {
-		if (self.username() === "") {
-			return false;
+		if (self.user() && self.user().username() ) {
+			return true;
 		}
-		return true;
+		return false;
 	});
 	self.notLoggedIn = ko.computed(function () {
 		return ! self.loggedIn();
@@ -40,10 +40,11 @@ function InvestrViewModel() {
 	self.newGame = ko.observable();
 
 	self.shouldDisplayGamesLists = ko.computed(function () {
-		if (self.notLoggedIn() || self.game()) {
-			return false;
+		log.debug("loggedIn() = " + self.loggedIn() + "; game() = " + self.game());
+		if (self.loggedIn() && ! self.game() ) {
+			return true;
 		}
-		return true;
+		return false;
 	});
 
 	self.ajaxFailureCallback = function (xhr) {
