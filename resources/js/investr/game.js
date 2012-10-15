@@ -1,9 +1,11 @@
 
 function Game(game) {
+	"use strict";
+	/*globals Player: false, Security: false, Order: false */
 	var self = this;
 	
 	// SETTINGS
-	self.settings;
+	self.settings = null;
 
 	self.initial_balance = ko.observable();
 	self.number_of_players = ko.observable();
@@ -13,9 +15,9 @@ function Game(game) {
 			return "Unsaved Game";
 		}
 		return "Game ID: " + self.id;
-	}
+	};
 
-	self.start_date;
+	self.start_date = null;
 	self.startDateFmt = ko.computed(function() {
 		// TODO 
 		return self.start_date;
@@ -26,15 +28,8 @@ function Game(game) {
 	self.year = ko.observable();
 	self.last_year = ko.observable();
 	self.hasNextYear = ko.computed(function() {
-		var remaining = parseInt(self.last_year()) - parseInt(self.year());
+		var remaining = Number(self.last_year()) - Number(self.year());
 		return remaining > 0;
-	});
-	self.yearFmt = ko.computed(function() {
-/*		if ( self.hasNextYear() ) {
-			return "Year " + self.year();
-		} else {
-			return "Game Over";
-		} */
 	});
 
 	self.players = ko.observableArray();
@@ -46,7 +41,7 @@ function Game(game) {
 				self.players.push(new Player(this, self));
 			});
 		}
-	}
+	};
 	
 	self.playerCount = ko.computed(function() {
 		return self.players().length;
@@ -63,15 +58,34 @@ function Game(game) {
 	});
 	
 	// an array of new Orders for the current year.
-	self.orders = ko.observableArray();
+	self.orders = ko.observableArray([new Order()]);
 	
-	self.disableOrderButtons = ko.observable(false);
-	self.disableStandButton = ko.computed(function() {
-		if ( self.orders().length == 0 ) {
+	self.disableAllOrdersButtons = ko.observable(false);
+	self.disableMoreOrdersButton = ko.observable(false);
+	self.disableSendOrdersButton = ko.observable(false);
+	self.disableStandButton = ko.computed(function () {
+		if ( ! self.disableAllOrdersButtons() && self.orders().length === 0 ) {
 			return false;
 		}
 		return true;
 	});
+	self.standButtonTitleText = ko.computed(function () {
+		if ( ! self.disableStandButton() ) {
+			return "Delete all orders to enable this option.";
+		}
+		return "Take no action this turn.";
+	});
+	
+	function enableOrderButtons () {
+		self.disableAllOrdersButtons(false);
+		self.disableMoreOrdersButton(false);
+		self.disableSendOrdersButton(false);
+	}
+	function disableOrderButtons () {
+		self.disableAllOrdersButtons(true);
+		self.disableMoreOrdersButton(true);
+		self.disableSendOrdersButton(true);
+	}
 
 	self.loadGame = function(data) {
 		self.id = data.id;
@@ -94,10 +108,10 @@ function Game(game) {
 		// TODO use has_ordered instead
 		self.turn(data.turn);
 		
-		//reset the New Orders form.
-		self.orders([new Order()]);
-		self.disableOrderButtons(false);
-	}
+		//reset the New Orders form. No, don't. What if somebody is ordering?
+//		self.orders([new Order()]);
+		enableOrderButtons();
+	};
 
 	self.getFirstPlacePlayer = function() {
 		return ko.utils.arrayFilter(self.players(), function(p) {
@@ -128,86 +142,88 @@ function Game(game) {
 	});
 
 	// ============= NEW ORDERS ============= // 
+
+	// tmp method for devel
+	self.turnOffOrderButtons = function() {
+		disableOrderButtons();
+	};
+	
 	self.newOrder = function() {
 		self.orders.push(new Order(this));
 	};
 
 	self.removeOrder = function(order) {
 		self.orders.remove(order);	
-	}
+	};
 	
 	self.sendOrders = function() {
-//		if (! $('#order-form').valid() ) {
-//			return false;
-//		}
-		self.postJSONOrders();
-	}
-	
-	self.postJSONOrders = function() {
-		if (! confirm('End your turn?') ) {
-			return false;
-		}
-		self.disableOrderButtons(true);
-		
-		var data = ko.toJSON({orders: self.orders}); 
-		
-		$.ajax("/investr-game/api/games/" + self.id + "/orders", {
-			type: 'post',
-			dataType: 'json',
-			data: data,
-			success: function(responseData) {
-				var top_offset = $('#tabs-pane').position().top + 10;
-				$.bootstrapGrowl('Orders saved.', {
-					top_offset: top_offset,
-					align: 'center'
+		bootbox.confirm('End your turn?', function(result) {
+			if ( result ) {
+				disableOrderButtons();
+				
+				var data = ko.toJSON({orders: self.orders}); 
+				
+				$.ajax("/investr-game/api/games/" + self.id + "/orders", {
+					type: 'post',
+					dataType: 'json',
+					data: data,
+					success: function(responseData) {
+						var top_offset = $('#tabs-pane').position().top + 10;
+						$.bootstrapGrowl('Orders saved.', {
+							top_offset: top_offset,
+							align: 'center'
+						});
+						if ( responseData['new_year'] ) {
+							self.reload();
+						} else {
+							$.bootstrapGrowl('Waiting for other players', {
+								top_offset: top_offset,
+								align: 'center'
+							});
+							self.player().loadOrders(responseData);
+						}
+					},
+					error: function(xhr) {
+						$('#messages').addClass("label label-error").append(xhr.responseText);
+					}
 				});
-				if ( responseData['new_year'] ) {
-					self.reload();
-				} else {
-					$.bootstrapGrowl('Waiting for other players', {
-						top_offset: top_offset,
-						align: 'center'
-					});
-					self.player().loadOrders(responseData);
-				}
-			},
-			error: function(xhr) {
-				$('#messages').addClass("label label-error").append(xhr.responseText);
 			}
-		});	
-	}
+		});
+	};
 		
 	self.sendNullOrder = function() {
-		if (! confirm('End your turn without placing orders?') ) {
-			return false;
-		}
-		self.disableOrderButtons(true);
-		
-		$.ajax("/investr-game/api/games/" + self.id + "/no_orders", {
-			type: 'post',
-			dataType: 'json',
-			success: function(responseData) {
-				var top_offset = $('#tabs-pane').position().top + 10;
-				$.bootstrapGrowl('Your turn is over.', {
-					top_offset: top_offset,
-					align: 'center'
-				});
-				if ( responseData['new_year'] ) {
-					self.reload();
-				} else {
-					$.bootstrapGrowl('Waiting for other players', {
-						top_offset: top_offset,
-						align: 'center'
-					});
-					self.player().loadOrders(responseData);
-				}
-			},
-			error: function(xhr) {
-				$('#messages').addClass("label label-error").append(xhr.responseText);
+		bootbox.confirm('End your turn without placing orders?', function (result) {
+			if ( result ) {
+				disableOrderButtons();
+								
+				$.ajax("/investr-game/api/games/" + self.id + "/no_orders", {
+					type: 'post',
+					dataType: 'json',
+					success: function(responseData) {
+						var top_offset = $('#tabs-pane').position().top + 10;
+						$.bootstrapGrowl('Your turn is over.', {
+							top_offset: top_offset,
+							align: 'center'
+						});
+						if ( responseData['new_year'] ) {
+							self.reload();
+						} else {
+							$.bootstrapGrowl('Waiting for other players', {
+								top_offset: top_offset,
+								align: 'center'
+							});
+							self.player().loadOrders(responseData);
+						}
+					},
+					error: function(xhr) {
+						$('#messages').addClass("label label-error").append(xhr.responseText);
+					}
+				});	
+				
+//				}, 10000);
 			}
-		});	
-
-	}
+		});
+	};
 
 	self.ordersAccountCash = ko.computed(function() {
 		var cash = null;
@@ -234,18 +250,10 @@ function Game(game) {
 		return ! self.ordersCashOk();
 	});
 
-//	self.ordersIncome = ko.computed(function() {
-//		window.console && console.log("ordersIncome not implemented");
-//		return 0;
-//	});
+//	self.ordersIncomeFmt = function() {
+//		return accounting.formatMoney(self.ordersIncome());
+//	};
 
-	self.ordersIncomeFmt = function() {
-		return accounting.formatMoney(self.ordersIncome());
-	};
-
-//	self.ordersNetFmt = ko.computed(function() {
-//		return accounting.formatMoney(self.ordersAccountCash() + self.ordersIncome());
-//	});
 // =============== END NEW ORDERS ============== //
 
 	self.joinButtonText = ko.computed(function() {
@@ -261,28 +269,10 @@ function Game(game) {
 	};
 	
 	self.checkNewYear = function() {
-//		var newYear = false;
-//		$.ajax({
-//			url: '/investr-game/api/games/' + self.id + '/year',
-//			type: 'get',
-//			dataType: 'json',
-//			success: function(data) {
-//				if ( parseInt(data['year']) > parseInt(self.year()) ) {
-//					var top_offset = $('#tabs-pane').position().top + 10;
-//					$.bootstrapGrowl('Beginning year ' + data['year'], {
-//						top_offset: top_offset,
-//						align: 'center'
-//					});
-//					self.reload();
-//				}
-//			},
-//			error: self.ajaxFailureCallback
-//		});
-		self.stopPollingGame = true;
 	};
 	
 	self.reload = function() {
-		window.console && console.log("reload called");
+		log.debug("reload called");
 		$.ajax({
 			url: '/investr-game/api/games/' + self.id,
 			dataType: 'json',
@@ -293,7 +283,7 @@ function Game(game) {
 			},
 			error: self.ajaxFailureCallback
 		});
-	}
+	};
 	
 	self.getPollString = function() {
 		var awaitingPlayers = ko.utils.arrayFilter(self.players(), function(player) {
@@ -307,7 +297,5 @@ function Game(game) {
 	if ( game ) {
 		self.loadGame(game);
 	}
-	
-//	self.pollGame();
 
-};
+}
