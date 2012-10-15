@@ -1,4 +1,5 @@
 function Order(order) {
+	"use strict";
 	var self = this;
 
 	/* == ACTIONS == */
@@ -27,7 +28,7 @@ function Order(order) {
 	self.pricePerShareFmt = ko.computed(function() {
 		var price = "";
 		if ( self.security() ) {
-		 	price = accounting.formatMoney(self.security().price());
+			price = accounting.formatMoney(self.security().price());
 		}
 		return price;
 	});
@@ -77,10 +78,10 @@ function Order(order) {
 		self.shares(order.shares);
 		self.margin(order.margin);
 		self.invalid(order.invalid);
-	}
+	};
 
 	if (order) {
 		self.loadOrder(order);
 	}
 	
-};
+}
