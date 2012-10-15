@@ -59,6 +59,7 @@ class User extends Model {
 		$this->debug && error_log("User::matchGameState() enter with " . $gamestate);
 
 		$this->fetchGames();
+		
 		$gs = "";
 		foreach ($this->games as $game) {
 			if ( $game->isActive() ) {
@@ -67,6 +68,12 @@ class User extends Model {
 			}
 		}
 //		error_log(">>>>>>>>>>>>>>>>>>>>>>>>> " . $gs);
+		$this->newGames = GameController::apiNewGames();
+		foreach ( $this->newGames as $game ) {
+			if ( $gs != "" ) { $gs .= "-"; }
+			$gs .= $game->getGameState();
+		}
+		
 		$match = ($gamestate === $gs);
 		$this->debug && error_log("User::matchGameState() exit with " . $match);
 		return $match;
