@@ -1,4 +1,5 @@
 function Transaction(transaction) {
+	"use strict";
 	var self = this;
 
 	self.player = transaction.player;
@@ -64,4 +65,4 @@ function Transaction(transaction) {
 		}
 	});
 
-};
+}

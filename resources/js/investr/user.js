@@ -1,6 +1,8 @@
 function User(user) {
+	/*global Game */
+	"use strict";
 	var self = this;
-	self.id;
+	self.id = null;
 	self.username = ko.observable();
 //	self.logged_in = ko.observable();
 	self.newGames = ko.observableArray();
@@ -25,22 +27,22 @@ function User(user) {
 			self.loadGames(user.games);
 			self.loadNewGames(user.newGames);
 		}
-	}
+	};
 	
 	self.loadGames = function(games) {
 		self.games([]);
 		$.each(games, function() {
 			self.games.push(new Game(this));
 		});
-	}
+	};
 	
 	self.loadNewGames = function(newGames) {
-		var newGames = newGames || [];
+		newGames = newGames || [];
 		self.newGames([]);
 		$.each(newGames, function() {
 			self.newGames.push(new Game(this));
 		});
-	}
+	};
 	
 	self.getGamesPollString = function() {
 		var pollString = "";
@@ -50,8 +52,14 @@ function User(user) {
 			}
 			pollString += this.getPollString();
 		});
+		$.each(self.newGames(), function() {
+			if ( pollString.length > 0 ) {
+				pollString += "-";
+			}
+			pollString += this.getPollString();
+		});
 		return pollString;
-	}
+	};
 	
 	// runs on create
 	self.loadData(user);

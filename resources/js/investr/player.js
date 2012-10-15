@@ -1,4 +1,6 @@
 function Player(player, game) {
+	"use strict";
+	/*global Holding: false, Transaction: false, Order: false */
 	var self = this;
 	self.game = game;
 
@@ -6,7 +8,7 @@ function Player(player, game) {
 
 	self.username = player.username;
 	
-	self.balance = ko.observable(parseInt(player.balance));
+	self.balance = ko.observable(Number(player.balance));
 
 	self.balanceFmt = ko.computed(function() {
 		return accounting.formatMoney(self.balance());
@@ -40,7 +42,7 @@ function Player(player, game) {
 	});
 	
 	self.netWorthFmt = ko.computed(function() {
-		return accounting.formatMoney(parseInt(self.balance()) + parseInt(self.portf_worth()));
+		return accounting.formatMoney(Number(self.balance()) + Number(self.portf_worth()));
 	});
 	
 	self.has_ordered = ko.observable(false);
@@ -68,19 +70,19 @@ function Player(player, game) {
 		if ( self.orders().length > 0 ) {
 			self.has_ordered(true);
 		}
-	}
+	};
 	
 	if ( player.orders ) {
 		// other players in the game will not have visible orders
 		self.loadOrders(player.orders);
 	}
 	
-	self.rank = ko.observable(parseInt(player.rank));
+	self.rank = ko.observable(Number(player.rank));
 	self.firstPlace = ko.computed(function() {
-		return self.rank() == 1;
+		return self.rank() === 1;
 	});
 	self.notFirstPlace = ko.computed(function() {
-		return self.rank() != 1;
+		return self.rank() !== 1;
 	});
 	
 }

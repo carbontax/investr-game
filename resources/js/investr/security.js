@@ -1,4 +1,5 @@
 function Security(security) {
+	"use strict";
 	var self = this;
 
 	self.security_id = security.security_id;
@@ -6,10 +7,10 @@ function Security(security) {
 	self.name = security.name;
 	self.dividend = security.dividend;
 	self.price = ko.observable(security.price);
-	self.priceHistory = ko.observableArray(security.priceHistory)
-	self.outstanding = ko.observable(parseInt(security.outstanding));
+	self.priceHistory = ko.observableArray(security.priceHistory);
+	self.outstanding = ko.observable(Number(security.outstanding));
 	self.delta = ko.observable(security.delta);
-	self.split = ko.observable(parseInt(security.split));
+	self.split = ko.observable(Number(security.split));
 	self.description = security.description;
 	
 	self.showDetail = ko.observable(false);
@@ -43,7 +44,7 @@ function Security(security) {
 	self.deltaFmt = ko.computed(function() {
 		if (self.delta() ) {
 			var prefix = "";
-			if ( parseInt(self.delta()) >= 0 ) {
+			if ( Number(self.delta()) >= 0 ) {
 				prefix = "+";
 			}
 			return prefix + self.delta();
@@ -51,16 +52,16 @@ function Security(security) {
 	});
 
 	self.isUp = ko.computed(function() {
-		if ( parseInt(self.delta()) >= 0 ) {
+		if ( Number(self.delta()) >= 0 ) {
 			return true;
 		}
 		return false;
 	});
 
 	self.isDown = ko.computed(function() {
-		if ( parseInt(self.delta()) < 0 ) {
+		if ( Number(self.delta()) < 0 ) {
 			return true;
 		}
 		return false;
 	});
-};
+}
