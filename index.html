@@ -142,7 +142,7 @@
 				</table>
 				</div>
 				<!-- /ko -->
-				<div class="span3" id="active-games-container" data-bind="visible: user().activeGames().length > 0">
+				<div class="span3" id="active-games-container" data-bind="if: user().activeGames().length > 0">
 				<h3>Active Games</h3>
 					<div data-bind="foreach: user().activeGames()" >
 						<div class="well open-game-btn" data-bind="click: $parent.openGame">
@@ -159,7 +159,7 @@
 						</div>
 					</div>
 				</div>	
-                <div class="span3" id="completed-games-container" data-bind="visible: user().completedGames().length > 0">
+                <div class="span3" id="completed-games-container" data-bind="if: user().completedGames().length > 0">
                 <h3>Completed Games</h3>
                     <div data-bind="foreach: user().completedGames()" >
                         <div class="well open-game-btn" data-bind="click: $parent.openGame">
