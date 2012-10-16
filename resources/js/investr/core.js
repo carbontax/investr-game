@@ -40,7 +40,6 @@ function InvestrViewModel() {
 	self.newGame = ko.observable();
 
 	self.shouldDisplayGamesLists = ko.computed(function () {
-		log.debug("loggedIn() = " + self.loggedIn() + "; game() = " + self.game());
 		if (self.loggedIn() && ! self.game() ) {
 			return true;
 		}

@@ -70,7 +70,7 @@ function Game(game) {
 		return true;
 	});
 	self.standButtonTitleText = ko.computed(function () {
-		if ( ! self.disableStandButton() ) {
+		if ( self.disableStandButton() ) {
 			return "Delete all orders to enable this option.";
 		}
 		return "Take no action this turn.";
