@@ -92,7 +92,8 @@ class Game extends Model {
 		// Security Delta query gets new values based on chance event.
 		$sd_query = 'select :game_id, ly.security_id, :next_year, sd.delta, ' .
             ' case ' . 
-			' when (price + sd.delta) > :split_limit then ceiling((price + sd.delta) / 2) ' .
+			' when ly.bust > 0 then 0 ' .
+			' when (price + sd.delta) >= :split_limit then ceiling((price + sd.delta) / 2) ' .
 			' when (price + sd.delta) < 1 then 0 ' .
 			' else (price + sd.delta) end as price, ' .
             ' case when (price + sd.delta) > :split_limit then 1 else 0 end as split, ' . 
