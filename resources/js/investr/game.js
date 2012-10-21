@@ -168,6 +168,8 @@ function Game(game) {
 					dataType: 'json',
 					data: data,
 					success: function(responseData) {
+						// reset the order form
+						self.orders([new Order()]);
 						var top_offset = $('#tabs-pane').position().top + 10;
 						$.bootstrapGrowl('Orders saved.', {
 							top_offset: top_offset,
@@ -200,6 +202,8 @@ function Game(game) {
 					type: 'post',
 					dataType: 'json',
 					success: function(responseData) {
+						// reset the order form
+						self.orders([new Order()]);
 						var top_offset = $('#tabs-pane').position().top + 10;
 						$.bootstrapGrowl('Your turn is over.', {
 							top_offset: top_offset,
@@ -220,7 +224,8 @@ function Game(game) {
 					}
 				});	
 				
-//				}, 10000);
+			} else {
+				log.debug("STAND order cancelled by user");
 			}
 		});
 	};

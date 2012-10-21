@@ -181,7 +181,7 @@ function InvestrViewModel() {
 	};
 
 	// USER POLLING
-	var startPollingUser = function () {
+	self.startPollingUser = function () {
 		stopPollingUserFlag = false;
 		stopPollingGameFlag = true;
 		pollUser();
@@ -223,7 +223,7 @@ function InvestrViewModel() {
 	
 	self.viewAllGames = function () {
 		self.game(null);
-		startPollingUser();
+		self.startPollingUser();
 	};
 
 	self.submitLoginForm = function () {
@@ -242,7 +242,7 @@ function InvestrViewModel() {
 				self.showLoginForm(false);
 				resetLoginForm();
 				self.user().loadData(data);
-				startPollingUser();
+				self.startPollingUser();
 			},
 			error: function (xhr) {
 				self.showSpinner(false);
@@ -258,5 +258,5 @@ function InvestrViewModel() {
 	};
 	
 	// START POLLING ON PAGE LOAD
-	pollUser();
+//	pollUser();
 }
