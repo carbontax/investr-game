@@ -157,44 +157,45 @@ function Game(game) {
 	};
 	
 	self.sendOrders = function() {
-		bootbox.confirm('End your turn?', function(result) {
-			if ( result ) {
-				disableOrderButtons();
-				
-				var data = ko.toJSON({orders: self.orders}); 
-				
-				$.ajax("/investr-game/api/games/" + self.id + "/orders", {
-					type: 'post',
-					dataType: 'json',
-					data: data,
-					success: function(responseData) {
-						// reset the order form
-						self.orders([new Order()]);
-						var top_offset = $('#tabs-pane').position().top + 10;
-						$.bootstrapGrowl('Orders saved.', {
+		var result = confirm('End your turn?');
+		if ( result ) {
+			disableOrderButtons();
+			
+			var data = ko.toJSON({orders: self.orders}); 
+			
+			$.ajax("/investr-game/api/games/" + self.id + "/orders", {
+				type: 'post',
+				dataType: 'json',
+				data: data,
+				success: function(responseData) {
+					// reset the order form
+					self.orders([new Order()]);
+					var top_offset = $('#tabs-pane').position().top + 10;
+					$.bootstrapGrowl('Orders saved.', {
+						top_offset: top_offset,
+						align: 'center'
+					});
+					if ( responseData['new_year'] ) {
+						self.reload();
+					} else {
+						$.bootstrapGrowl('Waiting for other players', {
 							top_offset: top_offset,
 							align: 'center'
 						});
-						if ( responseData['new_year'] ) {
-							self.reload();
-						} else {
-							$.bootstrapGrowl('Waiting for other players', {
-								top_offset: top_offset,
-								align: 'center'
-							});
-							self.player().loadOrders(responseData);
-						}
-					},
-					error: function(xhr) {
-						$('#messages').addClass("label label-error").append(xhr.responseText);
+						self.player().loadOrders(responseData);
 					}
-				});
-			}
-		});
+				},
+				error: function(xhr) {
+					$('#messages').addClass("label label-error").append(xhr.responseText);
+				}
+			});
+		} else {
+			log.debug("Sending orders cancelled by user");
+		}
 	};
 		
 	self.sendNullOrder = function() {
-		bootbox.confirm('End your turn without placing orders?', function (result) {
+		var result = confirm('End your turn without placing orders?'); 
 			if ( result ) {
 				disableOrderButtons();
 								
@@ -227,7 +228,6 @@ function Game(game) {
 			} else {
 				log.debug("STAND order cancelled by user");
 			}
-		});
 	};
 
 	self.ordersAccountCash = ko.computed(function() {
