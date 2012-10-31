@@ -1,7 +1,9 @@
 <?php
 class ChanceEvent {
     const TABLENAME = "chance_event";
-
+    const BEAR_MARKET = 0;
+    const BULL_MARKET = 1;
+    
     public $id;
     public $game_id;
     public $year;

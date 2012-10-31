@@ -85,7 +85,7 @@ class Game extends Model {
 		// BEAR 5 - bust test
 /*		$chance_event->die_one = 1;
 		$chance_event->die_two = 4;
-		$chance_event->market = 0; */
+		$chance_event->market = ChanceEvent::BEAR_MARKET; */
 
 		$chance_event->save();
 
@@ -96,7 +96,7 @@ class Game extends Model {
 			' when (price + sd.delta) >= :split_limit then ceiling((price + sd.delta) / 2) ' .
 			' when (price + sd.delta) < 1 then 0 ' .
 			' else (price + sd.delta) end as price, ' .
-            ' case when (price + sd.delta) > :split_limit then 1 else 0 end as split, ' . 
+            ' case when (price + sd.delta) >= :split_limit then 1 else 0 end as split, ' . 
             ' case when ly.bust > 0 then ly.bust when (price + sd.delta) < 1 then 1 else 0 end as bust, ' . 
 			' ly.outstanding ' .
             ' from ' . self::GAME_SECURITY_PRICE_TABLENAME . ' ly ' .
@@ -241,8 +241,11 @@ class Game extends Model {
 		$result = getDataBase()->all($query, array(game_id => $this->id, year => $this->year));
 
 		$this->securities = array();
+//		$query = "select "
 		foreach ($result as $key => $row) {
-			array_push($this->securities, new Security($row));
+			$sec = new Security($row);
+//			$sec->delta_map = 
+			array_push($this->securities, $sec);
 		}
 	}
 
