@@ -12,6 +12,7 @@ class Security {
     public $split;
     public $price;
     public $delta; // latest price change
+    public $delta_map;
     public $bust;
 
     public function __construct($security = array()) {
