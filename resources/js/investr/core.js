@@ -18,15 +18,15 @@ function InvestrViewModel() {
 	
 	self.showLoginForm = ko.observable(false);
 	
-	self.loggedIn = ko.computed(function () {
-		if (self.user() && self.user().username() ) {
+/*	self.loggedIn = ko.computed(function () {
+		if (self.user() && self.user().username()) {
 			return true;
 		}
 		return false;
 	});
 	self.notLoggedIn = ko.computed(function () {
 		return ! self.loggedIn();
-	});
+	});*/
 	self.enableLoginButton = ko.observable(true);
 
 	self.game = ko.observable();
@@ -40,7 +40,7 @@ function InvestrViewModel() {
 	self.newGame = ko.observable();
 
 	self.shouldDisplayGamesLists = ko.computed(function () {
-		if (self.loggedIn() && ! self.game() ) {
+		if (self.user().isLoggedIn() && ! self.game()) {
 			return true;
 		}
 		return false;

@@ -1,10 +1,26 @@
 function Order(order) {
 	"use strict";
 	var self = this;
-
-	/* == ACTIONS == */
 	self.actionOptions = ['BUY', 'SELL'];
+
+	/* === OBSERVABLES  === */
 	self.action = ko.observable('BUY');
+	self.security = ko.observable();
+	self.shares = ko.observable();
+	self.margin = ko.observable();
+	self.comment = ko.observable();
+	self.invalid = ko.observable();
+
+	self.loadOrder = function(order) {
+		self.action(order.action);
+		self.comment(order.comment);
+		self.security(order.security);
+		self.shares(order.shares);
+		self.margin(order.margin);
+		self.invalid(order.invalid);
+	};
+
+	/* == COMPUTED == */
 	
 	self.actionFactor = ko.computed(function() {
 		if ( self.action() === 'BUY' ) {
@@ -12,10 +28,6 @@ function Order(order) {
 		}
 		return -1;
 	});
-	self.comment = ko.observable();
-
-	/* == SECURITY == */
-	self.security = ko.observable();
 	
 	self.security_id = ko.computed(function() {
 		return self.security() ? self.security().security_id : null;
@@ -40,22 +52,14 @@ function Order(order) {
 		return "";
 	});
 
-	/* == SHARES == */
-	self.shares = ko.observable();
 	self.sharesDelta = ko.computed(function() {
 		return Number(self.shares()) * self.actionFactor();
 	});
-
-	/* == MARGIN == */
-	self.margin = ko.observable();
 	
-	/* == INVALID == */
-	self.invalid = ko.observable();
 	self.isInvalid = ko.computed(function() {
 		return self.invalid() + 0 > 0;
 	});
 
-	/* == AMOUNT CALCULATION == */
 	self.amount = ko.computed(function() {
 		// TODO allow for margin calculations
 		if ( self.security() && self.shares() ) {
@@ -71,15 +75,6 @@ function Order(order) {
 		return false;
 	};
 	
-	self.loadOrder = function(order) {
-		self.action(order.action);
-		self.comment(order.comment);
-		self.security(order.security);
-		self.shares(order.shares);
-		self.margin(order.margin);
-		self.invalid(order.invalid);
-	};
-
 	if (order) {
 		self.loadOrder(order);
 	}

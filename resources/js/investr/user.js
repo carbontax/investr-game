@@ -23,7 +23,9 @@ function User(user) {
 		if ( user ) {
 			self.id = user.id;
 			self.username(user.username);
-			self.loadGames(user.games);
+			if ( user.games ) {
+				self.loadGames(user.games);
+			}
 			self.loadNewGames(user.newGames);
 		}
 	};
@@ -58,6 +60,14 @@ function User(user) {
 			pollString += this.getPollString();
 		});
 		return pollString;
+	};
+	
+	self.isLoggedIn = function() {
+		var result = false;
+		if ( self.username() && self.username().length > 0 ) {
+			return true;
+		} 
+		return result;
 	};
 	
 	// runs on create

@@ -1,7 +1,6 @@
-
 function Game(game) {
 	"use strict";
-	/*globals Player: false, Security: false, Order: false */
+	/*globals Player: false, Security: false, Order: false, confirm: false */
 	var self = this;
 	
 	// SETTINGS
