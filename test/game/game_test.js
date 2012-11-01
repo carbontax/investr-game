@@ -45,6 +45,24 @@
 		equal(game.playerCount(), 1, "Game should have one player");
 	});
 	
+	module('investr#game_2players', {
+		setup: function() {
+			this.players_json = [{user_id: '1', username: 'player_one', rank: '2'},{user_id: '2', username: 'player_two', rank: '1'}];
+			this.game_json = {id: 1, number_of_players: 2, players: this.players_json};
+		}
+	});
+	
+	test('Player count', 2, function() {
+		var game = new Game(this.game_json);
+		ok(game,"Should be a valid game");
+		equal(game.playerCount(), 2, "Game should have two players");
+	});
+	
+	test('First place awarded', 1, function() {
+		var game = new Game(this.game_json);
+		equal(game.getFirstPlacePlayer().user_id, 2, "Player 2 should be in first place");
+	});
+	
 	module('investr#game_year', {
 		setup: function() {
 			this.game = new Game({'last_year': 10});
