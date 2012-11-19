@@ -71,10 +71,6 @@ function Order(order) {
 		return accounting.formatMoney(self.amount());
 	});
 	
-	self.blur = function() {
-		return false;
-	};
-	
 	if (order) {
 		self.loadOrder(order);
 	}

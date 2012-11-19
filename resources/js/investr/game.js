@@ -64,21 +64,6 @@ function Game(game) {
 		return false;
 	});
 
-	// ============= NEW ORDERS ============= // 
-
-	// tmp method for devel
-	self.turnOffOrderButtons = function() {
-		self.disableOrderButtons();
-	};
-	
-	self.newOrder = function() {
-		self.orders.push(new Order(this));
-	};
-
-	self.removeOrder = function(order) {
-		self.orders.remove(order);	
-	};
-	
 	self.ordersAccountCash = ko.computed(function() {
 		var cash = null;
 		if ( self.player() ) {
@@ -104,14 +89,9 @@ function Game(game) {
 		return ! self.ordersCashOk();
 	});
 
-// =============== END NEW ORDERS ============== //
-
 	self.joinButtonText = ko.computed(function() {
 		return self.player() ? 'Waiting for more players' : 'Join';
 	});
-
-	self.checkNewYear = function() {
-	};
 	
 	// ============== INIT ============= //
 	if ( game ) {
@@ -305,4 +285,18 @@ Game.prototype.showYearMessage = function() {
 		type: type
 	});
 };
+
+//tmp method for devel
+Game.prototype.turnOffOrderButtons = function() {
+	this.disableOrderButtons();
+};
+
+Game.prototype.newOrder = function() {
+	this.orders.push(new Order());
+};
+
+Game.prototype.removeOrder = function(order) {
+	this.orders.remove(order);	
+};
+
 
