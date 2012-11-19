@@ -69,7 +69,7 @@
 		}
 	});
 	
-	test('Game is not over', 2, function() {
+	test('Game has a next year', 2, function() {
 		this.game.year(1);
 		ok(this.game.hasNextYear(), "Game has 9 more years to go");
 		this.game.year(9);
