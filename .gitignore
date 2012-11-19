@@ -2,3 +2,6 @@
 .settings
 .project
 /index-copy.html
+/dist
+/node_modules
+
