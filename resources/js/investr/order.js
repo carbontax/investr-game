@@ -11,15 +11,6 @@ function Order(order) {
 	self.comment = ko.observable();
 	self.invalid = ko.observable();
 
-	self.loadOrder = function(order) {
-		self.action(order.action);
-		self.comment(order.comment);
-		self.security(order.security);
-		self.shares(order.shares);
-		self.margin(order.margin);
-		self.invalid(order.invalid);
-	};
-
 	/* == COMPUTED == */
 	
 	self.actionFactor = ko.computed(function() {
@@ -76,3 +67,12 @@ function Order(order) {
 	}
 	
 }
+
+Order.prototype.loadOrder = function(order) {
+	this.action(order.action);
+	this.comment(order.comment);
+	this.security(order.security);
+	this.shares(order.shares);
+	this.margin(order.margin);
+	this.invalid(order.invalid);
+};

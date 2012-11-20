@@ -41,11 +41,13 @@
 		}
 	});
 
-	test('Can create player with orders', 2, function() {
+	test('Can create player with orders', 4, function() {
 		var data = {id: 1, orders: [this.order_1]};
 		var player = new Player(data, this.game);
 		ok(player, 'Player is ok');
 		equal(player.orders().length, 1, "Player should have one order");
+		equal(player.has_ordered(), true, 'Player has completed current turn');
+		equal(player.hasNoOrders(), false, 'Player has completed current turn');
 	});
 	
 	test('Can create player with a stand order', 3, function() {

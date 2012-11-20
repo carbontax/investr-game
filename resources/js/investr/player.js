@@ -31,38 +31,6 @@ function Player(player, game) {
 		}
 		self.rank(Number(player.rank));
 	};
-	
-	self.loadPortfolio = function(portfolio) {
-		if ( portfolio ) {
-			$.each(portfolio, function() {
-				self.portfolio.push(new Holding(this, self.game));
-			});
-		}
-	};
-	
-	self.loadTransactions = function(transactions) {
-		if ( transactions ) {
-			self.transactions($.map(transactions, function(txn) {
-				return new Transaction(txn);
-			}));
-		}
-	};
-	
-	self.loadOrders = function(orders) {
-		self.orders([]);
-		$.map(orders, function(order) {
-			//log.info("order = " + order);
-			var security = ko.utils.arrayFilter(game.securities(), function(s) {
-				return s.symbol === order.security_symbol;
-			})[0];
-			order.security = security;
-
-			self.orders.push(new Order(order));
-		});
-		if ( self.orders().length > 0 ) {
-			self.has_ordered(true);
-		}
-	};
 
 	// ===== COMPUTED ==== //
 	self.balanceFmt = ko.computed(function() {
@@ -106,3 +74,38 @@ function Player(player, game) {
 	}
 	
 }
+
+Player.prototype.loadTransactions = function(transactions) {
+	var self = this;
+	if ( transactions ) {
+		self.transactions($.map(transactions, function(txn) {
+			return new Transaction(txn);
+		}));
+	}
+};
+
+Player.prototype.loadPortfolio = function(portfolio) {
+	var self = this;
+	if ( portfolio ) {
+		$.each(portfolio, function() {
+			self.portfolio.push(new Holding(this, self.game.securities()));
+		});
+	}
+};
+
+Player.prototype.loadOrders = function(orders) {
+	var self = this;
+	self.orders([]);
+	$.map(orders, function(order) {
+		//log.info("order = " + order);
+		var security = ko.utils.arrayFilter(self.game.securities(), function(s) {
+			return s.symbol === order.security_symbol;
+		})[0];
+		order.security = security;
+
+		self.orders.push(new Order(order));
+	});
+	if ( self.orders().length > 0 ) {
+		self.has_ordered(true);
+	}
+};

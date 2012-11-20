@@ -2,33 +2,30 @@ function Transaction(transaction) {
 	"use strict";
 	var self = this;
 
-	self.player = transaction.player;
-	self.index = transaction.index || 0;
-	self.year = transaction.year;
-	self.action = transaction.action;
-	self.security_id = transaction.security_id;
-	self.security_symbol = transaction.security_symbol;
-	self.shares = transaction.shares;
-	self.pricePerShare = transaction.price;
-	self.amount = transaction.amount;
-	self.balance = transaction.balance;
-	self.income = transaction.income;
-	self.margin = transaction.margin;
-	self.invalid = transaction.invalid;
-	self.comment = transaction.comment;
-	self.marginTotal = transaction.marginTotal;
+	self.player = null;
+	self.index = null;
+	self.year = null;
+	self.action = null;
+	self.security_id = null;
+	self.security_symbol = null;
+	self.shares = null;
+	self.pricePerShare = null;
+	self.amount = null;
+	self.balance = null;
+	self.income = null;
+	self.margin = null;
+	self.invalid = null;
+	self.comment = null;
+	self.marginTotal = null;
 
+	if ( transaction ) {
+		self.loadTransaction(transaction);
+	}
+	// === COMPUTED === //
 	self.securityName = ko.computed(function() {
 		return self.symbol ? self.symbol : "";
 	});
 	
-	self.symbolAtPrice = function() {
-		if ( self.pricePerShare ) {
-			return self.security_symbol + ' @ $' + self.pricePerShare;
-		}
-		return self.security_symbol;
-	};
-
 	self.pricePerShareFmt = ko.computed(function() {
 		if (self.pricePerShare) {
 			return accounting.formatMoney(self.pricePerShare);
@@ -66,3 +63,30 @@ function Transaction(transaction) {
 	});
 
 }
+
+Transaction.prototype.loadTransaction = function(transaction) {
+	this.player = transaction.player;
+	this.index = transaction.index || 0;
+	this.year = transaction.year;
+	this.action = transaction.action;
+	this.security_id = transaction.security_id;
+	this.security_symbol = transaction.security_symbol;
+	this.shares = transaction.shares;
+	this.pricePerShare = transaction.price;
+	this.amount = transaction.amount;
+	this.balance = transaction.balance;
+	this.income = transaction.income;
+	this.margin = transaction.margin;
+	this.invalid = transaction.invalid;
+	this.comment = transaction.comment;
+	this.marginTotal = transaction.marginTotal;
+};
+
+Transaction.prototype.symbolAtPrice = function() {
+	var self = this;
+	if ( self.pricePerShare ) {
+		return self.security_symbol + ' @ $' + self.pricePerShare;
+	}
+	return self.security_symbol;
+};
+
