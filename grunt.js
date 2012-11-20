@@ -74,7 +74,8 @@ module.exports = function(grunt) {
 	},
 	watch: {
 		files: '<config:lint.files>',
-		tasks: 'lint qunit'
+//		tasks: 'lint qunit'
+		tasks: 'devel'
 	},
 	jshint: {
 		options: {
@@ -105,8 +106,8 @@ module.exports = function(grunt) {
 			dest: 'dist/index.html'
 		},
 		'devel': {
-			src: 'index.html',
-			dest: 'index-dev.html'
+			src: 'index-src.html',
+			dest: 'index.html'
 		}
 	},
 	uglify: {},
@@ -116,7 +117,7 @@ module.exports = function(grunt) {
 			},
 			tgz: {
 				files: {
-						"<%= pkg.name %>-<%= pkg.version %>.tgz": "dist/**"
+					"<%= pkg.name %>-<%= pkg.version %>.tgz": "dist/**"
 				}
 			}
 		}
