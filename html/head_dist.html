@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>INVESTR-GAME</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="resources/bootstrap/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" type="text/css" href="resources/css/investr-game.css"/>
+
+	<!-- LIBRARIES -->
+    <script type="text/javascript" src="resources/js/jquery.1.7.2.min.js"></script>
+    <script type="text/javascript" src="resources/js/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="resources/js/json2.js"></script>
+    <script type="text/javascript" src="resources/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="resources/bootstrap-growl/jquery.bootstrap-growl.min.js"></script>
+    <script type="text/javascript" src="resources/js/bootbox.min.js"></script>
+    <script type="text/javascript" src="resources/js/knockout-2.1.0.js"></script>
+	<script type="text/javascript" src="resources/js/log4javascript.js"></script>
+	<script type="text/javascript" src="resources/js/accounting.js"></script>
+
+	<!-- INVESTR -->
+	<script type="text/javascript" src="resources/js/mylogger.js"></script>
+	<script type="text/javascript" src="resources/js/investr-game.min.js"></script>
+		
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('.order-row').on('keypress', function(evt) {
+		    if ( evt.which == 13 ) {
+		        $('#more-button').click();
+		    }
+		});
+		var ivm = new InvestrViewModel();
+		ko.applyBindings(ivm);
+		ivm.startPollingUser();
+	});
+	</script>
+
+	<script type="text/template" id="new-game">
+		<tr>
+			<td data-bind="text: id"></td>
+			<td data-bind="text: startDateFmt()"></td>
+			<td data-bind="text: playerCount()"></td>
+			<td><button class="btn" data-bind="click: $parent.joinGame">Join</button></td>
+		</tr>
+	</script>
+
+	<script type="text/template" id="order-table-header">
+		<tr>
+			<td>Action</td>
+			<td>Security</td>
+			<td>Shares</td>
+			<td>Amount</td>
+			<td></td>
+		</tr>
+	</script>
+	<script type="text/template" id="order-display-row">
+		<tr data-bind="css: {invalid: isInvalid()}">
+			<td data-bind="text: action"></td>
+			<td><span data-bind="text: securityAtPrice"/></td>
+			<td><span data-bind="text: shares"/></td>
+			<td data-bind="text: amountFmt"></td>
+			<td></td>
+		</tr>
+	</script>
+	<script type="text/template" id="player-summary-tmpl">
+		<li class="player-summary">
+			<span data-bind="text: username"></span>
+            <span data-bind="text: '(' + netWorthFmt() + ')'"></span>
+            <span><i data-bind="css: {'icon-ok': has_ordered}" title="Player has ordered"></i></span>
+		</li>
+	</script>
+</head>
+<body>
+	<div class="container-fluid" id="investr-container">
+		<div id="header-container">
+			<div class="row" id="header">
+				<div class="span8">
+					<div id="logo-container" data-bind="click: viewAllGames">
+                        <span class="icon-chevron-left icon-white" data-bind="visible: game"></span>
+						<span id="site-title" data-bind="text: gameTitle()">Investr</span>
+					</div>
+				</div>
+				<div class="span4" id="top-menu-container" data-bind="visible: user().isLoggedIn ">
+				    <div class="btn-group">
+						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+						   <span data-bind="text: username()"></span>
+						   <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+	    					<li><a href="#" data-bind="click: logoutAction">Logout</a></li>
+						</ul>
+				    </div>
+			    </div>
+			 </div>
+		</div>
+		<div class="row-fluid" data-bind="if: showLoginForm">
+			<span id="login-container" >
+		      	<form id="login-form">
+		            <div>
+		                 <label for="email">Email:</label><input type="email" id="email" name="email"/>
+		            </div>
+		            <div>
+		                <label for="password">Password:</label><input type="password" id="password" name="password"/>
+		            </div>
+		            <div><input id="login-submit-button" type="submit" name="submit" class="btn" value="LOGIN" data-bind="click: submitLoginForm, enable: enableLoginButton"/>
+		            <img id="login-spinner" src="resources/images/spinner-large.gif" data-bind="visible: showSpinner"/></div>
+                </form>
+			</span>
+		</div>
+		<div class="row-fluid">
+			<div class="span12" id="games-container" data-bind="if: shouldDisplayGamesLists">
+            <!-- ALL GAMES CONTAINER 
+********************************************************** -->
+                <!-- ko  if: user().newGames().length > 0 -->
+				<div class="well">
+                <h3>New Games</h3>
+				<table class="table table-bordered table-condensed" id="new-games-table">
+					<thead>
+						<tr>
+							<td>ID</td>
+							<td>Created</td>
+							<td>Players</td>
+							<td></td>
+						</tr>
+					</thead>
+					<tbody data-bind="foreach: user().newGames()">
+						<tr>
+							<td data-bind="text: id"></td>
+							<td data-bind="text: startDateFmt()"></td>
+							<td data-bind="text: playerCount() + '/' + number_of_players()"></td>
+							<td><button class="btn" data-bind="click: $parent.joinGame, text: joinButtonText"></button></td>
+						</tr>
+					</tbody>
+				</table>
+				</div>
+				<!-- /ko -->
+				<div class="span3" id="active-games-container" data-bind="if: user().activeGames().length > 0">
+				<h3>Active Games</h3>
+					<div data-bind="foreach: user().activeGames()" >
+						<div class="well open-game-btn" data-bind="click: $parent.openGame">
+							  <div>
+								<span data-bind="text: 'Game #' + id"></span>
+								<span data-bind="text: turnFmt()"></span>
+							  </div>
+							  <div>
+							     <span>Year:</span>
+	                             <span data-bind="text: year"></span>
+							  </div>
+							  <ul class="game-player-summary-list" title="Players ranked by net worth" data-bind="template: {name: 'player-summary-tmpl', foreach: players}">
+							  </ul>
+						</div>
+					</div>
+				</div>	
+                <div class="span3" id="completed-games-container" data-bind="if: user().completedGames().length > 0">
+                <h3>Completed Games</h3>
+                    <div data-bind="foreach: user().completedGames()" >
+                        <div class="well open-game-btn" data-bind="click: $parent.openGame">
+                            <div>
+                               <span data-bind="text: 'Game #' + id"></span>
+                            </div>
+                            <ol class="game-player-summary-container" data-bind="template: {name: 'player-summary-tmpl', foreach: players}">
+                            </ol>
+                        </div>
+                    </div>
+                </div>			
+            </div>
+		</div>
+		<div id="game-container" data-bind="with: game">
+            <!-- ACTIVE GAME
+********************************************************** -->
+			<div class="row" id="game-data-container">
+				<div class="span12" id="tabs-pane">
+					<!-- TABS MENU -->
+					<ul class="nav nav-tabs" id="game-tabs">
+                        <li><a href="#orders" data-toggle="tab" data-bind="visible: hasNextYear()">New Orders</a></li> 
+						<li class="active"><a href="#transactions" data-toggle="tab">Transactions</a></li> 
+                        <li><a href="#positions" data-toggle="tab">Positions</a></li>
+                        <li><a href="#securities" data-toggle="tab">Securities</a></li>
+                        <li><a href="#rules" data-toggle="tab">Rules</a></li>
+					</ul>
+					<div class="tab-content">
+                        <div class="tab-pane" id="orders" data-bind="visible: hasNextYear()">
+                            <div id="new-orders-container" class="span6" data-bind="visible: showOrderForm()">
+                                <div id="new-orders-header">
+                                    <span class="label" data-bind="css: { 'label-success': ordersCashOk, 'label-important': ordersCashBust }, text: 'Cash Balance: ' + ordersAccountCashFmt()"></span>
+                                </div>
+                                <div id="order-form-container">
+                                    <table class="table table-bordered table-condensed">
+                                        <thead data-bind="template: 'order-table-header'"></thead>
+                                        <tbody data-bind="foreach: orders()">
+                                            <tr class="order-row">
+                                                <td><select name="action" data-bind="options: actionOptions, value: action">
+                                                </select></td>
+                                                <td><select name="security" data-bind="options: $parent.securities, optionsText: function(s) { return s.symbol + ' @ $' + s.price(); }, value: security, optionsCaption: 'Choose ...'">
+                                                </select></td>
+                                                <td><input class="order-shares required" name="shares" type="number" width="5" data-bind="value: shares"/></td>
+                                                <td data-bind="text: amountFmt()"></td>
+                                                <td>
+                                                    <button class="btn btn-danger" data-bind="click: $parent.removeOrder">&#10005;</button>
+                                                    <button class="btn btn-success visible-phone visible-tablet" data-bind="click: blur">&#10003;</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div id="order-button-bar" class="container">
+                                        <button class="btn btn-success" id="more-button" data-bind="click: newOrder, disable: disableMoreOrdersButton" title="Place another buy/sell order.">MORE</button>
+                                        <button class="btn btn-warning" id="end-button" data-bind="click: sendOrders, disable: disableSendOrdersButton" title="End your turn.">DONE</button>
+                                        <button class="btn btn-danger" id="stand-button" data-bind="click: sendNullOrder, disable: disableStandButton, attr: {title: standButtonTitleText}" >STAND</button>
+                                    </div>
+                                </div>
+                                <div class="well" id="orders-portfolio-container">
+	                                <h3>Current Holdings</h3>
+	                                <table class="table">
+	                                    <thead>
+	                                        <tr>
+	                                            <td>Security</td>
+	                                            <td>Shares</td>
+	                                            <td>Income</td>
+	                                        </tr>
+	                                    </thead>
+	                                    <tbody data-bind="foreach: player().portfolio">
+	                                        <tr data-bind="visible: shares > 0">
+	                                            <td data-bind="text: symbol"></td>
+	                                            <td data-bind="text: shares"></td>
+	                                            <td data-bind="text: incomeFmt()"></td>
+	                                        </tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+                            </div>
+                            <div id="orders-display-container" data-bind="visible: ! showOrderForm()">
+                                <h3>The following orders will be filled when all players have completed their turn.</h3>
+                                <div id="orders-display-table-container">
+                                    <table class="table table-bordered table-condensed" >
+                                        <thead data-bind="template: 'order-table-header'"></thead>
+                                        <tbody data-bind="template: {name: 'order-display-row', foreach: player().orders()}"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+						<div class="tab-pane active" id="transactions">
+							<h3>RECORD OF TRANSACTIONS</h3>
+							<table class="table table-bordered table-condensed">
+								<thead>
+									<tr>
+                                        <td><span class="hidden-phone">YEAR</span><span class="hidden-desktop hidden-tablet">YR</span></td>
+                                        <td><span class="hidden-phone">ACTION</span><span class="hidden-desktop hidden-tablet">ACT</span></td>
+	                                    <td><span class="hidden-phone">SECURITY</span><span class="hidden-desktop hidden-tablet">SEC</span></td>
+                                        <td><span class="hidden-phone">SHARES</span><span class="hidden-desktop hidden-tablet">#</span></td>
+										<td>AMOUNT</td>
+										<td>DIVIDEND</td>
+										<td>CASH</td>
+										<td class="hidden-phone">COMMENT</td>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach: player().transactions()">
+									<tr data-bind="css: {invalid: invalid > 0}">
+                                        <td><span data-bind="text: year"></span></td>
+                                        <td><span data-bind="text: action"></span></td>
+										<td><span data-bind="text: symbolAtPrice()"></span></td>
+										<td><span data-bind="text: shares"></span></td>
+										<td><span data-bind="text: amountFmt()"></span></td>
+										<td><span data-bind="text: incomeFmt()"></span></td>
+										<td><span data-bind="text: balanceFmt()"></span></td>
+										<td class="hidden-phone"><span data-bind="text: comment"></span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+                        <div class="tab-pane" id="positions">
+                            <div id="positions-container">
+                                <div id="player-position-container" data-bind="foreach: players()">
+                                    <div class="well">
+                                        <div class="player-position-header">
+                                            <span class="badge" data-bind="text: rank, css: {'badge-success': firstPlace, 'badge-warning': notFirstPlace}"></span>
+                                            <span class="label" data-bind="text: username"></span>
+                                            <span class="player-position-cash" data-bind="text: 'Cash: ' + balanceFmt()"></span>
+                                            <span class="player-position-networth" data-bind="text: 'Net Worth: ' + netWorthFmt()"></span>
+	                                    </div>
+	                                    <table class="table table-condensed">
+	                                    <thead>
+	                                       <tr>
+	                                           <td>SYM</td>
+	                                           <td>SHARES</td>
+	                                           <td>MARKET</td>
+	                                           <td>DIV</td>
+	                                       </tr>
+	                                    </thead>
+	                                    <tbody class="player-position-portfolio">
+	                                       <!-- ko foreach: portfolio() -->
+	                                       <tr>
+		                                        <td class="player-position-portfolio-symbol" data-bind="text: symbol"></td>
+		                                        <td class="player-position-portfolio-shares" data-bind="text: shares"></td>
+                                                <td class="player-position-portfolio-market" data-bind="text: marketValueFmt()"></td>
+                                                <td class="player-position-portfolio-income" data-bind="text: incomeFmt()"></td>
+		                                   </tr>
+		                                   <!-- /ko -->
+		                                   <tr class="player-position-portfolio-totals">
+                                                <td class="player-position-portfolio-symbol">TOTAL</td>
+                                                <td class="player-position-portfolio-shares"></td>
+                                                <td class="player-position-portfolio-market" data-bind="text: portfolioNetWorthFmt()"></td>
+                                                <td class="player-position-portfolio-income" data-bind="text: portfolioIncomeFmt()"></td>
+                                           </tr>
+	                                    </tbody>
+	                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="securities">
+                            <div class="tabbable tabs-left">
+	                            <ul class="nav nav-tabs" id="securities-list" data-bind="foreach: securities">
+							        <li>
+							            <a data-toggle="tab" data-bind="attr: {href: '#' + symbol + '-tab'}">
+							                <div>
+							                    <span class="security-symbol" data-bind="text: symbol"></span>
+							                    <span class="security-price" data-bind="text: priceFmt()"></span></div>
+							                <div>
+							                    <span class="label security-delta" data-bind="text: deltaFmt(), css: { 'label-success': isUp(), 'label-important': isDown() }"></span>
+							                    <span class="label label-success" data-bind="visible: split">SPLIT</span>
+							                </div>
+							            </a>
+							       </li>   
+	                            </ul>
+	                            <div class="tab-content" data-bind="foreach: securities">
+							        <div class="tab-pane" data-bind="attr: {id: symbol + '-tab'}">
+								         <span data-bind="text: name" class="security-name"></span>
+								         <div>
+								             <label for="security-dividend" data-bind="text: dividendLabel()"></label>
+								             <span class="security-dividend" data-bind="text: dividendFmt()"></span>
+								         </div>
+								         <div>
+								             <label for="security-outstanding">Available:</label>
+								             <span class="security-outstanding" data-bind="text: outstanding()"></span>
+								         </div>
+								         <div>
+								             <label for="security-outstanding">Description:</label>
+								             <span class="security-outstanding" data-bind="text: description"></span>
+								         </div>
+							        </div>
+	                            </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="rules">
+                            <h4>Rules</h4>
+                            <H5>General</H5>
+                            <ol>
+                                <li>Examine the Securities tab where the companies are described.
+                                 The current price is also listed. Some of the offered shares pay 
+                                 dividends. Some offer high risk and reward. 
+                                Others are safer. The prices will change at the end of each year.</li>
+                                <li>If a share price hits $150.00 the stock will split. 
+                                The stock price will be cut in half (rounded up) and for each share
+                                 you own you will receive another. The unsold shares will also split, doubling
+                                 the available share supply.</li>
+                                <li>If a share price is $50.00 or lower then dividends will be suspended.</li>
+                            </ol>
+                            <h5>Ordering Shares</h5>
+                            <ol>
+	                            <li>Your orders are final. You are responsible for making sure that your 
+	                            order makes sense. You cannot sell something you don't own. You cannot buy
+	                            more shares than are available. If your order is illegal it will not be accepted
+	                            but will not be processed.</li>
+	                            <li>If you want to do nothing this turn hit the "STAND" button.</li>
+	                            <li>The order in which you place your orders does not matter. All SELL orders for
+	                            all players will be processed first, and then all BUY orders.</li>
+	                            <li>If you are the last player to order the year will immediately end and you
+	                            will see the game change state. Otherwise the game will wait until all other players
+	                            have finished ordering.</li>
+                            </ol>
+                            <h5>Year End: Order of Events</h5>
+                            <ol>
+	                            <li>After all orders have been processed the game year is over. New market conditions
+	                            will be generated randomly and all companies will have their share prices calculated</li>
+	                            <li>Next, any shares that have split will be handled, with the available shares
+	                            doubling along with any shares in player portfolios.</li>
+	                            <li>Then the dividends will be paid out. Players holding a dividend paying
+	                            stock which has split will therefore receive double dividends on the year.</li>
+                            </ol>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+	</html>
