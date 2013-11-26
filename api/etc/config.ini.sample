@@ -3,3 +3,5 @@ dbhost = localhost
 dbuser = 
 dbpassword = 
 dbname = 
+
+mail_from = no_reply@example.com

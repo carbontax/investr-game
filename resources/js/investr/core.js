@@ -18,6 +18,8 @@ function InvestrViewModel() {
 	
 	self.showLoginForm = ko.observable(false);
 	
+	self.showResetPasswordForm = ko.observable(false);
+	
 /*	self.loggedIn = ko.computed(function () {
 		if (self.user() && self.user().username()) {
 			return true;
@@ -257,6 +259,34 @@ function InvestrViewModel() {
 		return false;
 	};
 	
-	// START POLLING ON PAGE LOAD
-//	pollUser();
+	self.submitForgotPassword = function() {
+		var email = $('#email', '#login-form').val();
+		if ( email ) {
+			$.ajax({
+				url: '/investr-game/api/forgot-password',
+				type: 'post',
+				data: {'email': email},
+				success: function (responseText) {
+					var msg = responseText.replace(/"/g, "");
+					$.bootstrapGrowl(msg, {
+						type: 'info',
+						align: 'center'
+					});
+				},
+				error: function(xhr) {
+					var msg = xhr.responseText.replace(/"/g, "");
+					$.bootstrapGrowl(msg, {
+						type: 'error',
+						align: 'center'
+					});					
+				}
+			});
+		} else {
+			$.bootstrapGrowl("Please enter your email address and try again", {
+				type: 'error',
+				align: 'center'
+			});
+		}
+	};
+
 }

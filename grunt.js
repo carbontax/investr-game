@@ -20,11 +20,13 @@ module.exports = function(grunt) {
 		files: ['test/**/*.html']
 	},
 	concat: {
-		dist: {
-			// src: ['<banner:meta.banner>', '<file_strip_banner:lib/<%= pkg.name %>.js>'],
+/*		dist: {
 			src: ['<banner:meta.banner>', 'resources/js/investr/*.js'],
 			dest: 'dist/resources/js/<%= pkg.name %>.js'
-		}
+		}*/
+		'dist/resources/js/investr-game.js': ['<banner:meta.banner>', 'resources/js/investr/*.js'],
+		'index.html': ['html/head_devel.html', 'html/body.html'],
+		'dist/index.html': ['html/head_dist.html', 'html/body.html']
 	},
 	clean: {
 		dist: 'dist'
@@ -53,6 +55,7 @@ module.exports = function(grunt) {
 					"resources/js/jquery.validate.min.js",
 					"resources/js/json2.js",
 					"resources/js/knockout-2.1.0.js", 
+					"resources/js/sammy-latest.min.js"
 					"resources/js/log4javascript.js", 
 					"resources/js/mylogger.js"],
 				"dist/resources/images/": "resources/images/*"
@@ -68,7 +71,7 @@ module.exports = function(grunt) {
 	},
 	min: {
 		dist: {
-			src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
+			src: ['<banner:meta.banner>', 'dist/resources/js/investr-game.js'],
 			dest: 'dist/resources/js/<%= pkg.name %>.min.js'
 		}
 	},
@@ -100,16 +103,6 @@ module.exports = function(grunt) {
 			bootbox: false
 		}
 	},
-	targethtml: {
-		'default': {
-			src: 'index-src.html',
-			dest: 'dist/index.html'
-		},
-		'devel': {
-			src: 'index-src.html',
-			dest: 'index.html'
-		}
-	},
 	uglify: {},
 		compress: {
 			options: {
@@ -124,7 +117,7 @@ module.exports = function(grunt) {
 	});
 
 	// Default task.
-	grunt.registerTask('default', 'clean lint qunit concat min targethtml copy less compress');
-	grunt.registerTask('devel', 'lint qunit targethtml');
+	grunt.registerTask('default', 'clean lint qunit concat min copy less compress');
+	grunt.registerTask('devel', 'lint qunit');
 
 };

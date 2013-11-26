@@ -26,7 +26,7 @@ function Holding(holding, securities) {
 	});
 }
 
-Holding.loadHolding = function (holding) {
+Holding.prototype.loadHolding = function (holding) {
 	var self = this;
 	if ( typeof(holding) === 'string' ) {
 		holding = {'security_symbol': holding, 'shares': 0};

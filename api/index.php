@@ -35,6 +35,9 @@ getApi()->get('/version', 'apiVersion', EpiApi::external);
 getApi()->get('/login', array('LoginController', 'apiGetLogin'), EpiApi::external);
 getApi()->post('/login', array('LoginController', 'apiPostLogin'), EpiApi::external);
 getApi()->post('/logout', array('LoginController', 'processLogout'), EpiApi::external);
+getApi()->post('/forgot-password', array('LoginController', 'forgotPassword'), EpiApi::external);
+getApi()->get('/pwreset', array('LoginController', 'getPasswordReset'), EpiApi::external);
+getApi()->post('/pwreset', array('LoginController', 'postPasswordReset'), EpiApi::external);
 
 getApi()->get('/users', array('UserController', 'apiUsers'), EpiApi::external);
 getApi()->post('/users/poll', array('UserController', 'apiPollUser'), EpiApi::external);
