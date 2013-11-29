@@ -78,4 +78,8 @@ class User extends Model {
 		$this->debug && error_log("User::matchGameState() exit with " . $match);
 		return $match;
 	}
+
+  public function __toString() {
+    return $this->username;
+  }
 }

@@ -41,6 +41,10 @@ function Security(security) {
 		}
 		return false;
 	});
+
+  if (security) {
+    self.loadSecurity(security);
+  }
 }
 
 Security.prototype.loadSecurity = function(security) {

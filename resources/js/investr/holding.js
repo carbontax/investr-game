@@ -49,8 +49,8 @@ Holding.prototype.incomeFmt = function() {
 
 Holding.prototype.lookupSecurity = function(securities) {
 	var self = this;
-	var security = ko.utils.arrayFilter(securities, function(s) {
+	self.security = ko.utils.arrayFilter(securities, function(s) {
 		return s.symbol === self.symbol;
 	})[0];
-	return security;
+	return self.security;
 };

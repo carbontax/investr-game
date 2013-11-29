@@ -23,6 +23,7 @@ class UserController {
 
 	public static function apiPollUser() {
 		$user = self::getLoggedInUser();
+    error_log("USER: " . $user);
 		if ( $user === null ) {
 			return LoginController::apiUnauthenticatedStatus("Please log in");
 		} else {
@@ -31,6 +32,7 @@ class UserController {
 			error_log("apiPollUser: GAMESTATE=" . $gamestate);
 			$match = $user->matchGameState($gamestate);
 			if ( ! $match ) {
+        // there has been a change. Return data.
 				return $user;
 			}
 		}

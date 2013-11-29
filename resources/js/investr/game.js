@@ -120,9 +120,11 @@ Game.prototype.loadGame = function(data) {
 	self.number_of_players(data.number_of_players);
 	self.start_date = data.start_date;
 	if ( data.securities && data.securities.length > 0 ) {
-		self.securities($.map(data.securities, function(s) {
-			return new Security(s);
-		}));
+    var secs = $.map(data.securities, function(s) {
+      var sec = new Security(s);
+			return sec;
+		});
+		self.securities(secs);
 	}
 	self.year(data.year);
 	self.last_year(data.last_year);
