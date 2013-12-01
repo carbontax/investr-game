@@ -93,6 +93,9 @@ function Game(game) {
 		return self.player() ? 'Waiting for more players' : 'Join';
 	});
 	
+  self.removeOrder = function(order) {
+    self.orders.remove(order);	
+  };
 	// ============== INIT ============= //
 	if ( game ) {
 		self.loadGame(game);
@@ -297,8 +300,8 @@ Game.prototype.newOrder = function() {
 	this.orders.push(new Order());
 };
 
-Game.prototype.removeOrder = function(order) {
-	this.orders.remove(order);	
-};
+//Game.prototype.removeOrder = function(order) {
+	//this.orders.remove(order);	
+//};
 
 
