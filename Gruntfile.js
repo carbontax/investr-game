@@ -32,6 +32,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           "dist/": [
+            "pwreset.html",
             "api/admin/**",
             "api/controllers/**",
             "api/db/**",
@@ -119,15 +120,17 @@ module.exports = function(grunt) {
       }
     },
 		compress: {
+      main: {
 			options: {
-				rootDir: "investr-game"
+				archive: "<%= pkg.name %>-<%= pkg.version %>.tgz",
+        mode: 'tgz'
 			},
-			tgz: {
-				files: {
-					"<%= pkg.name %>-<%= pkg.version %>.tgz": "dist/**"
-				}
-			}
+			files: [{
+        src: ["dist/**"], 
+        dest: 'investr-game/'
+      }]
 		}
+    }
   });
 
   // These plugins provide necessary tasks.
