@@ -129,7 +129,7 @@ class LoginController
     } else {
    	    http_response_code(Constants::HTTP_STATUS_UNAUTHORIZED);
 	    return "Invalid token";
-	}
+    }
   }
   
   static public function postPasswordReset() {
@@ -137,8 +137,8 @@ class LoginController
   	$user = LoginController::fetchUserForTokenString($token_string);
     if (!$user) {
    	    http_response_code(Constants::HTTP_STATUS_UNAUTHORIZED);
-	    return "Invalid token";
-	}
+        return "Invalid token";
+    }
   	
   	$password = $_POST['password'];
   	$confirm_password = $_POST['confirm-password'];  	
@@ -161,12 +161,12 @@ class LoginController
   	
   	if(!$result) {
   		error_log("PW NOT UPDATED");
-   	    http_response_code(500);
+      http_response_code(500);
 	    return "Password not updated";  		
   	}
   	
   	$result = LoginController::deleteTokenForUser($user);
-  	
+    getRoute()->redirect('/' . getConfig()->get('path'));
   }
 
   static public function apiUnauthenticatedStatus($message = "Login failed") {
