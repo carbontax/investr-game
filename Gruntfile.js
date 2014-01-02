@@ -18,7 +18,9 @@ module.exports = function(grunt) {
 		}*/
       'dist/resources/js/investr-game.js': ['<banner:meta.banner>', 'resources/js/investr/*.js'],
       'index.html': ['html/head_devel.html', 'html/body.html'],
-      'dist/index.html': ['html/head_dist.html', 'html/body.html']
+      'dist/index.html': ['html/head_dist.html', 'html/body.html'],
+      'pwreset.html': ['html/pwreset_devel.html', 'html/pwreset_body.html'],
+      'dist/pwreset.html': ['html/pwreset_dist.html', 'html/pwreset_body.html']
 /*      options: {
         banner: '<%= banner %>',
         stripBanners: true
@@ -32,7 +34,6 @@ module.exports = function(grunt) {
       dist: {
         files: {
           "dist/": [
-            "pwreset.html",
             "api/admin/**",
             "api/controllers/**",
             "api/db/**",
@@ -76,7 +77,7 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['grunt.js', 'resources/js/investr/*.js', 'test/**/*.js'],
+      files: ['grunt.js', 'resources/js/investr/*.js', 'resources/js/pwreset/*.js', 'test/**/*.js'],
       options: {
         curly: true,
         eqeqeq: true,
@@ -103,7 +104,7 @@ module.exports = function(grunt) {
         src: 'Gruntfile.js'
       },
       lib_test: {
-        src: ['resources/js/investr/*.js', 'test/**/*.js']
+        src: ['resources/js/investr/*.js', 'resources/js/pwreset/*.js', 'test/**/*.js']
       }
     },
     qunit: {
@@ -126,7 +127,9 @@ module.exports = function(grunt) {
         mode: 'tgz'
 			},
 			files: [{
-        src: ["dist/**"], 
+        expand: true,
+        cwd: 'dist/',
+        src: ["**"],
         dest: 'investr-game/'
       }]
 		}

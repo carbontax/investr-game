@@ -1,0 +1,42 @@
+<body>
+	<div class="container-fluid" id="investr-container">
+		<div id="header-container">
+			<div class="row" id="header">
+				<div class="span8">
+					<div id="logo-container">
+						<span id="site-title">Investr</span>
+					</div>
+				</div>
+				<div class="span4" id="top-menu-container">
+			    </div>
+			 </div>
+		</div>
+		<div class="row-fluid">
+      <span id="error-container">
+        <h3 id="error-message" class="errors">Change password for <span id="email">Email</span></h3>
+      </span>
+    </div>
+		
+		<div class="row-fluid" >
+			<span id="new-password-container" >
+				<div id="new-password-form-container">
+		      	<form id="new-password-form" method="post" action="api/pwreset">
+		      		<input type="hidden" name="token" id="token" />
+              <div>
+                  <label for="password">Password:</label>
+                  <input type="password" id="password" name="password" minlength="6" required/>
+              </div>
+              <div>
+                  <label for="confirm-password">Retype Password:</label><input type="password" id="confirm-password" name="confirm-password"/>
+              </div>
+              <div>
+                <input id="new-password-submit-button" type="submit" name="submit" class="btn" value="Save Password" />
+		            <img id="login-spinner" src="resources/images/spinner-large.gif" data-bind="visible: showSpinner"/>
+              </div>
+            </form>
+        </div>
+			</span>
+		</div>
+	</div>
+</body>
+</html>
