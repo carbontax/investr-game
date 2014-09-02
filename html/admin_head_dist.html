@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>INVESTR-GAME ADMIN</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="../resources/bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="../resources/bootstrap/css/bootstrap-theme.min.css"/>
+	<link rel="stylesheet" type="text/less" href="resources/css/investr-admin.less"/>
+	<link rel="stylesheet" type="text/less" href="../resources/css/investr.less"/>
+
+	<!-- LIBRARIES -->
+    <script type="text/javascript" src="../resources/js/less-1.3.0.min.js"></script>
+    <script type="text/javascript" src="../resources/js/jquery.1.7.2.min.js"></script>
+    <script type="text/javascript" src="../resources/js/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="../resources/js/json2.js"></script>
+    <script type="text/javascript" src="../resources/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../resources/bootstrap-growl/jquery.bootstrap-growl.min.js"></script>
+    <script type="text/javascript" src="../resources/js/bootbox.min.js"></script>
+    <script type="text/javascript" src="../resources/js/knockout.js"></script>
+    <script type="text/javascript" src="../resources/js/log4javascript.js"></script>
+
+    <!-- INVESTR -->
+    <script type="text/javascript" src="../resources/js/mylogger.js"></script>
+    <script type="text/javascript" src="resources/js/core.js"></script>
+    <script type="text/javascript" src="../resources/js/investr-game.min.js"></script>
+	
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var view = new InvestrAdminViewModel();
+        ko.applyBindings(view);
+      });
+    </script>
+    <script type="text/template" id="game-summary-header">
+      <tr>
+        <th>Game</th>
+        <th>Start</th>
+        <th>Players</th>
+        <th></th>
+      </tr>
+    </script>
+    <script type="text/template" id="game-summary">
+      <tr>
+        <td data-bind="text: id"></td>
+        <td data-bind="text: start_date"></td>
+        <td data-bind="text: number_of_players"></td>
+        <th><span class="glyphicon glyphicon-remove-circle"></span></th>
+      </tr>
+    </script>
+  </head>
+  <body style="margin-top: 50px">
+    <div class="container-fluid">
+      <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Investr-Game Admin</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a data-bind="click: showUsers">Users</a></li>
+              <li><a data-bind="click: showActiveGames">Active Games</a></li>
+              <li><a data-bind="click: showCompletedGames">Completed Games</a></li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+              <li class="dropdown" id="menuUser">
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+
+      <div class="container">
+        <div id="users-container" data-bind="visible: userData().length > 0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach: userData">
+                <tr>
+                  <td data-bind="text: username"></td>
+                  <td data-bind="text: email"></td>
+                </tr>
+            </tbody>
+          </table>
+        </div><!-- /#users-container -->
+        <div id="active-games-container" data-bind="visible: activeGameData().length > 0">
+          <table class="table">
+            <thead data-bind="template: 'game-summary-header'">
+            </thead>
+            <tbody data-bind="template: {name: 'game-summary', foreach: activeGameData}">
+            </tbody>
+          </table>
+        </div><!-- /#completed-games-container -->
+        <div id="completed-games-container" data-bind="visible: completedGameData().length > 0">
+          <table class="table">
+            <thead data-bind="template: 'game-summary-header'">
+            </thead>
+            <tbody data-bind="template: {name: 'game-summary', foreach: completedGameData}">
+            </tbody>
+          </table>
+        </div><!-- /#users-container -->
+      </div><!-- /.container -->
+  </div>
+  </body>
+</html>
