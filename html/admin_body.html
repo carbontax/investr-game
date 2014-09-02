@@ -8,7 +8,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Investr-Game Admin</a>
+            <a class="navbar-brand" href="#">Investr Admin</a>
           </div>
           <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
@@ -27,17 +27,9 @@
       <div class="container">
         <div id="users-container" data-bind="visible: userData().length > 0">
           <table class="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-              </tr>
+            <thead data-bind="template: 'user-header'">
             </thead>
-            <tbody data-bind="foreach: userData">
-                <tr>
-                  <td data-bind="text: username"></td>
-                  <td data-bind="text: email"></td>
-                </tr>
+            <tbody data-bind="template: {name: 'user-summary', foreach: userData}">
             </tbody>
           </table>
         </div><!-- /#users-container -->
@@ -78,7 +70,21 @@
         <td data-bind="text: id"></td>
         <td data-bind="text: start_date"></td>
         <td data-bind="text: number_of_players"></td>
-        <th><span class="glyphicon glyphicon-remove-circle"></span></th>
+        <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+      </tr>
+    </script>
+    <script type="text/template" id="user-header">
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th></th>
+      </tr>
+    </script>
+    <script type="text/template" id="user-summary">
+      <tr>
+        <td data-bind="text: username"></td>
+        <td data-bind="text: email"></td>
+        <td><span class="glyphicon glyphicon-remove-circle"></span></td>
       </tr>
     </script>
   </body>

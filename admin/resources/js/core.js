@@ -34,12 +34,12 @@ function InvestrAdminViewModel() {
 			},
 			error: self.ajaxFailureCallback
 		});
-  }
+  };
 
   self.showUsers = function() {
     self.loadUserData();
     window.history.pushState(self.userData(), "Users", "#users");
-  }
+  };
 
   self.activeGameData = ko.observableArray();
 
@@ -55,12 +55,12 @@ function InvestrAdminViewModel() {
 			},
 			error: self.ajaxFailureCallback
 		});
-  }
+  };
 
   self.showActiveGames = function() {
     self.loadActiveGameData();
     window.history.pushState(self.activeGameData(), "Active Games", "#games/active");
-  }
+  };
 
   self.completedGameData = ko.observableArray();
 
@@ -76,12 +76,12 @@ function InvestrAdminViewModel() {
 			},
 			error: self.ajaxFailureCallback
 		});
-  }
+  };
 
   self.showCompletedGames = function() {
     self.loadCompletedGameData();
     window.history.pushState(self.completedGameData(), "Completed Games", "#games/completed");
-  }
+  };
 
 	self.ajaxFailureCallback = function (xhr) {
 		if (xhr.status === 401) {

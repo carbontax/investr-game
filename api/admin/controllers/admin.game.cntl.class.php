@@ -32,7 +32,7 @@ class AdminGameController {
 		error_log("AdminController::getActiveGames() enter");
 		$games = array();
 		
-		$query = "SELECT id FROM " . Game::TABLENAME . " WHERE year < last_year";
+		$query = "SELECT * FROM " . Game::TABLENAME . " WHERE year < last_year";
 
 		$rows = getDatabase()->all($query);
 		foreach ($rows as $row) {
@@ -43,7 +43,7 @@ class AdminGameController {
 		return $games;
 	}
 	
-	    public static function getCompletedGames() {
+  public static function getCompletedGames() {
 		$games = self::fetchCompletedGameArray();
 		AdminController::printHeader();
 		self::printMenu();
@@ -58,11 +58,12 @@ class AdminGameController {
 		error_log("AdminController::fetchCompletedGameArray() enter");
 		$games = array();
 		
-		$query = "SELECT id FROM " . Game::TABLENAME . " WHERE year >= last_year";
+		$query = "SELECT * FROM " . Game::TABLENAME . " WHERE year >= last_year";
 
 		$rows = getDatabase()->all($query);
 		foreach ($rows as $row) {
-			array_push($games, new Game($row));	
+      $game = new Game($row);
+			array_push($games, $game);	
 		}
 		
 		error_log("AdminController::fetchCompletedGameArray() exit");

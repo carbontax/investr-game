@@ -1,6 +1,6 @@
 {
   "name": "investr-game",
-  "version": "v0.2.2",
+  "version": "v0.3.0",
   "author": {
     "name": "carbontax"
   },
@@ -14,5 +14,8 @@
     "grunt-contrib-less": "~0.8.2",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-compress": "~0.5.3"
+  },
+  "devDependencies": {
+    "grunt-contrib-clean": "~0.6.0"
   }
 }

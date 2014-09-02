@@ -14,6 +14,7 @@ class AdminUserController {
 		$query = "SELECT * from " . User::TABLENAME;
 		error_log($query);
 		$rows = getDatabase()->all($query);
+		error_log("FOUND: " + count($rows));
 		foreach ($rows as $row) {
 			array_push($users, new User($row));
 		}

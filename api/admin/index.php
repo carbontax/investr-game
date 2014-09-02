@@ -35,11 +35,11 @@ getSession();
 
 getRoute()->get('/', array('AdminController', 'home'));
 // LIST USERS
-getRoute()->get('/users', array('AdminUserController', 'getUsers'));
+getRoute()->get('/users', array('AdminUserController', 'fetchAllUsers'), EpiApi::external);
 // LIST GAMES
-getRoute()->get('/games', array('AdminGameController', 'getGames'));
-getRoute()->get('/games/active', array('AdminGameController', 'getActiveGames'));
-getRoute()->get('/games/completed', array('AdminGameController', 'getCompletedGames'));
+// getRoute()->get('/games', array('AdminGameController', 'getGames'));
+getRoute()->get('/games/active', array('AdminGameController', 'fetchActiveGameArray'), EpiApi::external);
+getRoute()->get('/games/completed', array('AdminGameController', 'fetchCompletedGameArray'), EpiApi::external);
 // INDIVIDUAL GAME ACTIONS
 getRoute()->post('/games', array('AdminGameController', 'saveNewGame'));
 
